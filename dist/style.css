@@ -1,0 +1,350 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+li {
+    list-style-type: none;
+}
+
+.wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-logo {
+    flex: 0 1 auto;
+    height: 25%
+}
+
+.login-logo {
+    height: 100px;
+}
+
+.login-block {
+    height: 25%;
+    padding-left: 7.5%;
+    padding-right: 7.5%; 
+    text-align: center;
+    flex: 0 1 auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-content: space-around;
+}
+
+.login-input {
+    font-size: 20px;
+    border: 1px solid lightgrey;
+    border-radius: 4px;
+}
+
+.login-item {
+    flex: 0 1 auto;
+}
+
+.login-footer {
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.login-footer-item {
+    margin: 5px;
+    flex: 0 1 auto;
+}
+
+.signup-text {
+    color: blue;
+}
+
+.signup-modal-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-content: space-around;
+}
+
+.signup-modal-item {
+    margin: 5px;
+    flex: 0 1 auto;
+}
+
+.signup-modal-input {
+    font-size: 20px;
+    border: 1px solid lightgrey;
+    border-radius: 4px;
+}
+
+.main {
+    flex: 1 1 auto;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    flex: 1 1 auto;
+    text-align: center;
+    border-bottom: .05px solid lightgrey;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.header-left {
+    width: 32%;
+    flex: 0 1 auto;
+}
+
+.add-friend-btn {
+    padding-top: 5%;
+}
+
+.new-streak-btn {
+    padding-top: 5%;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: row;
+}
+
+.add-friend-search {
+    flex: 1 1 auto;
+}
+
+.friend-search {
+    flex: 1 1 auto;
+}
+
+.add-friend-input {
+    flex: 1 1 auto;
+    width: 80%;
+    height: 5%;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    border-left: none;
+    border-right: none;
+}
+
+.search-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-body-item {
+    flex: 0 1 auto;
+}
+
+.search-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.search-header-item {
+    padding: 5px;
+    flex: 0 1 auto;
+}
+
+.search-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-item {
+    flex: 0 1 auto;
+    border-bottom: 1px solid lightgrey;
+    padding: 5px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around; 
+    align-items: center;
+}
+
+.search-item-part {
+    flex: 0 1 auto;
+    padding: 5px;
+}
+
+.friend-input {
+    flex: 1 1 auto;
+    width: 80%;
+    height: 5%;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    border-left: none;
+    border-right: none;
+}
+
+.header-midddle {
+    width: 32%;
+    flex: 0 1 auto;
+}
+
+.logo {
+   height: 55px;
+}
+
+.header-right {
+    width: 32%;
+    flex: 0 1 auto;
+}
+
+.content {
+    flex: 1 1 auto;
+    overflow: auto;
+    width: 100%;
+    height: 90%;
+}
+
+.streaks-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.streaks-item {
+    flex: 0 1 auto;
+    border-bottom: 1px solid lightgrey;
+    padding: 5px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around; 
+    align-items: center;
+}
+
+.streak-user-img {
+    height: 40px;
+    width: 40px;
+    border: 1px solid black;
+    border-radius: 50%;
+}
+
+.streak-user-glyph {
+    margin-top: 3px;
+    margin-left: 5px;
+}
+
+.glyphicon.streak-user-glyph::before {
+    font-size: 20pt;
+}
+
+.streak-item {
+    flex: 0 1 auto;
+}
+
+.friends-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.friends-item {
+    flex: 0 1 auto;
+    border-bottom: 1px solid lightgrey;
+    padding: 5px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around; 
+    align-items: center;
+}
+
+.friend-user-img {
+    height: 40px;
+    width: 40px;
+    border: 1px solid black;
+    border-radius: 50%;
+}
+
+.friend-user-glyph {
+    margin-top: 3px;
+    margin-left: 5px;
+}
+
+.glyphicon.friend-user-glyph::before {
+    font-size: 20pt;
+}
+
+.friend-item {
+    flex: 0 1 auto;
+}
+
+.profile-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: center;
+}
+
+.profile-item {
+    flex: 0 1 auto;
+}
+
+.profile-user-img {
+    margin-top: 50px;
+    height: 100px;
+    width: 100px;
+    border: 1px solid black;
+    border-radius: 50%;
+}
+
+.glyphicon.profile-user-glyph::before{
+    font-size: 50pt;
+}
+
+.profile-user-glyph {
+    margin-top: 10px;
+}
+
+.footernav {
+    flex: 1 1 auto;
+    height: 10%;
+    border-top: .05px solid lightgrey;
+    padding-top: 15px;
+}
+
+.link-container {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+}
+
+.link-item {
+    height: 100%;
+    width: 20%;
+    flex: 0 1 auto;
+}
+
+.link-item-tag {
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+}
+
+.glyphicon::before{
+    color: black;
+    font-size: 25pt;
+}
+
+

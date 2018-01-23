@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import strikeLogo from '../assets/strikeLogo.png';
 
-export default class History extends Component {
+export default class Unlocks extends Component {
     render() {
         return (
             <div>
@@ -17,7 +17,7 @@ export default class History extends Component {
                         </div>
                     </div>
                     <div className='content'>
-                        <p>History</p>
+                        <p>Unlocks</p>
                     </div>
                 </div>
             </div>
