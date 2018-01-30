@@ -19,7 +19,7 @@ export default class Streak extends Component {
                     }
                 </div>
                 <div className='streak-item'>
-                    <span>@{this.props.streak.participants[0]} & @{this.props.streak.participants[1]}</span>
+                    <span>@{this.props.streak.users[0]} & @{this.props.streak.users[1]}</span>
                 </div>
                 <div className='streak-item'>
                     <span>{this.props.streak.days} Days</span>

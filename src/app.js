@@ -115,6 +115,7 @@ export default class App extends Component {
         }).then((user) => {
             this.getUserInfo(user.uid);
             this.getFriends(user.uid);
+            this.getStreaks(user.uid);
         }).catch(error => {
             var errorCode = error.code;
             var errorMessage = error.message;
@@ -165,11 +166,12 @@ export default class App extends Component {
         this.db.ref(`streakOwners/${userID}`) //grab streak list from streakOwners db
         .once('value')
         .then(snapshot => {
+            let streaks = Object.keys(snapshot.val());
             this.setState({
-                streaks: snapshot.val()
+                streaks: streaks
             });
             console.log('streaks grabbed: ' + this.state.streaks);
-            return snapshot.val();
+            return streaks;
         }).then(streaks => {
             const funcs = streaks.map(streak => this.streakToInfo(streak));
             Promise.all(funcs).then(results => {
@@ -185,8 +187,19 @@ export default class App extends Component {
         .once('value')
         .then(snapshot => {
             let info = snapshot.val();
-            info.id = streakID;
-            return info;
+            let participants = Object.keys(info.participants);
+            const funcs = participants.map(participant => {
+                    return this.db.ref(`users/${participant}`)
+                    .once('value')
+                    .then(snapshot => (
+                        snapshot.val().username
+                    ));
+                });
+            return Promise.all(funcs).then(results => {
+                info.users = results;
+                info.id = streakID;
+                return info;
+            })
         });
     }
 
@@ -210,6 +223,8 @@ export default class App extends Component {
             this.streakToInfo(newStreakID);
             this.streakToOwner(friendID, newStreakID);
             this.streakToOwner(userID, newStreakID);
+        }).then(() => {
+            this.getStreaks(userID);
         });
     }
 
