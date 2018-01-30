@@ -5,7 +5,7 @@ import strikeLogo from '../assets/strikeLogo.png';
 import {Modal} from 'react-bootstrap';
 
 export default class Streaks extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
 
         this.toggleNewStreakModal = this.toggleNewStreakModal.bind(this);
@@ -15,10 +15,14 @@ export default class Streaks extends Component {
         }
     }
 
-    toggleNewStreakModal(){
+    toggleNewStreakModal() {
         this.setState({
             isVisible: !this.state.isVisible
         });
+    }
+
+    handleStreakStart(friendID) {
+        this.props.addStreak(this.props.uid, friendID);
     }
 
     render() {
@@ -38,7 +42,7 @@ export default class Streaks extends Component {
                                             this.props.friends.map((friend, index) => (
                                                 <div className='col-item row-container friend-list-container' key={index}>
                                                     <span className='friend-list-item row-item'>@{friend.username}</span>
-                                                    <span className='friend-list-item row-item btn btn-success'>Start Streak</span>
+                                                    <span className='friend-list-item row-item btn btn-success' onClick={() => this.handleStreakStart(friend.uid)}> Start Streak</span>
                                                 </div>
                                             ))
                                         }

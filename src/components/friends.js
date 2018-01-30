@@ -91,7 +91,7 @@ export default class Friends extends Component {
                             <img src={strikeLogo} className='logo'/>
                         </div>
                         <div className='header-right'>
-                            <p>{this.state.friends} friends</p>
+                            <p>{this.props.friends.length} friends</p>
                         </div>
                     </div>
                     <div className='content'>

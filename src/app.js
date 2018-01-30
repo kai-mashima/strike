@@ -169,26 +169,28 @@ export default class App extends Component {
                 streaks: snapshot.val()
             });
             console.log('streaks grabbed: ' + this.state.streaks);
-        }).then(() => {
-            this.state.streaks.map((streakID, index) => {
-                this.streakToInfo(streakID);
+            return snapshot.val();
+        }).then(streaks => {
+            const funcs = streaks.map(streak => this.streakToInfo(streak));
+            Promise.all(funcs).then(results => {
+                this.setState({
+                    streaksInfo: results
+                });
             });
         });
     }
 
     streakToInfo(streakID){
-        let streakInfo = this.state.streakInfo.slice();
-        this.db.ref(`streaks/${streakID}`)
+        return this.db.ref(`streaks/${streakID}`)
         .once('value')
         .then(snapshot => {
-            streakInfo.push(snapshot.val());
-            this.setState({
-                streakInfo: streakInfo
-            });
+            let info = snapshot.val();
+            info.id = streakID;
+            return info;
         });
     }
 
-    addStreak(userID, friendUID) {
+    addStreak(userID, friendID) {
         const date = new Date();
         const time = date.getTime();
         const newStreakID = this.db.ref().child('streaks').push().key;
@@ -206,13 +208,13 @@ export default class App extends Component {
             penalty: 0,
         }).then(() => {
             this.streakToInfo(newStreakID);
-            this.streakToOwner(friendUID, newStreakID);
-            this.streakToOwner(this.state.uid, newStreakID);
+            this.streakToOwner(friendID, newStreakID);
+            this.streakToOwner(userID, newStreakID);
         });
     }
 
     streakToOwner(ownerID, streakID) {
-        this.db.ref(`streakOwners/${ownerID}`).child({streakID}).set(true);
+        this.db.ref(`streakOwners/${ownerID}`).child(`${streakID}`).set(true);
     }
 
     searchUsers(username) {
@@ -251,11 +253,13 @@ export default class App extends Component {
         });
     }
 
-    friendToInfo(uid) { //uses uid to grab users data and add to state 
+    friendToInfo(uid) { //uses uid to grab users data 
         return this.db.ref(`users/${uid}`)
         .once('value') //grab snapshot once
-        .then(snapshot => { 
-            return snapshot.val(); //push new friend info to copy of all friendsInfo
+        .then(snapshot => {
+            let info = snapshot.val();
+            info.uid = uid;
+            return info;
         });
     }
 
@@ -293,7 +297,7 @@ export default class App extends Component {
                                     <Route exact path='/' render={() => (
                                         <Redirect to='/streaks'/>
                                     )}/>
-                                    <Route path='/streaks' component={() => <Streaks streaks={this.state.streaksInfo} friends={this.state.friendsInfo}/>} />
+                                    <Route path='/streaks' component={() => <Streaks uid={this.state.uid} streaks={this.state.streaksInfo} friends={this.state.friendsInfo} addStreak={this.addStreak}/>} />
                                     <Route path='/history' component={() => <History />} />
                                     <Route path='/profile' component={() => <Profile signOut={this.signOut} user={this.state.user}/>} />
                                     <Route path='/friends' component={() => <Friends friends={this.state.friendsInfo} addFriend={this.addFriend} user={this.state.uid} searchUsers={this.searchUsers} />}/>

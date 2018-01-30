@@ -40183,30 +40183,32 @@ var App = function (_Component) {
                     streaks: snapshot.val()
                 });
                 console.log('streaks grabbed: ' + _this7.state.streaks);
-            }).then(function () {
-                _this7.state.streaks.map(function (streakID, index) {
-                    _this7.streakToInfo(streakID);
+                return snapshot.val();
+            }).then(function (streaks) {
+                var funcs = streaks.map(function (streak) {
+                    return _this7.streakToInfo(streak);
+                });
+                Promise.all(funcs).then(function (results) {
+                    _this7.setState({
+                        streaksInfo: results
+                    });
                 });
             });
         }
     }, {
         key: 'streakToInfo',
         value: function streakToInfo(streakID) {
-            var _this8 = this;
-
-            var streakInfo = this.state.streakInfo.slice();
-            this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
-                streakInfo.push(snapshot.val());
-                _this8.setState({
-                    streakInfo: streakInfo
-                });
+            return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+                var info = snapshot.val();
+                info.id = streakID;
+                return info;
             });
         }
     }, {
         key: 'addStreak',
-        value: function addStreak(userID, friendUID) {
+        value: function addStreak(userID, friendID) {
             var _participants,
-                _this9 = this;
+                _this8 = this;
 
             var date = new Date();
             var time = date.getTime();
@@ -40220,15 +40222,15 @@ var App = function (_Component) {
                 allowance: 1,
                 penalty: 0
             }).then(function () {
-                _this9.streakToInfo(newStreakID);
-                _this9.streakToOwner(friendUID, newStreakID);
-                _this9.streakToOwner(_this9.state.uid, newStreakID);
+                _this8.streakToInfo(newStreakID);
+                _this8.streakToOwner(friendID, newStreakID);
+                _this8.streakToOwner(userID, newStreakID);
             });
         }
     }, {
         key: 'streakToOwner',
         value: function streakToOwner(ownerID, streakID) {
-            this.db.ref('streakOwners/' + ownerID).child({ streakID: streakID }).set(true);
+            this.db.ref('streakOwners/' + ownerID).child('' + streakID).set(true);
         }
     }, {
         key: 'searchUsers',
@@ -40247,20 +40249,20 @@ var App = function (_Component) {
     }, {
         key: 'getFriends',
         value: function getFriends(uid) {
-            var _this10 = this;
+            var _this9 = this;
 
             this.db.ref('friends/' + uid).once('value').then(function (snapshot) {
                 var friends = Object.keys(snapshot.val());
-                _this10.setState({
+                _this9.setState({
                     friends: friends
                 });
                 return friends;
             }).then(function (friends) {
                 var funcs = friends.map(function (friend) {
-                    return _this10.friendToInfo(friend);
+                    return _this9.friendToInfo(friend);
                 });
                 Promise.all(funcs).then(function (friendsInfo) {
-                    _this10.setState({
+                    _this9.setState({
                         friendsInfo: friendsInfo
                     });
                 });
@@ -40269,10 +40271,12 @@ var App = function (_Component) {
     }, {
         key: 'friendToInfo',
         value: function friendToInfo(uid) {
-            //uses uid to grab users data and add to state 
+            //uses uid to grab users data 
             return this.db.ref('users/' + uid).once('value') //grab snapshot once
             .then(function (snapshot) {
-                return snapshot.val(); //push new friend info to copy of all friendsInfo
+                var info = snapshot.val();
+                info.uid = uid;
+                return info;
             });
         }
 
@@ -40281,12 +40285,12 @@ var App = function (_Component) {
     }, {
         key: 'addFriend',
         value: function addFriend(userID, friendID) {
-            var _this11 = this;
+            var _this10 = this;
 
             var stringID = friendID.toString();
             //add functionality to check that friend isn't already a friend
             this.state.friends.map(function (friend, index) {
-                _this11.db.ref('friends/' + userID + '/' + stringID).set(true);
+                _this10.db.ref('friends/' + userID + '/' + stringID).set(true);
             });
             var friends = this.state.friends.slice();
             friends.push(friendID);
@@ -40308,7 +40312,7 @@ var App = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this12 = this;
+            var _this11 = this;
 
             return _react2.default.createElement(
                 _reactRouterDom.BrowserRouter,
@@ -40326,16 +40330,16 @@ var App = function (_Component) {
                                     return _react2.default.createElement(_reactRouterDom.Redirect, { to: '/streaks' });
                                 } }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/streaks', component: function component() {
-                                    return _react2.default.createElement(_streaks2.default, { streaks: _this12.state.streaksInfo, friends: _this12.state.friendsInfo });
+                                    return _react2.default.createElement(_streaks2.default, { uid: _this11.state.uid, streaks: _this11.state.streaksInfo, friends: _this11.state.friendsInfo, addStreak: _this11.addStreak });
                                 } }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/history', component: function component() {
                                     return _react2.default.createElement(_history2.default, null);
                                 } }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/profile', component: function component() {
-                                    return _react2.default.createElement(_profile2.default, { signOut: _this12.signOut, user: _this12.state.user });
+                                    return _react2.default.createElement(_profile2.default, { signOut: _this11.signOut, user: _this11.state.user });
                                 } }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/friends', component: function component() {
-                                    return _react2.default.createElement(_friends2.default, { friends: _this12.state.friendsInfo, addFriend: _this12.addFriend, user: _this12.state.uid, searchUsers: _this12.searchUsers });
+                                    return _react2.default.createElement(_friends2.default, { friends: _this11.state.friendsInfo, addFriend: _this11.addFriend, user: _this11.state.uid, searchUsers: _this11.searchUsers });
                                 } }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/unlocks', component: function component() {
                                     return _react2.default.createElement(_unlocks2.default, null);
@@ -43826,7 +43830,7 @@ var Friends = function (_Component) {
                             _react2.default.createElement(
                                 'p',
                                 null,
-                                this.state.friends,
+                                this.props.friends.length,
                                 ' friends'
                             )
                         )
@@ -55676,8 +55680,15 @@ var Streaks = function (_Component) {
             });
         }
     }, {
+        key: 'handleStreakStart',
+        value: function handleStreakStart(friendID) {
+            this.props.addStreak(this.props.uid, friendID);
+        }
+    }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
             return _react2.default.createElement(
                 'div',
                 null,
@@ -55721,8 +55732,10 @@ var Streaks = function (_Component) {
                                                 ),
                                                 _react2.default.createElement(
                                                     'span',
-                                                    { className: 'friend-list-item row-item btn btn-success' },
-                                                    'Start Streak'
+                                                    { className: 'friend-list-item row-item btn btn-success', onClick: function onClick() {
+                                                            return _this2.handleStreakStart(friend.uid);
+                                                        } },
+                                                    ' Start Streak'
                                                 )
                                             );
                                         })
