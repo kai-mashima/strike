@@ -39983,6 +39983,8 @@ __webpack_require__(472);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -40003,6 +40005,7 @@ var App = function (_Component) {
 
         //BINDING
         _this.loginUser = _this.loginUser.bind(_this);
+        _this.getUserInfo = _this.getUserInfo.bind(_this);
         _this.signupUser = _this.signupUser.bind(_this);
         _this.addNewUser = _this.addNewUser.bind(_this);
         _this.signOut = _this.signOut.bind(_this);
@@ -40012,14 +40015,19 @@ var App = function (_Component) {
         _this.searchUsers = _this.searchUsers.bind(_this);
         _this.addStreak = _this.addStreak.bind(_this);
         _this.getStreaks = _this.getStreaks.bind(_this);
-        _this.getFriends = _this.getFriends.bind(_this);
         _this.searchUsers = _this.searchUsers.bind(_this);
 
         //STATE
         _this.state = {
-            loggedIn: true,
+            loggedIn: false,
             uid: '',
-            streaks: [{ imgAvailable: false, img: null, days: 15, username: 'testuser', expirationTime: 264 }, { imgAvailable: false, img: null, days: 56, username: 'usertest', expirationTime: 54 }, { imgAvailable: false, img: null, days: 1, username: 'toaster', expirationTime: 400 }],
+            user: {},
+            streaks: [
+                // {imgAvailable: false, img: null, days: 15, username: 'testuser', expirationTime: 264},
+                // {imgAvailable: false, img: null, days: 56, username: 'usertest', expirationTime: 54},
+                // {imgAvailable: false, img: null, days: 1, username: 'toaster', expirationTime: 400}
+            ],
+            streaksInfo: [],
             friends: [
                 // {imgAvailable: false, img: null, username: 'tested', value: 4300, totalStreaks: 23, totalDays: 501},
                 // {imgAvailable: false, img: null, username: 'bested', value: 8000, totalStreaks: 54, totalDays: 577},
@@ -40032,12 +40040,26 @@ var App = function (_Component) {
 
     _createClass(App, [{
         key: 'signupUser',
-        value: function signupUser(email, password, first, last, value, allowance, username) {
+        value: function signupUser(email, password) {
+            var username = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+            var first = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
+            var last = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
+            var value = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
+            var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
+            var imgAvailable = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : false;
+            var img = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : null;
+
             var _this2 = this;
+
+            var totalStreaks = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : 0;
+            var totalDays = arguments.length > 10 && arguments[10] !== undefined ? arguments[10] : 0;
 
             _app2.default.auth().createUserWithEmailAndPassword(email, password).then(function (user) {
                 _this2.confirmLogin();
-                _this2.addNewUser(user.uid, first, last, email, value, allowance, username);
+                return user;
+            }).then(function (user) {
+                getUserInfo(user.uid);
+                _this2.addNewUser(username, user.uid, first, last, email, value, allowance, imgAvailable, img, totalStreaks, totalDays);
             }).catch(function (error) {
                 var errorCode = error.code;
                 var errorMessage = error.message;
@@ -40046,7 +40068,19 @@ var App = function (_Component) {
         }
     }, {
         key: 'addNewUser',
-        value: function addNewUser(uid, first, last, email, value, allowance, username) {
+        value: function addNewUser() {
+            var username = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+            var uid = arguments[1];
+            var first = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+            var last = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
+            var email = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
+            var value = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
+            var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
+            var imgAvailable = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : false;
+            var img = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : null;
+            var totalStreaks = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : 0;
+            var totalDays = arguments.length > 10 && arguments[10] !== undefined ? arguments[10] : 0;
+
             var date = new Date();
             var time = date.getTime();
             this.db.ref('users/' + uid).set({
@@ -40056,19 +40090,38 @@ var App = function (_Component) {
                 value: value,
                 allowance: allowance,
                 username: username,
-                created: time
+                created: time,
+                imgAvailable: imgAvailable,
+                img: img,
+                totalStreaks: totalStreaks,
+                totalDays: totalDays
             });
             this.setState({
                 uid: uid
             });
         }
     }, {
-        key: 'loginUser',
-        value: function loginUser(email, password) {
+        key: 'getUserInfo',
+        value: function getUserInfo(uid) {
             var _this3 = this;
 
+            this.db.ref('users/' + uid).once('value').then(function (snapshot) {
+                _this3.setState({
+                    user: snapshot.val()
+                });
+            });
+        }
+    }, {
+        key: 'loginUser',
+        value: function loginUser(email, password) {
+            var _this4 = this;
+
             _app2.default.auth().signInWithEmailAndPassword(email, password).then(function (user) {
-                _this3.confirmLogin();
+                _this4.confirmLogin();
+                return user;
+            }).then(function (user) {
+                _this4.getUserInfo(user.uid);
+                _this4.getFriends(user.uid);
             }).catch(function (error) {
                 var errorCode = error.code;
                 var errorMessage = error.message;
@@ -40078,21 +40131,20 @@ var App = function (_Component) {
     }, {
         key: 'confirmLogin',
         value: function confirmLogin() {
-            var _this4 = this;
+            var _this5 = this;
 
             _app2.default.auth().onAuthStateChanged(function (user) {
                 if (user) {
                     var email = user.email;
-                    var UID = user.uid;
-                    _this4.setState({
+                    var uid = user.uid;
+                    _this5.setState({
                         loggedIn: true,
                         email: email,
-                        uid: UID
+                        uid: uid
                     });
                     console.log('Logged In');
-                    _this4.getFriends();
                 } else {
-                    _this4.setState({
+                    _this5.setState({
                         loggedIn: false,
                         email: '',
                         uid: ''
@@ -40104,36 +40156,79 @@ var App = function (_Component) {
     }, {
         key: 'signOut',
         value: function signOut() {
+            var _this6 = this;
+
             _app2.default.auth().signOut().then(function () {
                 console.log('Signed Out');
+                _this6.setState({
+                    loggedIn: false,
+                    uid: '',
+                    streaks: [],
+                    friends: [],
+                    friendsInfo: []
+                });
             }).catch(function (error) {
                 console.log('Error Signing Out:' + error);
             });
         }
     }, {
         key: 'getStreaks',
-        value: function getStreaks() {
-            var streakList = void 0;
-            var streaksRef = this.db.ref('streaks/' + this.state.uid);
-            streaksRef.once('value', function (snapshot) {
-                streakList = snapshot.val();
+        value: function getStreaks(userID) {
+            var _this7 = this;
+
+            var streaks = this.state.streaks.slice();
+            this.db.ref('streakOwners/' + userID) //grab streak list from streakOwners db
+            .once('value').then(function (snapshot) {
+                _this7.setState({
+                    streaks: snapshot.val()
+                });
+                console.log('streaks grabbed: ' + _this7.state.streaks);
+            }).then(function () {
+                _this7.state.streaks.map(function (streakID, index) {
+                    _this7.streakToInfo(streakID);
+                });
             });
-            //for each streak in streakList grab streak info by id
+        }
+    }, {
+        key: 'streakToInfo',
+        value: function streakToInfo(streakID) {
+            var _this8 = this;
+
+            var streakInfo = this.state.streakInfo.slice();
+            this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+                streakInfo.push(snapshot.val());
+                _this8.setState({
+                    streakInfo: streakInfo
+                });
+            });
         }
     }, {
         key: 'addStreak',
-        value: function addStreak(friendUID) {
+        value: function addStreak(userID, friendUID) {
+            var _participants,
+                _this9 = this;
+
             var date = new Date();
             var time = date.getTime();
             var newStreakID = this.db.ref().child('streaks').push().key;
             this.db.ref('streaks/' + newStreakID).set({
-                participants: [friendUID, this.state.uid],
+                participants: (_participants = {}, _defineProperty(_participants, friendID, true), _defineProperty(_participants, userID, true), _participants),
                 value: 0,
                 timestamp: time,
+                expirationTime: 0, //24 hours plus timestamp
+                days: 0,
                 allowance: 1,
                 penalty: 0
+            }).then(function () {
+                _this9.streakToInfo(newStreakID);
+                _this9.streakToOwner(friendUID, newStreakID);
+                _this9.streakToOwner(_this9.state.uid, newStreakID);
             });
-            this.getStreaks();
+        }
+    }, {
+        key: 'streakToOwner',
+        value: function streakToOwner(ownerID, streakID) {
+            this.db.ref('streakOwners/' + ownerID).child({ streakID: streakID }).set(true);
         }
     }, {
         key: 'searchUsers',
@@ -40151,31 +40246,54 @@ var App = function (_Component) {
         }
     }, {
         key: 'getFriends',
-        value: function getFriends() {
-            var _this5 = this;
+        value: function getFriends(uid) {
+            var _this10 = this;
 
-            var friendsRef = this.db.ref('friends/' + this.state.uid);
-            friendsRef.once('value', function (snapshot) {
-                _this5.setState({
-                    friends: snapshot.val().friends
+            this.db.ref('friends/' + uid).once('value').then(function (snapshot) {
+                var friends = Object.keys(snapshot.val());
+                _this10.setState({
+                    friends: friends
+                });
+                return friends;
+            }).then(function (friends) {
+                var funcs = friends.map(function (friend) {
+                    return _this10.friendToInfo(friend);
+                });
+                Promise.all(funcs).then(function (friendsInfo) {
+                    _this10.setState({
+                        friendsInfo: friendsInfo
+                    });
                 });
             });
-            console.log('friends grabbed: ' + this.state.friends);
-            //add functionality to iterate over friends and grab their info from users db
         }
     }, {
+        key: 'friendToInfo',
+        value: function friendToInfo(uid) {
+            //uses uid to grab users data and add to state 
+            return this.db.ref('users/' + uid).once('value') //grab snapshot once
+            .then(function (snapshot) {
+                return snapshot.val(); //push new friend info to copy of all friendsInfo
+            });
+        }
+
+        //FIX first friend end doesnt work
+
+    }, {
         key: 'addFriend',
-        value: function addFriend(friendUID) {
+        value: function addFriend(userID, friendID) {
+            var _this11 = this;
+
+            var stringID = friendID.toString();
             //add functionality to check that friend isn't already a friend
+            this.state.friends.map(function (friend, index) {
+                _this11.db.ref('friends/' + userID + '/' + stringID).set(true);
+            });
             var friends = this.state.friends.slice();
-            friends.push(friendUID);
-            this.db.ref('friends/' + this.state.uid).set({
+            friends.push(friendID);
+            this.setState({ //set state to reflect updated friends list
                 friends: friends
             });
-            this.setState({
-                friends: friends
-            });
-            //add functionality to grab user data using uid
+            this.getFriends(userID);
         }
     }, {
         key: 'getHistory',
@@ -40190,7 +40308,7 @@ var App = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this6 = this;
+            var _this12 = this;
 
             return _react2.default.createElement(
                 _reactRouterDom.BrowserRouter,
@@ -40208,16 +40326,16 @@ var App = function (_Component) {
                                     return _react2.default.createElement(_reactRouterDom.Redirect, { to: '/streaks' });
                                 } }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/streaks', component: function component() {
-                                    return _react2.default.createElement(_streaks2.default, { streaks: _this6.state.streaks });
+                                    return _react2.default.createElement(_streaks2.default, { streaks: _this12.state.streaksInfo, friends: _this12.state.friendsInfo });
                                 } }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/history', component: function component() {
                                     return _react2.default.createElement(_history2.default, null);
                                 } }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/profile', component: function component() {
-                                    return _react2.default.createElement(_profile2.default, { signOut: _this6.signOut });
+                                    return _react2.default.createElement(_profile2.default, { signOut: _this12.signOut, user: _this12.state.user });
                                 } }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/friends', component: function component() {
-                                    return _react2.default.createElement(_friends2.default, { friends: _this6.state.friends, addFriend: _this6.addFriend, searchUsers: _this6.searchUsers });
+                                    return _react2.default.createElement(_friends2.default, { friends: _this12.state.friendsInfo, addFriend: _this12.addFriend, user: _this12.state.uid, searchUsers: _this12.searchUsers });
                                 } }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/unlocks', component: function component() {
                                     return _react2.default.createElement(_unlocks2.default, null);
@@ -43610,7 +43728,7 @@ var Friends = function (_Component) {
     }, {
         key: 'handleAddFriend',
         value: function handleAddFriend() {
-            this.props.addFriend(this.state.searchResults.uid);
+            this.props.addFriend(this.props.user, this.state.searchResults.uid);
         }
     }, {
         key: 'render',
@@ -43719,9 +43837,9 @@ var Friends = function (_Component) {
                         _react2.default.createElement(
                             'div',
                             { className: 'friends-content' },
-                            this.props.friends.map(function (friend, index) {
+                            this.props.friends ? this.props.friends.map(function (friend, index) {
                                 return _react2.default.createElement(_friend2.default, { key: index, friend: friend });
-                            })
+                            }) : _react2.default.createElement('div', null)
                         )
                     )
                 )
@@ -43778,7 +43896,7 @@ var Friend = function (_Component) {
                 { className: 'friends-item' },
                 _react2.default.createElement(
                     'div',
-                    { className: 'friend-item friend-user-img' },
+                    { className: 'friend-item-img friend-user-img' },
                     this.props.friend.imgAvailable ? _react2.default.createElement('img', { src: '', className: '' }) : _react2.default.createElement('span', { className: 'friend-user-glyph glyphicon glyphicon-user' })
                 ),
                 _react2.default.createElement(
@@ -55322,14 +55440,7 @@ var Profile = function (_Component) {
 
         var _this = _possibleConstructorReturn(this, (Profile.__proto__ || Object.getPrototypeOf(Profile)).call(this, props));
 
-        _this.state = {
-            imgAvailable: false,
-            userImg: '',
-            username: '',
-            value: 0,
-            totalStreaks: 0,
-            totalDays: 0
-        };
+        _this.state = {};
         return _this;
     }
 
@@ -55363,7 +55474,7 @@ var Profile = function (_Component) {
                         _react2.default.createElement(
                             'div',
                             { className: 'profile-item profile-user-img' },
-                            this.state.imgAvailable ? _react2.default.createElement('img', { src: '', className: '' }) : _react2.default.createElement('span', { className: 'profile-user-glyph glyphicon glyphicon-user' })
+                            this.props.user.imgAvailable ? _react2.default.createElement('img', { src: '', className: '' }) : _react2.default.createElement('span', { className: 'profile-user-glyph glyphicon glyphicon-user' })
                         ),
                         _react2.default.createElement(
                             'div',
@@ -55372,7 +55483,7 @@ var Profile = function (_Component) {
                                 'p',
                                 null,
                                 '@',
-                                this.state.username
+                                this.props.user.username
                             )
                         ),
                         _react2.default.createElement(
@@ -55382,7 +55493,7 @@ var Profile = function (_Component) {
                                 'p',
                                 null,
                                 '$',
-                                this.state.value
+                                this.props.user.value
                             )
                         ),
                         _react2.default.createElement(
@@ -55391,7 +55502,7 @@ var Profile = function (_Component) {
                             _react2.default.createElement(
                                 'p',
                                 null,
-                                this.state.totalStreaks,
+                                this.props.user.totalStreaks,
                                 ' Streaks'
                             )
                         ),
@@ -55401,7 +55512,7 @@ var Profile = function (_Component) {
                             _react2.default.createElement(
                                 'p',
                                 null,
-                                this.state.totalDays,
+                                this.props.user.totalDays,
                                 ' Total Days'
                             )
                         ),
@@ -55547,32 +55658,15 @@ var Streaks = function (_Component) {
     function Streaks(props) {
         _classCallCheck(this, Streaks);
 
-        // this.handleChange = this.handleChange.bind(this);
-        // this.writeStreak = this.writeStreak.bind(this);
         var _this = _possibleConstructorReturn(this, (Streaks.__proto__ || Object.getPrototypeOf(Streaks)).call(this, props));
 
         _this.toggleNewStreakModal = _this.toggleNewStreakModal.bind(_this);
 
         _this.state = {
-            days: '',
-            value: 0
+            isVisible: false
         };
         return _this;
     }
-
-    // handleChange(e) {
-    //     this.setState({
-    //         days: e.target.value,
-    //     });
-    // }
-
-    // writeStreak() {
-    //     this.props.addStreak(this.state.days);
-
-    //     this.setState({
-    //         days: ''
-    //     });
-    // }
 
     _createClass(Streaks, [{
         key: 'toggleNewStreakModal',
@@ -55612,8 +55706,27 @@ var Streaks = function (_Component) {
                                 _react2.default.createElement(
                                     _reactBootstrap.Modal.Body,
                                     null,
-                                    _react2.default.createElement('span', { className: 'friend-search glyphicon glyphicon-search' }),
-                                    _react2.default.createElement('input', { className: 'friend-input', placeholder: 'Search friend by username...' })
+                                    _react2.default.createElement(
+                                        'div',
+                                        { className: 'col-container' },
+                                        this.props.friends.map(function (friend, index) {
+                                            return _react2.default.createElement(
+                                                'div',
+                                                { className: 'col-item row-container friend-list-container', key: index },
+                                                _react2.default.createElement(
+                                                    'span',
+                                                    { className: 'friend-list-item row-item' },
+                                                    '@',
+                                                    friend.username
+                                                ),
+                                                _react2.default.createElement(
+                                                    'span',
+                                                    { className: 'friend-list-item row-item btn btn-success' },
+                                                    'Start Streak'
+                                                )
+                                            );
+                                        })
+                                    )
                                 ),
                                 _react2.default.createElement(
                                     _reactBootstrap.Modal.Footer,
@@ -55707,7 +55820,7 @@ var Streak = function (_Component) {
                 { className: 'streaks-item' },
                 _react2.default.createElement(
                     'div',
-                    { className: 'streak-item streak-user-img' },
+                    { className: 'streak-item-img streak-user-img' },
                     this.props.streak.imgAvailable ? _react2.default.createElement('img', { src: '', className: '' }) : _react2.default.createElement('span', { className: 'streak-user-glyph glyphicon glyphicon-user' })
                 ),
                 _react2.default.createElement(
@@ -55717,7 +55830,9 @@ var Streak = function (_Component) {
                         'span',
                         null,
                         '@',
-                        this.props.streak.username
+                        this.props.streak.participants[0],
+                        ' & @',
+                        this.props.streak.participants[1]
                     )
                 ),
                 _react2.default.createElement(
@@ -55960,7 +56075,7 @@ var Signup = function (_Component) {
     }, {
         key: 'handleSignup',
         value: function handleSignup() {
-            this.props.signupUser(this.state.email, this.state.password, this.state.firstName, this.state.lastName, 0, 5, this.state.username);
+            this.props.signupUser(this.state.email, this.state.password, this.state.username, this.state.firstName, this.state.lastName, 0, 5, false, null, 0, 0);
         }
     }, {
         key: 'render',

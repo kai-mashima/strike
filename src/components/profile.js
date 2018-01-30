@@ -8,12 +8,6 @@ export default class Profile extends Component {
         super(props);
 
         this.state = {
-            imgAvailable: false,
-            userImg: '',
-            username: '',
-            value: 0,
-            totalStreaks: 0,
-            totalDays: 0,
         };
     }
     render() {
@@ -33,7 +27,7 @@ export default class Profile extends Component {
                     <div className='content profile-content'>
                         <div className='profile-item profile-user-img'>
                             {
-                                this.state.imgAvailable ? (
+                                this.props.user.imgAvailable ? (
                                     <img src='' className='' />
                                 ) : (
                                     <span className='profile-user-glyph glyphicon glyphicon-user'></span>
@@ -41,16 +35,16 @@ export default class Profile extends Component {
                             }
                         </div>
                         <div className='profile-item'>
-                            <p>@{this.state.username}</p>
+                            <p>@{this.props.user.username}</p>
                         </div>
                         <div className='profile-item'>
-                            <p>${this.state.value}</p>
+                            <p>${this.props.user.value}</p>
                         </div>
                         <div className='profile-item'>
-                            <p>{this.state.totalStreaks} Streaks</p>
+                            <p>{this.props.user.totalStreaks} Streaks</p>
                         </div>
                         <div className='profile-item'>
-                            <p>{this.state.totalDays} Total Days</p>
+                            <p>{this.props.user.totalDays} Total Days</p>
                         </div>
                         <div className='profile-item'>
                             <Link to='/' className='btn btn-danger' onClick={this.props.signOut}>Sign Out</Link>

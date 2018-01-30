@@ -9,8 +9,8 @@ export default class Streak extends Component {
     render() {
         return (
             <div className='streaks-item'>
-                <div className='streak-item streak-user-img'>
-                    {
+                <div className='streak-item-img streak-user-img'>
+                     {
                         this.props.streak.imgAvailable ? (
                             <img src='' className='' />
                         ) : (
@@ -19,7 +19,7 @@ export default class Streak extends Component {
                     }
                 </div>
                 <div className='streak-item'>
-                    <span>@{this.props.streak.username}</span>
+                    <span>@{this.props.streak.participants[0]} & @{this.props.streak.participants[1]}</span>
                 </div>
                 <div className='streak-item'>
                     <span>{this.props.streak.days} Days</span>

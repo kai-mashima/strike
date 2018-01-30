@@ -8,29 +8,12 @@ export default class Streaks extends Component {
     constructor(props){
         super(props);
 
-        // this.handleChange = this.handleChange.bind(this);
-        // this.writeStreak = this.writeStreak.bind(this);
         this.toggleNewStreakModal = this.toggleNewStreakModal.bind(this);
 
         this.state = {
-            days: '',
-            value: 0,
+            isVisible: false
         }
     }
-
-    // handleChange(e) {
-    //     this.setState({
-    //         days: e.target.value,
-    //     });
-    // }
-
-    // writeStreak() {
-    //     this.props.addStreak(this.state.days);
-
-    //     this.setState({
-    //         days: ''
-    //     });
-    // }
 
     toggleNewStreakModal(){
         this.setState({
@@ -50,8 +33,16 @@ export default class Streaks extends Component {
                                     <Modal.Title>New Streak</Modal.Title>
                                 </Modal.Header>
                                 <Modal.Body>
-                                    <span className='friend-search glyphicon glyphicon-search'></span>
-                                    <input className='friend-input' placeholder='Search friend by username...'/>
+                                    <div className='col-container'>
+                                        {
+                                            this.props.friends.map((friend, index) => (
+                                                <div className='col-item row-container friend-list-container' key={index}>
+                                                    <span className='friend-list-item row-item'>@{friend.username}</span>
+                                                    <span className='friend-list-item row-item btn btn-success'>Start Streak</span>
+                                                </div>
+                                            ))
+                                        }
+                                    </div>
                                 </Modal.Body>
                                 <Modal.Footer>
                                     <span onClick={this.toggleNewStreakModal}>Close</span>
@@ -68,9 +59,9 @@ export default class Streaks extends Component {
                     <div className='content'>
                         <div className='streaks-content'>
                             {
-                                this.props.streaks.map((streak, index) => {
-                                    return <Streak key={index} streak={streak}/>
-                                })
+                                this.props.streaks.map((streak, index) => (
+                                    <Streak key={index} streak={streak}/>
+                                ))
                             }
                         </div>
                     </div>

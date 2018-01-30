@@ -43,7 +43,7 @@ export default class Friends extends Component {
     }
 
     handleAddFriend(){
-        this.props.addFriend(this.state.searchResults.uid);
+        this.props.addFriend(this.props.user, this.state.searchResults.uid);
     }
 
     render() {
@@ -97,9 +97,14 @@ export default class Friends extends Component {
                     <div className='content'>
                         <div className='friends-content'>
                             {
-                                this.props.friends.map((friend, index) => {
-                                    return <Friend key={index} friend={friend} />
-                                })
+                                this.props.friends ? (
+                                    this.props.friends.map((friend, index) => (
+                                        <Friend key={index} friend={friend} />
+                                    ))
+                                ) : (
+                                    <div>
+                                    </div>
+                                )
                             }
                         </div>
                     </div>

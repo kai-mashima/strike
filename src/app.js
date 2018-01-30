@@ -29,6 +29,7 @@ export default class App extends Component {
 
         //BINDING
         this.loginUser = this.loginUser.bind(this);
+        this.getUserInfo = this.getUserInfo.bind(this);
         this.signupUser = this.signupUser.bind(this);
         this.addNewUser = this.addNewUser.bind(this);
         this.signOut = this.signOut.bind(this);
@@ -38,18 +39,19 @@ export default class App extends Component {
         this.searchUsers = this.searchUsers.bind(this);
         this.addStreak = this.addStreak.bind(this);
         this.getStreaks = this.getStreaks.bind(this);
-        this.getFriends = this.getFriends.bind(this);
         this.searchUsers = this.searchUsers.bind(this);
 
         //STATE
         this.state = {
-            loggedIn: true,
+            loggedIn: false,
             uid: '',
+            user: {},
             streaks: [
-                {imgAvailable: false, img: null, days: 15, username: 'testuser', expirationTime: 264},
-                {imgAvailable: false, img: null, days: 56, username: 'usertest', expirationTime: 54},
-                {imgAvailable: false, img: null, days: 1, username: 'toaster', expirationTime: 400}
+                // {imgAvailable: false, img: null, days: 15, username: 'testuser', expirationTime: 264},
+                // {imgAvailable: false, img: null, days: 56, username: 'usertest', expirationTime: 54},
+                // {imgAvailable: false, img: null, days: 1, username: 'toaster', expirationTime: 400}
             ],
+            streaksInfo: [],
             friends: [
                 // {imgAvailable: false, img: null, username: 'tested', value: 4300, totalStreaks: 23, totalDays: 501},
                 // {imgAvailable: false, img: null, username: 'bested', value: 8000, totalStreaks: 54, totalDays: 577},
@@ -59,11 +61,14 @@ export default class App extends Component {
         };
     }
 
-    signupUser(email, password, first, last, value, allowance, username) {
+    signupUser(email, password, username = '', first = '', last = '', value = 0, allowance = 5, imgAvailable = false, img = null, totalStreaks = 0, totalDays = 0) {
         firebase.auth().createUserWithEmailAndPassword(email, password)
         .then(user => {
             this.confirmLogin();
-            this.addNewUser(user.uid, first, last, email, value, allowance, username);
+            return user;
+        }).then((user) => {
+            getUserInfo(user.uid);
+            this.addNewUser(username, user.uid, first, last, email, value, allowance, imgAvailable, img, totalStreaks, totalDays);
         }).catch(error => {
             var errorCode = error.code;
             var errorMessage = error.message;
@@ -71,7 +76,7 @@ export default class App extends Component {
         });
     }
 
-    addNewUser(uid, first, last, email, value, allowance, username) {
+    addNewUser(username = '', uid, first = '', last = '', email = '', value = 0, allowance = 5, imgAvailable = false, img = null, totalStreaks = 0, totalDays = 0) {
         const date = new Date();
         const time = date.getTime();
         this.db.ref(`users/${uid}`).set({
@@ -82,9 +87,23 @@ export default class App extends Component {
             allowance: allowance,
             username: username,
             created: time,
+            imgAvailable: imgAvailable,
+            img: img,
+            totalStreaks: totalStreaks,
+            totalDays: totalDays,
         });
         this.setState({
             uid: uid,
+        });
+    }
+
+    getUserInfo(uid) {
+        this.db.ref(`users/${uid}`)
+        .once('value')
+        .then(snapshot => {
+            this.setState({
+                user: snapshot.val()
+            });
         });
     }
 
@@ -92,6 +111,10 @@ export default class App extends Component {
         firebase.auth().signInWithEmailAndPassword(email, password)
         .then(user => {
             this.confirmLogin();
+            return user;
+        }).then((user) => {
+            this.getUserInfo(user.uid);
+            this.getFriends(user.uid);
         }).catch(error => {
             var errorCode = error.code;
             var errorMessage = error.message;
@@ -103,14 +126,13 @@ export default class App extends Component {
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 let email = user.email;
-                let UID = user.uid;
+                let uid = user.uid;
                 this.setState({
                     loggedIn: true,
                     email: email,
-                    uid: UID,
+                    uid: uid,
                 }); 
                 console.log('Logged In');
-                this.getFriends();
             } else {
                 this.setState({
                     loggedIn: false,
@@ -126,32 +148,71 @@ export default class App extends Component {
         firebase.auth().signOut()
         .then(() => {
             console.log('Signed Out');
+            this.setState({
+                loggedIn: false,
+                uid: '',
+                streaks: [],
+                friends: [],
+                friendsInfo: [],
+            });
         }).catch(error => {
             console.log('Error Signing Out:' + error);
         });
     }
 
-    getStreaks() {
-        let streakList;
-        const streaksRef = this.db.ref(`streaks/${this.state.uid}`);
-        streaksRef.once('value', snapshot => {
-            streakList = snapshot.val();
+    getStreaks(userID) {
+        let streaks = this.state.streaks.slice();
+        this.db.ref(`streakOwners/${userID}`) //grab streak list from streakOwners db
+        .once('value')
+        .then(snapshot => {
+            this.setState({
+                streaks: snapshot.val()
+            });
+            console.log('streaks grabbed: ' + this.state.streaks);
+        }).then(() => {
+            this.state.streaks.map((streakID, index) => {
+                this.streakToInfo(streakID);
+            });
         });
-        //for each streak in streakList grab streak info by id
     }
 
-    addStreak(friendUID) {
+    streakToInfo(streakID){
+        let streakInfo = this.state.streakInfo.slice();
+        this.db.ref(`streaks/${streakID}`)
+        .once('value')
+        .then(snapshot => {
+            streakInfo.push(snapshot.val());
+            this.setState({
+                streakInfo: streakInfo
+            });
+        });
+    }
+
+    addStreak(userID, friendUID) {
         const date = new Date();
         const time = date.getTime();
         const newStreakID = this.db.ref().child('streaks').push().key;
-        this.db.ref(`streaks/${newStreakID}`).set({
-            participants: [ friendUID, this.state.uid ],
+        this.db.ref(`streaks/${newStreakID}`)
+        .set({
+            participants: {
+                [friendID]: true,
+                [userID]: true,
+            },
             value: 0,
             timestamp: time,
+            expirationTime: 0, //24 hours plus timestamp
+            days: 0,
             allowance: 1,
             penalty: 0,
+        }).then(() => {
+            this.streakToInfo(newStreakID);
+            this.streakToOwner(friendUID, newStreakID);
+            this.streakToOwner(this.state.uid, newStreakID);
         });
-        this.getStreaks();
+    }
+
+    streakToOwner(ownerID, streakID) {
+        this.db.ref(`streakOwners/${ownerID}`).child({streakID}).set(true);
     }
 
     searchUsers(username) {
@@ -171,28 +232,46 @@ export default class App extends Component {
         });
     }
 
-    getFriends() {
-        const friendsRef = this.db.ref(`friends/${this.state.uid}`);
-        friendsRef.once('value', snapshot => {
+    getFriends(uid) {
+        this.db.ref(`friends/${uid}`)
+        .once('value')
+        .then(snapshot => {
+            let friends = Object.keys(snapshot.val());
             this.setState({
-                friends: snapshot.val().friends
+                friends: friends
+            });
+            return friends;
+        }).then(friends => {
+            const funcs = friends.map(friend => this.friendToInfo(friend));
+            Promise.all(funcs).then(friendsInfo => {
+                this.setState({
+                    friendsInfo: friendsInfo
+                });
             });
         });
-        console.log('friends grabbed: ' + this.state.friends);
-        //add functionality to iterate over friends and grab their info from users db
     }
 
-    addFriend(friendUID) {
-        //add functionality to check that friend isn't already a friend
-        let friends = this.state.friends.slice();
-        friends.push(friendUID);
-        this.db.ref(`friends/${this.state.uid}`).set({
-            friends
+    friendToInfo(uid) { //uses uid to grab users data and add to state 
+        return this.db.ref(`users/${uid}`)
+        .once('value') //grab snapshot once
+        .then(snapshot => { 
+            return snapshot.val(); //push new friend info to copy of all friendsInfo
         });
-        this.setState({
+    }
+
+    //FIX first friend end doesnt work
+    addFriend(userID, friendID) {
+        let stringID = friendID.toString();
+        //add functionality to check that friend isn't already a friend
+        this.state.friends.map((friend, index) => {
+            this.db.ref(`friends/${userID}/${stringID}`).set(true);
+        });
+        let friends = this.state.friends.slice();
+        friends.push(friendID);
+        this.setState({ //set state to reflect updated friends list
             friends: friends
         });
-        //add functionality to grab user data using uid
+        this.getFriends(userID);
     }
 
     getHistory(){
@@ -214,10 +293,10 @@ export default class App extends Component {
                                     <Route exact path='/' render={() => (
                                         <Redirect to='/streaks'/>
                                     )}/>
-                                    <Route path='/streaks' component={() => <Streaks streaks={this.state.streaks} />} />
+                                    <Route path='/streaks' component={() => <Streaks streaks={this.state.streaksInfo} friends={this.state.friendsInfo}/>} />
                                     <Route path='/history' component={() => <History />} />
-                                    <Route path='/profile' component={() => <Profile signOut={this.signOut} />} />
-                                    <Route path='/friends' component={() => <Friends friends={this.state.friends} addFriend={this.addFriend} searchUsers={this.searchUsers} />}/>
+                                    <Route path='/profile' component={() => <Profile signOut={this.signOut} user={this.state.user}/>} />
+                                    <Route path='/friends' component={() => <Friends friends={this.state.friendsInfo} addFriend={this.addFriend} user={this.state.uid} searchUsers={this.searchUsers} />}/>
                                     <Route path='/unlocks' component={() => <Unlocks />} />
                                 </Switch>
                                 <div className='footernav'>

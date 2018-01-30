@@ -9,7 +9,7 @@ export default class Friend extends Component {
     render() {
         return (
             <div className='friends-item'>
-                <div className='friend-item friend-user-img'>
+                <div className='friend-item-img friend-user-img'>
                     {
                         this.props.friend.imgAvailable ? (
                             <img src='' className='' />

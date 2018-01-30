@@ -8,6 +8,25 @@ li {
     list-style-type: none;
 }
 
+.col-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.col-item {
+    flex: 0 1 auto;
+}
+
+.row-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.row-item {
+    flex: 0 1 auto;
+}
+
 .wrapper {
     height: 100%;
     display: flex;
@@ -64,6 +83,14 @@ li {
 .login-footer-item {
     margin: 5px;
     flex: 0 1 auto;
+}
+
+.friend-list-container {
+    justify-content: space-around;
+}
+
+.friend-list-item {
+    width: 40%;
 }
 
 .signup-text {
@@ -246,8 +273,13 @@ li {
     font-size: 20pt;
 }
 
+.streak-item-img {
+    flex: 0 1 auto;
+}
+
 .streak-item {
     flex: 0 1 auto;
+    width: 25%;
 }
 
 .friends-content {
@@ -282,8 +314,13 @@ li {
     font-size: 20pt;
 }
 
+.friend-item-img {
+    flex: 0 1 auto;
+}
+
 .friend-item {
     flex: 0 1 auto;
+    width: 20%;
 }
 
 .profile-content {
