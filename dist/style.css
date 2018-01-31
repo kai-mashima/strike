@@ -136,17 +136,31 @@ li {
     flex: 0 1 auto;
 }
 
-.add-friend-btn {
-    padding-top: 5%;
+.streak-header-left-item {
+    position: relative;
+    left: -25px;
+    top: 10px;
 }
 
-.new-streak-btn {
-    padding-top: 5%;
+.streak-header-right-item {
+    position: relative;
+    top: 15px;
 }
 
 .modal-body {
     display: flex;
     flex-direction: row;
+}
+
+.friends-header-left-item {
+    position: relative;
+    left: -25px;
+    top: 10px;
+}
+
+.friends-header-right-item {
+    position: relative;
+    top: 15px;
 }
 
 .add-friend-search {
@@ -321,6 +335,12 @@ li {
 .friend-item {
     flex: 0 1 auto;
     width: 20%;
+}
+
+.profile-header-right-item {
+    position: relative;
+    left: 25px;
+    top: 10px;
 }
 
 .profile-content {

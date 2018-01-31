@@ -52,46 +52,48 @@ export default class Friends extends Component {
                 <div className='main'>
                     <div className='header'>
                         <div className='header-left'>
-                            <span onClick={this.toggleAddFriendModal} className='add-friend-btn glyphicon glyphicon-plus-sign'></span>
-                            <Modal show={this.state.isVisible} onHide={this.toggleAddFriendModal}>
-                                <Modal.Header>
-                                    <Modal.Title>Add Friend</Modal.Title>
-                                </Modal.Header>
-                                <Modal.Body>
-                                    <div className='search-body'>
-                                        <div className='search-body-item search-header'>
-                                            <span className='search-header-item add-friend-search glyphicon glyphicon-search'></span>
-                                            <input className='search-header-item add-friend-input' onChange={this.handleSearchInput} placeholder='Search friend by username...'/>
-                                            <span className='search-header-item btn btn-default' onClick={this.handleSearchSubmit}>Search</span>
-                                        </div>
-                                        <div className='search-body-item'>
-                                            <div className='search-content'>
-                                                {
-                                                    this.state.searchResults ? (
-                                                        <div className='search-item'>
-                                                            <span className='search-item-part'>{this.state.searchResults.first}</span>
-                                                            <span className='search-item-part'>{this.state.searchResults.last}</span>
-                                                            <span className='add-friend-btn search-item-part btn btn-success' onClick={this.handleAddFriend}>Add</span>
-                                                        </div>
-                                                    ) : (
-                                                        <div>
-                                                        </div>
-                                                    )
-                                                }
+                            <div className='friends-header-left-item'>
+                                <span onClick={this.toggleAddFriendModal} className='add-friend-btn glyphicon glyphicon-plus-sign'></span>
+                                <Modal show={this.state.isVisible} onHide={this.toggleAddFriendModal}>
+                                    <Modal.Header>
+                                        <Modal.Title>Add Friend</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <div className='search-body'>
+                                            <div className='search-body-item search-header'>
+                                                <span className='search-header-item add-friend-search glyphicon glyphicon-search'></span>
+                                                <input className='search-header-item add-friend-input' onChange={this.handleSearchInput} placeholder='Search friend by username...'/>
+                                                <span className='search-header-item btn btn-default' onClick={this.handleSearchSubmit}>Search</span>
                                             </div>
-                                        </div> 
-                                    </div>
-                                </Modal.Body>
-                                <Modal.Footer>
-                                    <span onClick={this.toggleAddFriendModal}>Close</span>
-                                </Modal.Footer>
-                            </Modal>
+                                            <div className='search-body-item'>
+                                                <div className='search-content'>
+                                                    {
+                                                        this.state.searchResults ? (
+                                                            <div className='search-item'>
+                                                                <span className='search-item-part'>{this.state.searchResults.first}</span>
+                                                                <span className='search-item-part'>{this.state.searchResults.last}</span>
+                                                                <span className='add-friend-btn search-item-part btn btn-success' onClick={this.handleAddFriend}>Add</span>
+                                                            </div>
+                                                        ) : (
+                                                            <div>
+                                                            </div>
+                                                        )
+                                                    }
+                                                </div>
+                                            </div> 
+                                        </div>
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <span onClick={this.toggleAddFriendModal}>Close</span>
+                                    </Modal.Footer>
+                                </Modal>
+                            </div>
                         </div>
                         <div className='header-mid'>
                             <img src={strikeLogo} className='logo'/>
                         </div>
                         <div className='header-right'>
-                            <p>{this.props.friends.length} friends</p>
+                            <span className='friends-header-right-item'>{this.props.friends.length} friends</span>
                         </div>
                     </div>
                     <div className='content'>

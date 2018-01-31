@@ -37,26 +37,18 @@ export default class App extends Component {
         this.confirmLogin = this.confirmLogin.bind(this);
         this.getFriends = this.getFriends.bind(this);
         this.searchUsers = this.searchUsers.bind(this);
-        this.addStreak = this.addStreak.bind(this);
+        this.startStreak = this.startStreak.bind(this);
         this.getStreaks = this.getStreaks.bind(this);
         this.searchUsers = this.searchUsers.bind(this);
 
         //STATE
         this.state = {
-            loggedIn: false,
+            loggedIn: true,
             uid: '',
             user: {},
-            streaks: [
-                // {imgAvailable: false, img: null, days: 15, username: 'testuser', expirationTime: 264},
-                // {imgAvailable: false, img: null, days: 56, username: 'usertest', expirationTime: 54},
-                // {imgAvailable: false, img: null, days: 1, username: 'toaster', expirationTime: 400}
-            ],
+            streaks: [],
             streaksInfo: [],
-            friends: [
-                // {imgAvailable: false, img: null, username: 'tested', value: 4300, totalStreaks: 23, totalDays: 501},
-                // {imgAvailable: false, img: null, username: 'bested', value: 8000, totalStreaks: 54, totalDays: 577},
-                // {imgAvailable: false, img: null, username: 'rested', value: 50, totalStreaks: 2, totalDays: 5},
-            ],
+            friends: [],
             friendsInfo: [],
         };
     }
@@ -140,7 +132,7 @@ export default class App extends Component {
                     email: '',
                     uid: '',
                 });
-                console.log('No User');
+                console.log('Not Logged In');
             }
         });
     }
@@ -153,6 +145,7 @@ export default class App extends Component {
                 loggedIn: false,
                 uid: '',
                 streaks: [],
+                streaksInfo: [],
                 friends: [],
                 friendsInfo: [],
             });
@@ -161,6 +154,7 @@ export default class App extends Component {
         });
     }
 
+    //HANDLE NO STREAKS CASE
     getStreaks(userID) {
         let streaks = this.state.streaks.slice();
         this.db.ref(`streakOwners/${userID}`) //grab streak list from streakOwners db
@@ -203,15 +197,16 @@ export default class App extends Component {
         });
     }
 
-    addStreak(userID, friendID) {
+    //FIX- NO STARTING STREAK WITH SELF
+    startStreak(userID, friendID) {
         const date = new Date();
         const time = date.getTime();
         const newStreakID = this.db.ref().child('streaks').push().key;
         this.db.ref(`streaks/${newStreakID}`)
         .set({
             participants: {
-                [friendID]: true,
                 [userID]: true,
+                [friendID]: false,
             },
             value: 0,
             timestamp: time,
@@ -232,6 +227,7 @@ export default class App extends Component {
         this.db.ref(`streakOwners/${ownerID}`).child(`${streakID}`).set(true);
     }
 
+    //FIX- NO SELF FINDING
     searchUsers(username) {
         return this.db.ref('users')
         .orderByChild('username')
@@ -249,6 +245,7 @@ export default class App extends Component {
         });
     }
 
+    //HANDLE NO FRIENDS CASE
     getFriends(uid) {
         this.db.ref(`friends/${uid}`)
         .once('value')
@@ -278,7 +275,7 @@ export default class App extends Component {
         });
     }
 
-    //FIX first friend end doesnt work
+    //FIX- DO NOT ALLOW SELF ADDING
     addFriend(userID, friendID) {
         let stringID = friendID.toString();
         //add functionality to check that friend isn't already a friend
@@ -310,13 +307,43 @@ export default class App extends Component {
                             <div>
                                 <Switch>
                                     <Route exact path='/' render={() => (
-                                        <Redirect to='/streaks'/>
-                                    )}/>
-                                    <Route path='/streaks' component={() => <Streaks uid={this.state.uid} streaks={this.state.streaksInfo} friends={this.state.friendsInfo} addStreak={this.addStreak}/>} />
-                                    <Route path='/history' component={() => <History />} />
-                                    <Route path='/profile' component={() => <Profile signOut={this.signOut} user={this.state.user}/>} />
-                                    <Route path='/friends' component={() => <Friends friends={this.state.friendsInfo} addFriend={this.addFriend} user={this.state.uid} searchUsers={this.searchUsers} />}/>
-                                    <Route path='/unlocks' component={() => <Unlocks />} />
+                                            <Redirect to='/streaks' />
+                                        )}
+                                    />
+                                    <Route path='/streaks' component={() => (
+                                            <Streaks 
+                                                uid={this.state.uid}
+                                                streaks={this.state.streaksInfo}
+                                                friends={this.state.friendsInfo}
+                                                startStreak={this.startStreak}
+                                                value={this.state.user.value}
+                                            />
+                                        )}
+                                    />
+                                    <Route path='/history' component={() => (
+                                            <History />
+                                        )} 
+                                    />
+                                    <Route path='/profile' component={() => (
+                                            <Profile 
+                                                signOut={this.signOut}
+                                                user={this.state.user}
+                                            />
+                                        )}
+                                    />
+                                    <Route path='/friends' component={() => (
+                                            <Friends 
+                                                friends={this.state.friendsInfo}
+                                                addFriend={this.addFriend}
+                                                user={this.state.uid}
+                                                searchUsers={this.searchUsers}
+                                            />
+                                        )}
+                                    />
+                                    <Route path='/unlocks' component={() => (
+                                            <Unlocks />
+                                        )} 
+                                    />
                                 </Switch>
                                 <div className='footernav'>
                                     <ul className='link-container'>
@@ -342,51 +369,3 @@ export default class App extends Component {
         );
     }
 }
-
-
-
-    // render() {
-    //     return (
-    //         <Router history={browserHistory}>
-    //             <div className='wrapper'>
-    //                 {
-    //                     this.state.loggedIn ? (
-
-    //                     ) : (
-                        
-    //                     )
-    //                 }
-    //                 <Switch>
-    //                     <Route exact path='/' render={() => (
-    //                         this.state.loggedIn ? (
-    //                             <Redirect to='/streaks'/>
-    //                         ) : (
-    //                             <Redirect to='/login'/>
-    //                         )
-    //                     )}/>
-    //                     <Route path='/login' component={() => <Login loginUser={this.loginUser} signupUser={this.signupUser} />} />
-    //                     <Route path='/streaks' component={() => <Streaks streaks={this.state.streaks}/>} />
-    //                     <Route path='/history' component={() => <History />} />
-    //                     <Route path='/profile' component={() => <Profile signOut={this.signOut}/>} />
-    //                     <Route path='/friends' component={() => <Friends friends={this.state.friends}/>} />
-    //                     <Route path='/unlocks' component={() => <Unlocks />} />
-    //                 </Switch>
-    //                 <div className='footernav'>
-    //                     {
-    //                         this.state.loggedIn ? (
-    //                             <ul className='link-container'>
-    //                                 <li className='link-item'><Link className='link-item-tag' to='/friends'><span className='glyph-span glyphicon glyphicon-plus'></span></Link></li>
-    //                                 <li className='link-item'><Link className='link-item-tag' to='/unlocks'><span className='glyph-span glyphicon glyphicon-lock'></span></Link></li>
-    //                                 <li className='link-item'><Link className='link-item-tag' to='/'><span className='glyph-span glyphicon glyphicon-fire'></span></Link></li>
-    //                                 <li className='link-item'><Link className='link-item-tag' to='/history'><span className='glyph-span glyphicon glyphicon-list'></span></Link></li>
-    //                                 <li className='link-item'><Link className='link-item-tag' to='/profile'><span className='glyph-span glyphicon glyphicon-user'></span></Link></li>
-    //                             </ul>
-    //                         ) : (
-    //                             <Signup />
-    //                         )
-    //                     }  
-    //                 </div>
-    //             </div>
-    //         </Router>
-    //     );
-    // }

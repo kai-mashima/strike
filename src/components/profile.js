@@ -21,7 +21,9 @@ export default class Profile extends Component {
                             <img src={strikeLogo} className='logo'/>
                         </div>
                         <div className='header-right'>
-                            <span className='glyphicon glyphicon-cog'></span>
+                            <div className='profile-header-right-item'>
+                                <span className='glyphicon glyphicon-cog'></span>
+                            </div>
                         </div>
                     </div>
                     <div className='content profile-content'>
