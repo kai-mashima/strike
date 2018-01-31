@@ -43,7 +43,7 @@ export default class App extends Component {
 
         //STATE
         this.state = {
-            loggedIn: true,
+            loggedIn: false,
             uid: '',
             user: {},
             streaks: [],
@@ -227,8 +227,7 @@ export default class App extends Component {
         this.db.ref(`streakOwners/${ownerID}`).child(`${streakID}`).set(true);
     }
 
-    //FIX- NO SELF FINDING
-    searchUsers(username) {
+    searchUsers(username, currUID) {
         return this.db.ref('users')
         .orderByChild('username')
         .equalTo(username)
@@ -237,6 +236,12 @@ export default class App extends Component {
             let result = {};
             let data = snapshot.val();
             let uid = Object.keys(data)[0];
+            if (uid === currUID) {
+                console.log('You cannot add yourself as a friend');
+                result['self'] = true;
+            } else {
+                result['self'] = false;
+            }
             result['uid'] = uid;
             let innerData = snapshot.child(`${uid}`).val();
             result['first'] = innerData.first;

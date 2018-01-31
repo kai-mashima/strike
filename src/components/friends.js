@@ -28,7 +28,7 @@ export default class Friends extends Component {
     }
 
     handleSearchSubmit() {
-        this.props.searchUsers(this.state.searchInput)
+        this.props.searchUsers(this.state.searchInput, this.props.user)
         .then(result => {
             this.setState({
                 searchResults: result
@@ -63,7 +63,7 @@ export default class Friends extends Component {
                                             <div className='search-body-item search-header'>
                                                 <span className='search-header-item add-friend-search glyphicon glyphicon-search'></span>
                                                 <input className='search-header-item add-friend-input' onChange={this.handleSearchInput} placeholder='Search friend by username...'/>
-                                                <span className='search-header-item btn btn-default' onClick={this.handleSearchSubmit}>Search</span>
+                                                <span className='search-header-item btn btn-success' onClick={this.handleSearchSubmit}>Search</span>
                                             </div>
                                             <div className='search-body-item'>
                                                 <div className='search-content'>
@@ -72,7 +72,13 @@ export default class Friends extends Component {
                                                             <div className='search-item'>
                                                                 <span className='search-item-part'>{this.state.searchResults.first}</span>
                                                                 <span className='search-item-part'>{this.state.searchResults.last}</span>
-                                                                <span className='add-friend-btn search-item-part btn btn-success' onClick={this.handleAddFriend}>Add</span>
+                                                                {
+                                                                    this.state.searchResults.self ? (
+                                                                        <span className='add-friend-btn search-item-part btn btn-secondary disabled'>Add</span>
+                                                                    ) : (
+                                                                        <span className='add-friend-btn search-item-part btn btn-success' onClick={this.handleAddFriend}>Add</span>
+                                                                    )
+                                                                }
                                                             </div>
                                                         ) : (
                                                             <div>

@@ -40019,7 +40019,7 @@ var App = function (_Component) {
 
         //STATE
         _this.state = {
-            loggedIn: true,
+            loggedIn: false,
             uid: '',
             user: {},
             streaks: [],
@@ -40246,16 +40246,19 @@ var App = function (_Component) {
         value: function streakToOwner(ownerID, streakID) {
             this.db.ref('streakOwners/' + ownerID).child('' + streakID).set(true);
         }
-
-        //FIX- NO SELF FINDING
-
     }, {
         key: 'searchUsers',
-        value: function searchUsers(username) {
+        value: function searchUsers(username, currUID) {
             return this.db.ref('users').orderByChild('username').equalTo(username).once('value').then(function (snapshot) {
                 var result = {};
                 var data = snapshot.val();
                 var uid = Object.keys(data)[0];
+                if (uid === currUID) {
+                    console.log('You cannot add yourself as a friend');
+                    result['self'] = true;
+                } else {
+                    result['self'] = false;
+                }
                 result['uid'] = uid;
                 var innerData = snapshot.child('' + uid).val();
                 result['first'] = innerData.first;
@@ -43709,7 +43712,7 @@ var Friends = function (_Component) {
         value: function handleSearchSubmit() {
             var _this2 = this;
 
-            this.props.searchUsers(this.state.searchInput).then(function (result) {
+            this.props.searchUsers(this.state.searchInput, this.props.user).then(function (result) {
                 _this2.setState({
                     searchResults: result
                 });
@@ -43771,7 +43774,7 @@ var Friends = function (_Component) {
                                                 _react2.default.createElement('input', { className: 'search-header-item add-friend-input', onChange: this.handleSearchInput, placeholder: 'Search friend by username...' }),
                                                 _react2.default.createElement(
                                                     'span',
-                                                    { className: 'search-header-item btn btn-default', onClick: this.handleSearchSubmit },
+                                                    { className: 'search-header-item btn btn-success', onClick: this.handleSearchSubmit },
                                                     'Search'
                                                 )
                                             ),
@@ -43794,7 +43797,11 @@ var Friends = function (_Component) {
                                                             { className: 'search-item-part' },
                                                             this.state.searchResults.last
                                                         ),
-                                                        _react2.default.createElement(
+                                                        this.state.searchResults.self ? _react2.default.createElement(
+                                                            'span',
+                                                            { className: 'add-friend-btn search-item-part btn btn-secondary disabled' },
+                                                            'Add'
+                                                        ) : _react2.default.createElement(
                                                             'span',
                                                             { className: 'add-friend-btn search-item-part btn btn-success', onClick: this.handleAddFriend },
                                                             'Add'
