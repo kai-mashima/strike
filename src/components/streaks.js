@@ -9,15 +9,23 @@ export default class Streaks extends Component {
         super(props);
 
         this.toggleNewStreakModal = this.toggleNewStreakModal.bind(this);
+        this.toggleRequestsModal = this.toggleRequestsModal.bind(this);
 
         this.state = {
-            isVisible: false
+            isVisibleStreak: false,
+            isVisibleRequests: false,
         }
+    }
+
+    toggleRequestsModal() {
+        this.setState({
+            isVisibleRequests: !this.state.isVisibleRequests
+        });
     }
 
     toggleNewStreakModal() {
         this.setState({
-            isVisible: !this.state.isVisible
+            isVisibleStreak: !this.state.isVisibleStreak
         });
     }
 
@@ -25,7 +33,47 @@ export default class Streaks extends Component {
         this.props.startStreak(this.props.uid, friendID);
     }
 
+    handleRequestAcceptance(friendID) {
+        this.props.acceptRequest(this.props.uid, friendID);
+    }
+
+    handleRequestRejection(friendID) {
+        this.props.rejectRequest(this.props.uid, friendID);
+    }
+
     render() {
+        let friendsRender = <div><span>You have no friends</span></div>;
+        if (this.props.friends != []) {
+            friendsRender = this.props.friends.map((friend, index) => (
+                <div className='col-item row-container friend-list-container' key={index}>
+                    <span className='friend-list-item row-item'>@{friend.username}</span>
+                    <span className='friend-list-item row-item btn btn-success' onClick={() => this.handleStreakStart(friend.uid)}> Start Streak</span>
+                </div>
+            ));
+        }
+
+        let requestsRender = <div><span>You have no requests</span></div>;
+        if (this.props.requests != []) {
+            requestsRender = this.props.requests.map((request, index) => {
+                if (request.needsNotification) {
+                    return (
+                        <div className='col-item row-container' key={index}>
+                            <span className='row-item'>@{request.friendUsername}</span>
+                            <span className='row-item btn btn-success' onClick={() => this.handleRequestAcceptance(friend.uid)}>Accept Streak</span>
+                            <span className='row-item btn btn-danger' onClick={() => this.handleRequestRejection(friend.uid)}>Reject Streak</span>
+                        </div>
+                    )
+                }
+            });
+        }
+
+        let streaksRender = <div><span>You have no streaks</span></div>;
+        if (this.props.streaks != []) {
+            streaksRender = this.props.streaks.map((streak, index) => (
+                <Streak key={index} streak={streak}/>
+            ));
+        }
+
         return (
             <div>
                 <div className='main'>
@@ -33,26 +81,13 @@ export default class Streaks extends Component {
                         <div className='header-left'>
                             <div className='streak-header-left-item'>
                                 <span onClick={this.toggleNewStreakModal} className='new-streak-btn glyphicon glyphicon-plus-sign'></span>
-                                <Modal show={this.state.isVisible} onHide={this.toggleNewStreakModal}>
+                                <Modal show={this.state.isVisibleStreak} onHide={this.toggleNewStreakModal}>
                                     <Modal.Header>
                                         <Modal.Title>New Streak</Modal.Title>
                                     </Modal.Header>
                                     <Modal.Body>
                                         <div className='col-container'>
-                                            {
-                                                this.props.friends ? (
-                                                    this.props.friends.map((friend, index) => (
-                                                        <div className='col-item row-container friend-list-container' key={index}>
-                                                            <span className='friend-list-item row-item'>@{friend.username}</span>
-                                                            <span className='friend-list-item row-item btn btn-success' onClick={() => this.handleStreakStart(friend.uid)}> Start Streak</span>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div>
-                                                        <span>You have no friends</span>
-                                                    </div>
-                                                )
-                                            }
+                                            {friendsRender}
                                         </div>
                                     </Modal.Body>
                                     <Modal.Footer>
@@ -65,22 +100,27 @@ export default class Streaks extends Component {
                             <img src={strikeLogo} className='logo'/>
                         </div>
                         <div className='header-right'>
-                            <span className='streak-header-right-item'>${this.props.value}</span>
+                            <div className='streak-header-right-item'>
+                                <span onClick={this.toggleRequestsModal} className='streak-request-btn glyphicon glyphicon-bell'></span>
+                                <Modal show={this.state.isVisibleRequests} onHide={this.toggleRequestsModal}>
+                                    <Modal.Header>
+                                        <Modal.Title>Requests</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <div className='col-container'>
+                                            {requestsRender}
+                                        </div>
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <span onClick={this.toggleRequestsModal}>Close</span>
+                                    </Modal.Footer>
+                                </Modal>
+                            </div>
                         </div>
                     </div>
                     <div className='content'>
                         <div className='streaks-content'>
-                            {
-                                this.props.streaks ? (
-                                    this.props.streaks.map((streak, index) => (
-                                        <Streak key={index} streak={streak}/>
-                                    ))
-                                ) : (
-                                    <div>
-                                        <span>You have no streaks</span>
-                                    </div>
-                                )
-                            }
+                            {streaksRender}
                         </div>
                     </div>
                 </div>

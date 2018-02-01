@@ -40,16 +40,21 @@ export default class App extends Component {
         this.startStreak = this.startStreak.bind(this);
         this.getStreaks = this.getStreaks.bind(this);
         this.searchUsers = this.searchUsers.bind(this);
+        this.checkForStreakRequests = this.checkForStreakRequests.bind(this);
+        this.acceptRequest = this.acceptRequest.bind(this);
+        this.rejectRequest = this.rejectRequest.bind(this);
+        this.getUsername = this.getUsername.bind(this);
 
         //STATE
         this.state = {
             loggedIn: false,
             uid: '',
             user: {},
-            streaks: null,
-            streaksInfo: null,
-            friends: null,
-            friendsInfo: null,
+            streaks: [],
+            streaksInfo: [],
+            friends: [],
+            friendsInfo: [],
+            streakRequests: [],
         };
     }
 
@@ -156,37 +161,40 @@ export default class App extends Component {
         });
     }
 
-    //HANDLE NO STREAKS CASE
     getStreaks(userID) {
-        if (this.state.streaks) {
-            let streaks = this.state.streaks.slice();
-            this.db.ref(`streakOwners/${userID}`) //grab streak list from streakOwners db
-            .once('value')
-            .then(snapshot => {
-                if (snapshot.exists()) {
-                    let streaks = Object.keys(snapshot.val());
-                    this.setState({
-                        streaks: streaks
-                    });
-                    console.log('streaks grabbed: ' + this.state.streaks);
-                    return streaks;
-                } else {
-                    throw 'No owners for this uid';
-                }
-            }).then(streaks => {
-                const funcs = streaks.map(streak => this.streakToInfo(streak));
-                Promise.all(funcs).then(results => {
-                    this.setState({
-                        streaksInfo: results
-                    });
+        this.db.ref(`streakOwners/${userID}`) //grab streak list from streakOwners db
+        .once('value')
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                let streaks = Object.keys(snapshot.val());
+                this.setState({
+                    streaks: streaks
                 });
-            }).catch(reason => {
-                console.log(reason);
+                console.log('streaks grabbed: ' + this.state.streaks);
+                return streaks;
+            } else {
+                throw 'No owners for this uid';
+            }
+        }).then(streakList => {
+            const infoFuncs = streakList.map(streakID => this.streakToInfo(streakID, userID));
+            Promise.all(infoFuncs).then(results => {
+                this.setState({
+                    streaksInfo: results
+                });
             });
-        }
+            const requestFuncs = streakList.map(streakID => this.checkForStreakRequests(streakID, userID));
+            Promise.all(requestFuncs).then(results => {
+                this.setState({
+                    streakRequests: results
+                });
+                console.log(this.state.streakRequests);
+            });
+        }).catch(reason => {
+            console.log(reason);
+        });
     }
 
-    streakToInfo(streakID){
+    streakToInfo(streakID, userID){
         return this.db.ref(`streaks/${streakID}`)
         .once('value')
         .then(snapshot => {
@@ -212,37 +220,84 @@ export default class App extends Component {
                     return info;
                 });
             } else {
-                return [];
+                throw 'No streak found for this streakID';
             }
         }).catch(reason => {
             console.log(reason);
         });
     }
 
-    //FIX- NO STARTING STREAK WITH SELF
-    startStreak(userID, friendID) {
-        const date = new Date();
-        const time = date.getTime();
-        const newStreakID = this.db.ref().child('streaks').push().key;
-        this.db.ref(`streaks/${newStreakID}`)
-        .set({
-            participants: {
-                [userID]: true,
-                [friendID]: false,
-            },
-            value: 0,
-            timestamp: time,
-            expirationTime: 0, //24 hours plus timestamp
-            days: 0,
-            allowance: 1,
-            penalty: 0,
-        }).then(() => {
-            this.streakToInfo(newStreakID);
-            this.streakToOwner(friendID, newStreakID);
-            this.streakToOwner(userID, newStreakID);
-        }).then(() => {
-            this.getStreaks(userID);
+    checkForStreakRequests(streakID, userID) {
+        return this.db.ref(`streaks/${streakID}/participants`)
+        .once('value')
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                let participants = snapshot.val();
+                let notification = {
+                    friendID: null,
+                    friendUsername: null,
+                    needsNotification: false,
+                };
+                for (var prop in participants) {
+                    if (prop === userID && participants[prop] === false) {
+                        notification.needsNotification = true;
+                    } 
+                    if (prop !== userID) {
+                        notification.friendID = prop;
+                    }
+                }
+                return this.getUsername(notification.friendID).then(username => {
+                    notification.friendUsername = username;
+                }).then(() => {
+                    if (notification.needsNotification) {
+                        return notification;
+                    } else {
+                        return notification;
+                    }
+                });
+            } else {
+                throw 'No streak found for this streak ID';
+            }
+        }).catch(reason => {
+            console.log(reason);
         });
+    }
+
+    acceptRequest(userID, friendID) {
+
+    }
+
+    rejectRequest(userID, friendID) {
+
+    }
+
+    startStreak(userID, friendID) {
+        if (userID !== friendID) {
+            const date = new Date();
+            const time = date.getTime();
+            const newStreakID = this.db.ref().child('streaks').push().key;
+            this.db.ref(`streaks/${newStreakID}`)
+            .set({
+                participants: {
+                    [userID]: true,
+                    [friendID]: false,
+                },
+                value: 0,
+                timestamp: time,
+                expirationTime: 0, //24 hours plus timestamp
+                days: 0,
+                allowance: 1,
+                penalty: 0,
+            }).then(() => {
+                this.streakToInfo(newStreakID);
+                this.streakToOwner(friendID, newStreakID);
+                this.streakToOwner(userID, newStreakID);
+            }).then(() => {
+                this.getStreaks(userID);
+            });
+        } else {
+            console.log('No streak started: You cannot start a streak with yourself.');
+        }
     }
 
     streakToOwner(ownerID, streakID) {
@@ -276,7 +331,6 @@ export default class App extends Component {
         });
     }
 
-    //HANDLE NO FRIENDS CASE
     getFriends(uid) {
         this.db.ref(`friends/${uid}`)
         .once('value')
@@ -302,13 +356,27 @@ export default class App extends Component {
         });
     }
 
-    friendToInfo(uid) { //uses uid to grab users data 
-        return this.db.ref(`users/${uid}`)
+    getUsername(userID) {
+        return this.db.ref(`users/${userID}`)
+        .once('value')
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                return snapshot.val().username;
+            } else {
+                throw 'No user found';
+            }
+        }).catch(reason => {
+            console.log(reason);
+        });
+    }
+
+    friendToInfo(userID) { //uses uid to grab users data 
+        return this.db.ref(`users/${userID}`)
         .once('value') //grab snapshot once
         .then(snapshot => {
             if (snapshot.exists()) {
                 let info = snapshot.val();
-                info.uid = uid;
+                info.uid = userID;
                 return info;
             } else {
                 throw 'No user found';
@@ -318,19 +386,22 @@ export default class App extends Component {
         });
     }
 
-    //FIX- DO NOT ALLOW SELF ADDING
     addFriend(userID, friendID) {
-        let stringID = friendID.toString();
-        //add functionality to check that friend isn't already a friend
-        this.state.friends.map((friend, index) => {
-            this.db.ref(`friends/${userID}/${stringID}`).set(true);
-        });
-        let friends = this.state.friends.slice();
-        friends.push(friendID);
-        this.setState({ //set state to reflect updated friends list
-            friends: friends
-        });
-        this.getFriends(userID);
+        if (userID !== friendID) {
+            let stringID = friendID.toString();
+            //add functionality to check that friend isn't already a friend
+            this.state.friends.map((friend, index) => {
+                this.db.ref(`friends/${userID}/${stringID}`).set(true);
+            });
+            let friends = this.state.friends.slice();
+            friends.push(friendID);
+            this.setState({ //set state to reflect updated friends list
+                friends: friends
+            });
+            this.getFriends(userID);
+        } else {
+            console.log('No friend added: You cannot add yourself as a friend.')
+        }
     }
 
     getHistory(){
@@ -360,6 +431,9 @@ export default class App extends Component {
                                                 friends={this.state.friendsInfo}
                                                 startStreak={this.startStreak}
                                                 value={this.state.user.value}
+                                                requests={this.state.streakRequests}
+                                                acceptRequest={this.state.acceptRequest}
+                                                rejectRequest={this.state.rejectRequest}
                                             />
                                         )}
                                     />

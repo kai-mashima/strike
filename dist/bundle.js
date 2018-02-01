@@ -39959,9 +39959,9 @@ var _unlocks = __webpack_require__(411);
 
 var _unlocks2 = _interopRequireDefault(_unlocks);
 
-var _streaks2 = __webpack_require__(412);
+var _streaks = __webpack_require__(412);
 
-var _streaks3 = _interopRequireDefault(_streaks2);
+var _streaks2 = _interopRequireDefault(_streaks);
 
 var _login = __webpack_require__(414);
 
@@ -40016,16 +40016,21 @@ var App = function (_Component) {
         _this.startStreak = _this.startStreak.bind(_this);
         _this.getStreaks = _this.getStreaks.bind(_this);
         _this.searchUsers = _this.searchUsers.bind(_this);
+        _this.checkForStreakRequests = _this.checkForStreakRequests.bind(_this);
+        _this.acceptRequest = _this.acceptRequest.bind(_this);
+        _this.rejectRequest = _this.rejectRequest.bind(_this);
+        _this.getUsername = _this.getUsername.bind(_this);
 
         //STATE
         _this.state = {
             loggedIn: false,
             uid: '',
             user: {},
-            streaks: null,
-            streaksInfo: null,
-            friends: null,
-            friendsInfo: null
+            streaks: [],
+            streaksInfo: [],
+            friends: [],
+            friendsInfo: [],
+            streakRequests: []
         };
         return _this;
     }
@@ -40167,45 +40172,48 @@ var App = function (_Component) {
                 console.log('Error Signing Out:' + error);
             });
         }
-
-        //HANDLE NO STREAKS CASE
-
     }, {
         key: 'getStreaks',
         value: function getStreaks(userID) {
             var _this7 = this;
 
-            if (this.state.streaks) {
-                var streaks = this.state.streaks.slice();
-                this.db.ref('streakOwners/' + userID) //grab streak list from streakOwners db
-                .once('value').then(function (snapshot) {
-                    if (snapshot.exists()) {
-                        var _streaks = Object.keys(snapshot.val());
-                        _this7.setState({
-                            streaks: _streaks
-                        });
-                        console.log('streaks grabbed: ' + _this7.state.streaks);
-                        return _streaks;
-                    } else {
-                        throw 'No owners for this uid';
-                    }
-                }).then(function (streaks) {
-                    var funcs = streaks.map(function (streak) {
-                        return _this7.streakToInfo(streak);
+            this.db.ref('streakOwners/' + userID) //grab streak list from streakOwners db
+            .once('value').then(function (snapshot) {
+                if (snapshot.exists()) {
+                    var streaks = Object.keys(snapshot.val());
+                    _this7.setState({
+                        streaks: streaks
                     });
-                    Promise.all(funcs).then(function (results) {
-                        _this7.setState({
-                            streaksInfo: results
-                        });
-                    });
-                }).catch(function (reason) {
-                    console.log(reason);
+                    console.log('streaks grabbed: ' + _this7.state.streaks);
+                    return streaks;
+                } else {
+                    throw 'No owners for this uid';
+                }
+            }).then(function (streakList) {
+                var infoFuncs = streakList.map(function (streakID) {
+                    return _this7.streakToInfo(streakID, userID);
                 });
-            }
+                Promise.all(infoFuncs).then(function (results) {
+                    _this7.setState({
+                        streaksInfo: results
+                    });
+                });
+                var requestFuncs = streakList.map(function (streakID) {
+                    return _this7.checkForStreakRequests(streakID, userID);
+                });
+                Promise.all(requestFuncs).then(function (results) {
+                    _this7.setState({
+                        streakRequests: results
+                    });
+                    console.log(_this7.state.streakRequests);
+                });
+            }).catch(function (reason) {
+                console.log(reason);
+            });
         }
     }, {
         key: 'streakToInfo',
-        value: function streakToInfo(streakID) {
+        value: function streakToInfo(streakID, userID) {
             var _this8 = this;
 
             return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
@@ -40229,39 +40237,84 @@ var App = function (_Component) {
                         return info;
                     });
                 } else {
-                    return [];
+                    throw 'No streak found for this streakID';
                 }
             }).catch(function (reason) {
                 console.log(reason);
             });
         }
+    }, {
+        key: 'checkForStreakRequests',
+        value: function checkForStreakRequests(streakID, userID) {
+            var _this9 = this;
 
-        //FIX- NO STARTING STREAK WITH SELF
-
+            return this.db.ref('streaks/' + streakID + '/participants').once('value').then(function (snapshot) {
+                if (snapshot.exists()) {
+                    var participants = snapshot.val();
+                    var notification = {
+                        friendID: null,
+                        friendUsername: null,
+                        needsNotification: false
+                    };
+                    for (var prop in participants) {
+                        if (prop === userID && participants[prop] === false) {
+                            notification.needsNotification = true;
+                        }
+                        if (prop !== userID) {
+                            notification.friendID = prop;
+                        }
+                    }
+                    return _this9.getUsername(notification.friendID).then(function (username) {
+                        notification.friendUsername = username;
+                    }).then(function () {
+                        if (notification.needsNotification) {
+                            return notification;
+                        } else {
+                            return notification;
+                        }
+                    });
+                } else {
+                    throw 'No streak found for this streak ID';
+                }
+            }).catch(function (reason) {
+                console.log(reason);
+            });
+        }
+    }, {
+        key: 'acceptRequest',
+        value: function acceptRequest(userID, friendID) {}
+    }, {
+        key: 'rejectRequest',
+        value: function rejectRequest(userID, friendID) {}
     }, {
         key: 'startStreak',
         value: function startStreak(userID, friendID) {
-            var _participants,
-                _this9 = this;
+            var _this10 = this;
 
-            var date = new Date();
-            var time = date.getTime();
-            var newStreakID = this.db.ref().child('streaks').push().key;
-            this.db.ref('streaks/' + newStreakID).set({
-                participants: (_participants = {}, _defineProperty(_participants, userID, true), _defineProperty(_participants, friendID, false), _participants),
-                value: 0,
-                timestamp: time,
-                expirationTime: 0, //24 hours plus timestamp
-                days: 0,
-                allowance: 1,
-                penalty: 0
-            }).then(function () {
-                _this9.streakToInfo(newStreakID);
-                _this9.streakToOwner(friendID, newStreakID);
-                _this9.streakToOwner(userID, newStreakID);
-            }).then(function () {
-                _this9.getStreaks(userID);
-            });
+            if (userID !== friendID) {
+                var _participants;
+
+                var date = new Date();
+                var time = date.getTime();
+                var newStreakID = this.db.ref().child('streaks').push().key;
+                this.db.ref('streaks/' + newStreakID).set({
+                    participants: (_participants = {}, _defineProperty(_participants, userID, true), _defineProperty(_participants, friendID, false), _participants),
+                    value: 0,
+                    timestamp: time,
+                    expirationTime: 0, //24 hours plus timestamp
+                    days: 0,
+                    allowance: 1,
+                    penalty: 0
+                }).then(function () {
+                    _this10.streakToInfo(newStreakID);
+                    _this10.streakToOwner(friendID, newStreakID);
+                    _this10.streakToOwner(userID, newStreakID);
+                }).then(function () {
+                    _this10.getStreaks(userID);
+                });
+            } else {
+                console.log('No streak started: You cannot start a streak with yourself.');
+            }
         }
     }, {
         key: 'streakToOwner',
@@ -40292,18 +40345,15 @@ var App = function (_Component) {
                 }
             });
         }
-
-        //HANDLE NO FRIENDS CASE
-
     }, {
         key: 'getFriends',
         value: function getFriends(uid) {
-            var _this10 = this;
+            var _this11 = this;
 
             this.db.ref('friends/' + uid).once('value').then(function (snapshot) {
                 if (snapshot.exists()) {
                     var friends = Object.keys(snapshot.val());
-                    _this10.setState({
+                    _this11.setState({
                         friends: friends
                     });
                     return friends;
@@ -40312,10 +40362,10 @@ var App = function (_Component) {
                 }
             }).then(function (friends) {
                 var funcs = friends.map(function (friend) {
-                    return _this10.friendToInfo(friend);
+                    return _this11.friendToInfo(friend);
                 });
                 Promise.all(funcs).then(function (friendsInfo) {
-                    _this10.setState({
+                    _this11.setState({
                         friendsInfo: friendsInfo
                     });
                 });
@@ -40324,14 +40374,27 @@ var App = function (_Component) {
             });
         }
     }, {
+        key: 'getUsername',
+        value: function getUsername(userID) {
+            return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
+                if (snapshot.exists()) {
+                    return snapshot.val().username;
+                } else {
+                    throw 'No user found';
+                }
+            }).catch(function (reason) {
+                console.log(reason);
+            });
+        }
+    }, {
         key: 'friendToInfo',
-        value: function friendToInfo(uid) {
+        value: function friendToInfo(userID) {
             //uses uid to grab users data 
-            return this.db.ref('users/' + uid).once('value') //grab snapshot once
+            return this.db.ref('users/' + userID).once('value') //grab snapshot once
             .then(function (snapshot) {
                 if (snapshot.exists()) {
                     var info = snapshot.val();
-                    info.uid = uid;
+                    info.uid = userID;
                     return info;
                 } else {
                     throw 'No user found';
@@ -40340,25 +40403,26 @@ var App = function (_Component) {
                 console.log(reason);
             });
         }
-
-        //FIX- DO NOT ALLOW SELF ADDING
-
     }, {
         key: 'addFriend',
         value: function addFriend(userID, friendID) {
-            var _this11 = this;
+            var _this12 = this;
 
-            var stringID = friendID.toString();
-            //add functionality to check that friend isn't already a friend
-            this.state.friends.map(function (friend, index) {
-                _this11.db.ref('friends/' + userID + '/' + stringID).set(true);
-            });
-            var friends = this.state.friends.slice();
-            friends.push(friendID);
-            this.setState({ //set state to reflect updated friends list
-                friends: friends
-            });
-            this.getFriends(userID);
+            if (userID !== friendID) {
+                var stringID = friendID.toString();
+                //add functionality to check that friend isn't already a friend
+                this.state.friends.map(function (friend, index) {
+                    _this12.db.ref('friends/' + userID + '/' + stringID).set(true);
+                });
+                var friends = this.state.friends.slice();
+                friends.push(friendID);
+                this.setState({ //set state to reflect updated friends list
+                    friends: friends
+                });
+                this.getFriends(userID);
+            } else {
+                console.log('No friend added: You cannot add yourself as a friend.');
+            }
         }
     }, {
         key: 'getHistory',
@@ -40373,7 +40437,7 @@ var App = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this12 = this;
+            var _this13 = this;
 
             return _react2.default.createElement(
                 _reactRouterDom.BrowserRouter,
@@ -40392,12 +40456,15 @@ var App = function (_Component) {
                                 }
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/streaks', component: function component() {
-                                    return _react2.default.createElement(_streaks3.default, {
-                                        uid: _this12.state.uid,
-                                        streaks: _this12.state.streaksInfo,
-                                        friends: _this12.state.friendsInfo,
-                                        startStreak: _this12.startStreak,
-                                        value: _this12.state.user.value
+                                    return _react2.default.createElement(_streaks2.default, {
+                                        uid: _this13.state.uid,
+                                        streaks: _this13.state.streaksInfo,
+                                        friends: _this13.state.friendsInfo,
+                                        startStreak: _this13.startStreak,
+                                        value: _this13.state.user.value,
+                                        requests: _this13.state.streakRequests,
+                                        acceptRequest: _this13.state.acceptRequest,
+                                        rejectRequest: _this13.state.rejectRequest
                                     });
                                 }
                             }),
@@ -40407,17 +40474,17 @@ var App = function (_Component) {
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/profile', component: function component() {
                                     return _react2.default.createElement(_profile2.default, {
-                                        signOut: _this12.signOut,
-                                        user: _this12.state.user
+                                        signOut: _this13.signOut,
+                                        user: _this13.state.user
                                     });
                                 }
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/friends', component: function component() {
                                     return _react2.default.createElement(_friends2.default, {
-                                        friends: _this12.state.friendsInfo,
-                                        addFriend: _this12.addFriend,
-                                        user: _this12.state.uid,
-                                        searchUsers: _this12.searchUsers
+                                        friends: _this13.state.friendsInfo,
+                                        addFriend: _this13.addFriend,
+                                        user: _this13.state.uid,
+                                        searchUsers: _this13.searchUsers
                                     });
                                 }
                             }),
@@ -55732,18 +55799,27 @@ var Streaks = function (_Component) {
         var _this = _possibleConstructorReturn(this, (Streaks.__proto__ || Object.getPrototypeOf(Streaks)).call(this, props));
 
         _this.toggleNewStreakModal = _this.toggleNewStreakModal.bind(_this);
+        _this.toggleRequestsModal = _this.toggleRequestsModal.bind(_this);
 
         _this.state = {
-            isVisible: false
+            isVisibleStreak: false,
+            isVisibleRequests: false
         };
         return _this;
     }
 
     _createClass(Streaks, [{
+        key: 'toggleRequestsModal',
+        value: function toggleRequestsModal() {
+            this.setState({
+                isVisibleRequests: !this.state.isVisibleRequests
+            });
+        }
+    }, {
         key: 'toggleNewStreakModal',
         value: function toggleNewStreakModal() {
             this.setState({
-                isVisible: !this.state.isVisible
+                isVisibleStreak: !this.state.isVisibleStreak
             });
         }
     }, {
@@ -55752,9 +55828,105 @@ var Streaks = function (_Component) {
             this.props.startStreak(this.props.uid, friendID);
         }
     }, {
+        key: 'handleRequestAcceptance',
+        value: function handleRequestAcceptance(friendID) {
+            this.props.acceptRequest(this.props.uid, friendID);
+        }
+    }, {
+        key: 'handleRequestRejection',
+        value: function handleRequestRejection(friendID) {
+            this.props.rejectRequest(this.props.uid, friendID);
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
+
+            var friendsRender = _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement(
+                    'span',
+                    null,
+                    'You have no friends'
+                )
+            );
+            if (this.props.friends != []) {
+                friendsRender = this.props.friends.map(function (friend, index) {
+                    return _react2.default.createElement(
+                        'div',
+                        { className: 'col-item row-container friend-list-container', key: index },
+                        _react2.default.createElement(
+                            'span',
+                            { className: 'friend-list-item row-item' },
+                            '@',
+                            friend.username
+                        ),
+                        _react2.default.createElement(
+                            'span',
+                            { className: 'friend-list-item row-item btn btn-success', onClick: function onClick() {
+                                    return _this2.handleStreakStart(friend.uid);
+                                } },
+                            ' Start Streak'
+                        )
+                    );
+                });
+            }
+
+            var requestsRender = _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement(
+                    'span',
+                    null,
+                    'You have no requests'
+                )
+            );
+            if (this.props.requests != []) {
+                requestsRender = this.props.requests.map(function (request, index) {
+                    if (request.needsNotification) {
+                        return _react2.default.createElement(
+                            'div',
+                            { className: 'col-item row-container', key: index },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'row-item' },
+                                '@',
+                                request.friendUsername
+                            ),
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'row-item btn btn-success', onClick: function onClick() {
+                                        return _this2.handleRequestAcceptance(friend.uid);
+                                    } },
+                                'Accept Streak'
+                            ),
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'row-item btn btn-danger', onClick: function onClick() {
+                                        return _this2.handleRequestRejection(friend.uid);
+                                    } },
+                                'Reject Streak'
+                            )
+                        );
+                    }
+                });
+            }
+
+            var streaksRender = _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement(
+                    'span',
+                    null,
+                    'You have no streaks'
+                )
+            );
+            if (this.props.streaks != []) {
+                streaksRender = this.props.streaks.map(function (streak, index) {
+                    return _react2.default.createElement(_streak2.default, { key: index, streak: streak });
+                });
+            }
 
             return _react2.default.createElement(
                 'div',
@@ -55774,7 +55946,7 @@ var Streaks = function (_Component) {
                                 _react2.default.createElement('span', { onClick: this.toggleNewStreakModal, className: 'new-streak-btn glyphicon glyphicon-plus-sign' }),
                                 _react2.default.createElement(
                                     _reactBootstrap.Modal,
-                                    { show: this.state.isVisible, onHide: this.toggleNewStreakModal },
+                                    { show: this.state.isVisibleStreak, onHide: this.toggleNewStreakModal },
                                     _react2.default.createElement(
                                         _reactBootstrap.Modal.Header,
                                         null,
@@ -55790,33 +55962,7 @@ var Streaks = function (_Component) {
                                         _react2.default.createElement(
                                             'div',
                                             { className: 'col-container' },
-                                            this.props.friends ? this.props.friends.map(function (friend, index) {
-                                                return _react2.default.createElement(
-                                                    'div',
-                                                    { className: 'col-item row-container friend-list-container', key: index },
-                                                    _react2.default.createElement(
-                                                        'span',
-                                                        { className: 'friend-list-item row-item' },
-                                                        '@',
-                                                        friend.username
-                                                    ),
-                                                    _react2.default.createElement(
-                                                        'span',
-                                                        { className: 'friend-list-item row-item btn btn-success', onClick: function onClick() {
-                                                                return _this2.handleStreakStart(friend.uid);
-                                                            } },
-                                                        ' Start Streak'
-                                                    )
-                                                );
-                                            }) : _react2.default.createElement(
-                                                'div',
-                                                null,
-                                                _react2.default.createElement(
-                                                    'span',
-                                                    null,
-                                                    'You have no friends'
-                                                )
-                                            )
+                                            friendsRender
                                         )
                                     ),
                                     _react2.default.createElement(
@@ -55840,10 +55986,40 @@ var Streaks = function (_Component) {
                             'div',
                             { className: 'header-right' },
                             _react2.default.createElement(
-                                'span',
+                                'div',
                                 { className: 'streak-header-right-item' },
-                                '$',
-                                this.props.value
+                                _react2.default.createElement('span', { onClick: this.toggleRequestsModal, className: 'streak-request-btn glyphicon glyphicon-bell' }),
+                                _react2.default.createElement(
+                                    _reactBootstrap.Modal,
+                                    { show: this.state.isVisibleRequests, onHide: this.toggleRequestsModal },
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Header,
+                                        null,
+                                        _react2.default.createElement(
+                                            _reactBootstrap.Modal.Title,
+                                            null,
+                                            'Requests'
+                                        )
+                                    ),
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Body,
+                                        null,
+                                        _react2.default.createElement(
+                                            'div',
+                                            { className: 'col-container' },
+                                            requestsRender
+                                        )
+                                    ),
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Footer,
+                                        null,
+                                        _react2.default.createElement(
+                                            'span',
+                                            { onClick: this.toggleRequestsModal },
+                                            'Close'
+                                        )
+                                    )
+                                )
                             )
                         )
                     ),
@@ -55853,17 +56029,7 @@ var Streaks = function (_Component) {
                         _react2.default.createElement(
                             'div',
                             { className: 'streaks-content' },
-                            this.props.streaks ? this.props.streaks.map(function (streak, index) {
-                                return _react2.default.createElement(_streak2.default, { key: index, streak: streak });
-                            }) : _react2.default.createElement(
-                                'div',
-                                null,
-                                _react2.default.createElement(
-                                    'span',
-                                    null,
-                                    'You have no streaks'
-                                )
-                            )
+                            streaksRender
                         )
                     )
                 )
