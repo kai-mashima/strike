@@ -40,12 +40,18 @@ export default class Streaks extends Component {
                                     <Modal.Body>
                                         <div className='col-container'>
                                             {
-                                                this.props.friends.map((friend, index) => (
-                                                    <div className='col-item row-container friend-list-container' key={index}>
-                                                        <span className='friend-list-item row-item'>@{friend.username}</span>
-                                                        <span className='friend-list-item row-item btn btn-success' onClick={() => this.handleStreakStart(friend.uid)}> Start Streak</span>
+                                                this.props.friends ? (
+                                                    this.props.friends.map((friend, index) => (
+                                                        <div className='col-item row-container friend-list-container' key={index}>
+                                                            <span className='friend-list-item row-item'>@{friend.username}</span>
+                                                            <span className='friend-list-item row-item btn btn-success' onClick={() => this.handleStreakStart(friend.uid)}> Start Streak</span>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div>
+                                                        <span>You have no friends</span>
                                                     </div>
-                                                ))
+                                                )
                                             }
                                         </div>
                                     </Modal.Body>
@@ -71,6 +77,7 @@ export default class Streaks extends Component {
                                     ))
                                 ) : (
                                     <div>
+                                        <span>You have no streaks</span>
                                     </div>
                                 )
                             }

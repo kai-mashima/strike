@@ -14,6 +14,7 @@ export default class Friends extends Component {
         this.handleSearchInput = this.handleSearchInput.bind(this);
         this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
 
+        //STATE
         this.state = {
             isVisible: false,
             searchResults: null,
@@ -82,6 +83,7 @@ export default class Friends extends Component {
                                                             </div>
                                                         ) : (
                                                             <div>
+                                                                <span>No Users Found</span>
                                                             </div>
                                                         )
                                                     }
@@ -99,7 +101,13 @@ export default class Friends extends Component {
                             <img src={strikeLogo} className='logo'/>
                         </div>
                         <div className='header-right'>
-                            <span className='friends-header-right-item'>{this.props.friends.length} friends</span>
+                            {
+                                this.props.friends ? (
+                                    <span className='friends-header-right-item'>{this.props.friends.length} friends</span>
+                                ) : (
+                                    <span className='friends-header-right-item'>0 friends</span>
+                                )
+                            }
                         </div>
                     </div>
                     <div className='content'>
@@ -111,6 +119,7 @@ export default class Friends extends Component {
                                     ))
                                 ) : (
                                     <div>
+                                        <span>You have no friends</span>
                                     </div>
                                 )
                             }

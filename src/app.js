@@ -46,10 +46,10 @@ export default class App extends Component {
             loggedIn: false,
             uid: '',
             user: {},
-            streaks: [],
-            streaksInfo: [],
-            friends: [],
-            friendsInfo: [],
+            streaks: null,
+            streaksInfo: null,
+            friends: null,
+            friendsInfo: null,
         };
     }
 
@@ -59,7 +59,9 @@ export default class App extends Component {
             this.confirmLogin();
             return user;
         }).then((user) => {
-            getUserInfo(user.uid);
+            this.getUserInfo(user.uid);
+            this.getFriends(user.uid);
+            this.getStreaks(user.uid);
             this.addNewUser(username, user.uid, first, last, email, value, allowance, imgAvailable, img, totalStreaks, totalDays);
         }).catch(error => {
             var errorCode = error.code;
@@ -144,10 +146,10 @@ export default class App extends Component {
             this.setState({
                 loggedIn: false,
                 uid: '',
-                streaks: [],
-                streaksInfo: [],
-                friends: [],
-                friendsInfo: [],
+                streaks: null,
+                streaksInfo: null,
+                friends: null,                
+                friendsInfo: null,
             });
         }).catch(error => {
             console.log('Error Signing Out:' + error);
@@ -156,44 +158,64 @@ export default class App extends Component {
 
     //HANDLE NO STREAKS CASE
     getStreaks(userID) {
-        let streaks = this.state.streaks.slice();
-        this.db.ref(`streakOwners/${userID}`) //grab streak list from streakOwners db
-        .once('value')
-        .then(snapshot => {
-            let streaks = Object.keys(snapshot.val());
-            this.setState({
-                streaks: streaks
-            });
-            console.log('streaks grabbed: ' + this.state.streaks);
-            return streaks;
-        }).then(streaks => {
-            const funcs = streaks.map(streak => this.streakToInfo(streak));
-            Promise.all(funcs).then(results => {
-                this.setState({
-                    streaksInfo: results
+        if (this.state.streaks) {
+            let streaks = this.state.streaks.slice();
+            this.db.ref(`streakOwners/${userID}`) //grab streak list from streakOwners db
+            .once('value')
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    let streaks = Object.keys(snapshot.val());
+                    this.setState({
+                        streaks: streaks
+                    });
+                    console.log('streaks grabbed: ' + this.state.streaks);
+                    return streaks;
+                } else {
+                    throw 'No owners for this uid';
+                }
+            }).then(streaks => {
+                const funcs = streaks.map(streak => this.streakToInfo(streak));
+                Promise.all(funcs).then(results => {
+                    this.setState({
+                        streaksInfo: results
+                    });
                 });
+            }).catch(reason => {
+                console.log(reason);
             });
-        });
+        }
     }
 
     streakToInfo(streakID){
         return this.db.ref(`streaks/${streakID}`)
         .once('value')
         .then(snapshot => {
-            let info = snapshot.val();
-            let participants = Object.keys(info.participants);
-            const funcs = participants.map(participant => {
-                    return this.db.ref(`users/${participant}`)
-                    .once('value')
-                    .then(snapshot => (
-                        snapshot.val().username
-                    ));
+            if (snapshot.exists()) {
+                let info = snapshot.val();
+                let participants = Object.keys(info.participants);
+                const funcs = participants.map(participant => {
+                        return this.db.ref(`users/${participant}`)
+                        .once('value')
+                        .then(snapshot => {
+                            if (snapshot.exists()) {
+                                return snapshot.val().username;
+                            } else {
+                                throw 'No user by this participant id';
+                            }
+                        }).catch(reason => {
+                            console.log(reason);
+                        });
+                    });
+                return Promise.all(funcs).then(results => {
+                    info.users = results;
+                    info.id = streakID;
+                    return info;
                 });
-            return Promise.all(funcs).then(results => {
-                info.users = results;
-                info.id = streakID;
-                return info;
-            })
+            } else {
+                return [];
+            }
+        }).catch(reason => {
+            console.log(reason);
         });
     }
 
@@ -233,20 +255,24 @@ export default class App extends Component {
         .equalTo(username)
         .once('value')
         .then(snapshot => {
-            let result = {};
-            let data = snapshot.val();
-            let uid = Object.keys(data)[0];
-            if (uid === currUID) {
-                console.log('You cannot add yourself as a friend');
-                result['self'] = true;
+            if (snapshot.exists()) {
+                let result = {};
+                let data = snapshot.val();
+                let uid = Object.keys(data)[0];
+                if (uid === currUID) {
+                    console.log('You cannot add yourself as a friend');
+                    result['self'] = true;
+                } else {
+                    result['self'] = false;
+                }
+                result['uid'] = uid;
+                let innerData = snapshot.child(`${uid}`).val();
+                result['first'] = innerData.first;
+                result['last'] = innerData.last
+                return result;
             } else {
-                result['self'] = false;
+                return {};
             }
-            result['uid'] = uid;
-            let innerData = snapshot.child(`${uid}`).val();
-            result['first'] = innerData.first;
-            result['last'] = innerData.last
-            return result;
         });
     }
 
@@ -255,11 +281,15 @@ export default class App extends Component {
         this.db.ref(`friends/${uid}`)
         .once('value')
         .then(snapshot => {
-            let friends = Object.keys(snapshot.val());
-            this.setState({
-                friends: friends
-            });
-            return friends;
+            if (snapshot.exists()) {
+                let friends = Object.keys(snapshot.val());
+                this.setState({
+                    friends: friends
+                });
+                return friends;
+            } else {
+                throw 'No friends found';
+            }
         }).then(friends => {
             const funcs = friends.map(friend => this.friendToInfo(friend));
             Promise.all(funcs).then(friendsInfo => {
@@ -267,6 +297,8 @@ export default class App extends Component {
                     friendsInfo: friendsInfo
                 });
             });
+        }).catch(reason => {
+            console.log(reason);
         });
     }
 
@@ -274,9 +306,15 @@ export default class App extends Component {
         return this.db.ref(`users/${uid}`)
         .once('value') //grab snapshot once
         .then(snapshot => {
-            let info = snapshot.val();
-            info.uid = uid;
-            return info;
+            if (snapshot.exists()) {
+                let info = snapshot.val();
+                info.uid = uid;
+                return info;
+            } else {
+                throw 'No user found';
+            }
+        }).catch(reason => {
+            console.log(reason);
         });
     }
 
