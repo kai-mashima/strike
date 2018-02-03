@@ -17,7 +17,7 @@ export default class Friends extends Component {
         //STATE
         this.state = {
             isVisible: false,
-            searchResults: null,
+            searchResults: [],
             searchInput: null,
         }
     }
@@ -48,6 +48,34 @@ export default class Friends extends Component {
     }
 
     render() {
+        let searchRender = <div><span>No Users Found</span></div>;
+        if (this.state.searchResults.length != 0) {
+            let searchAddBtn = this.state.searchResults.self ? (
+                <span className='add-friend-btn search-item-part btn btn-secondary disabled'>Add</span>
+            ) : (
+                <span className='add-friend-btn search-item-part btn btn-success' onClick={this.handleAddFriend}>Add</span>
+            )
+            searchRender =  (
+                <div className='search-item'>
+                    <span className='search-item-part'>{this.state.searchResults.first}</span>
+                    <span className='search-item-part'>{this.state.searchResults.last}</span>
+                    {searchAddBtn}
+                </div>
+            );
+        }
+
+        let friendsCountRender = <span className='friends-header-right-item'>0 friends</span>;
+        if (this.props.friends.length != 0) {
+            friendsCountRender = <span className='friends-header-right-item'>{this.props.friends.length} friends</span>;
+        }
+
+        let friendsRender = <div><span>You have no friends</span></div>;
+        if (this.props.friends.length != 0) {
+            friendsRender = this.props.friends.map((friend, index) => (
+                <Friend key={index} friend={friend} />
+            ));
+        }
+
         return (
             <div>
                 <div className='main'>
@@ -68,25 +96,7 @@ export default class Friends extends Component {
                                             </div>
                                             <div className='search-body-item'>
                                                 <div className='search-content'>
-                                                    {
-                                                        this.state.searchResults ? (
-                                                            <div className='search-item'>
-                                                                <span className='search-item-part'>{this.state.searchResults.first}</span>
-                                                                <span className='search-item-part'>{this.state.searchResults.last}</span>
-                                                                {
-                                                                    this.state.searchResults.self ? (
-                                                                        <span className='add-friend-btn search-item-part btn btn-secondary disabled'>Add</span>
-                                                                    ) : (
-                                                                        <span className='add-friend-btn search-item-part btn btn-success' onClick={this.handleAddFriend}>Add</span>
-                                                                    )
-                                                                }
-                                                            </div>
-                                                        ) : (
-                                                            <div>
-                                                                <span>No Users Found</span>
-                                                            </div>
-                                                        )
-                                                    }
+                                                    {searchRender}
                                                 </div>
                                             </div> 
                                         </div>
@@ -101,28 +111,12 @@ export default class Friends extends Component {
                             <img src={strikeLogo} className='logo'/>
                         </div>
                         <div className='header-right'>
-                            {
-                                this.props.friends ? (
-                                    <span className='friends-header-right-item'>{this.props.friends.length} friends</span>
-                                ) : (
-                                    <span className='friends-header-right-item'>0 friends</span>
-                                )
-                            }
+                            {friendsCountRender}
                         </div>
                     </div>
                     <div className='content'>
                         <div className='friends-content'>
-                            {
-                                this.props.friends ? (
-                                    this.props.friends.map((friend, index) => (
-                                        <Friend key={index} friend={friend} />
-                                    ))
-                                ) : (
-                                    <div>
-                                        <span>You have no friends</span>
-                                    </div>
-                                )
-                            }
+                            {friendsRender}
                         </div>
                     </div>
                 </div>
