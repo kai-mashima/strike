@@ -8,9 +8,14 @@ export default class Streaks extends Component {
     constructor(props) {
         super(props);
 
+        //BINDING
         this.toggleNewStreakModal = this.toggleNewStreakModal.bind(this);
         this.toggleRequestsModal = this.toggleRequestsModal.bind(this);
+        this.handleStreakStart = this.handleStreakStart.bind(this);
+        this.handleRequestAcceptance = this.handleRequestAcceptance.bind(this);
+        this.handleRequestRejection = this.handleRequestRejection.bind(this);        
 
+        //STATE
         this.state = {
             isVisibleStreak: false,
             isVisibleRequests: false,
@@ -29,18 +34,18 @@ export default class Streaks extends Component {
         });
     }
 
-    handleStreakStart(friendID) {
-        this.props.sendStreakRequest(this.props.uid, friendID);
+    handleStreakStart(userID, friendID) {
+        this.props.sendStreakRequest(userID, friendID);
         this.toggleNewStreakModal();
     }
 
-    handleRequestAcceptance(friendID) {
-        this.props.acceptStreakRequest(this.props.uid, friendID);
+    handleRequestAcceptance(requestID, userID, friendID) {
+        this.props.acceptStreakRequest(requestID, userID, friendID);
         this.toggleRequestsModal();
     }
 
-    handleRequestRejection(friendID) {
-        this.props.rejectStreakRequest(this.props.uid, friendID);
+    handleRequestRejection(requestID, userID, friendID) {
+        this.props.rejectStreakRequest(requestID, userID, friendID);
         this.toggleRequestsModal();
     }
 
@@ -50,20 +55,25 @@ export default class Streaks extends Component {
             friendsRender = this.props.friends.map((friend, index) => (
                 <div className='col-item row-container friend-list-container' key={index}>
                     <span className='friend-list-item row-item'>@{friend.username}</span>
-                    <span className='friend-list-item row-item btn btn-success' onClick={() => this.handleStreakStart(friend.uid)}> Start Streak</span>
+                    <span className='friend-list-item row-item btn btn-success' onClick={() => this.handleStreakStart(this.props.uid, friend.uid)}> Start Streak</span>
                 </div>
             ));
         }
 
         let requestsRender = <div><span>You have no requests</span></div>;
         if (this.props.requests.length != 0) { 
-            requestsRender = this.props.requests.map((request, index) => (
-                <div className='col-item row-container' key={index}>
-                    <span className='row-item'>@{request.senderUsername}</span>
-                    <span className='row-item btn btn-success' onClick={() => this.handleRequestAcceptance(request.id, friend.uid)}>Accept Streak</span>
-                    <span className='row-item btn btn-danger' onClick={() => this.handleRequestRejection(request.id, friend.uid)}>Reject Streak</span>
-                </div>
-            ));
+            //handle no unanswered requests
+            requestsRender = this.props.requests.map((request, index) => {
+                if (request.answered !== true) {
+                    return (
+                        <div className='col-item row-container request-list-container' key={index}>
+                            <span className='request-list-item row-item'>@{request.senderUsername}</span>
+                            <span className='request-list-item row-item btn btn-success' onClick={() => this.handleRequestAcceptance(request.id, request.recipient, request.sender)}>Accept Streak</span>
+                            <span className='request-list-item row-item btn btn-danger' onClick={() => this.handleRequestRejection(request.id, request.recipient, request.sender)}>Reject Streak</span>
+                        </div>
+                    )
+                }
+            });
         }
 
         let streaksRender = <div><span>You have no streaks</span></div>;

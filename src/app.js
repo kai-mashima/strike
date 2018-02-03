@@ -245,7 +245,7 @@ export default class App extends Component {
 
     acceptStreakRequest(streakRequestID, userID, senderID) {
         this.db.ref(`streakRequests/${streakRequestID}`)
-        .update({
+        .set({
             answered: true,
             accepted: true,
         });
@@ -255,7 +255,7 @@ export default class App extends Component {
 
     rejectStreakRequest(streakRequestID, userID, senderID) {
         this.db.ref(`streakRequests/${streakRequestID}`)
-        .update({
+        .set({
             answered: true,
             accepted: false,
         });
@@ -480,8 +480,8 @@ export default class App extends Component {
                                                 sendStreakRequest={this.sendStreakRequest}
                                                 value={this.state.user.value}
                                                 requests={this.state.streakRequestsInfo}
-                                                acceptStreakRequest={this.state.acceptStreakRequest}
-                                                rejectStreakRequest={this.state.rejectStreakRequest}
+                                                acceptStreakRequest={this.acceptStreakRequest}
+                                                rejectStreakRequest={this.rejectStreakRequest}
                                             />
                                         )}
                                     />

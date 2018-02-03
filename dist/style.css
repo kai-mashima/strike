@@ -85,6 +85,14 @@ li {
     flex: 0 1 auto;
 }
 
+.request-list-container {
+    justify-content: space-around;
+}
+
+.request-list-item {
+    width: 33%;
+}
+
 .friend-list-container {
     justify-content: space-around;
 }

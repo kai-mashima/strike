@@ -40263,7 +40263,7 @@ var App = function (_Component) {
     }, {
         key: 'acceptStreakRequest',
         value: function acceptStreakRequest(streakRequestID, userID, senderID) {
-            this.db.ref('streakRequests/' + streakRequestID).update({
+            this.db.ref('streakRequests/' + streakRequestID).set({
                 answered: true,
                 accepted: true
             });
@@ -40273,7 +40273,7 @@ var App = function (_Component) {
     }, {
         key: 'rejectStreakRequest',
         value: function rejectStreakRequest(streakRequestID, userID, senderID) {
-            this.db.ref('streakRequests/' + streakRequestID).update({
+            this.db.ref('streakRequests/' + streakRequestID).set({
                 answered: true,
                 accepted: false
             });
@@ -40516,8 +40516,8 @@ var App = function (_Component) {
                                         sendStreakRequest: _this14.sendStreakRequest,
                                         value: _this14.state.user.value,
                                         requests: _this14.state.streakRequestsInfo,
-                                        acceptStreakRequest: _this14.state.acceptStreakRequest,
-                                        rejectStreakRequest: _this14.state.rejectStreakRequest
+                                        acceptStreakRequest: _this14.acceptStreakRequest,
+                                        rejectStreakRequest: _this14.rejectStreakRequest
                                     });
                                 }
                             }),
@@ -55865,11 +55865,16 @@ var Streaks = function (_Component) {
     function Streaks(props) {
         _classCallCheck(this, Streaks);
 
+        //BINDING
         var _this = _possibleConstructorReturn(this, (Streaks.__proto__ || Object.getPrototypeOf(Streaks)).call(this, props));
 
         _this.toggleNewStreakModal = _this.toggleNewStreakModal.bind(_this);
         _this.toggleRequestsModal = _this.toggleRequestsModal.bind(_this);
+        _this.handleStreakStart = _this.handleStreakStart.bind(_this);
+        _this.handleRequestAcceptance = _this.handleRequestAcceptance.bind(_this);
+        _this.handleRequestRejection = _this.handleRequestRejection.bind(_this);
 
+        //STATE
         _this.state = {
             isVisibleStreak: false,
             isVisibleRequests: false
@@ -55893,20 +55898,20 @@ var Streaks = function (_Component) {
         }
     }, {
         key: 'handleStreakStart',
-        value: function handleStreakStart(friendID) {
-            this.props.sendStreakRequest(this.props.uid, friendID);
+        value: function handleStreakStart(userID, friendID) {
+            this.props.sendStreakRequest(userID, friendID);
             this.toggleNewStreakModal();
         }
     }, {
         key: 'handleRequestAcceptance',
-        value: function handleRequestAcceptance(friendID) {
-            this.props.acceptStreakRequest(this.props.uid, friendID);
+        value: function handleRequestAcceptance(requestID, userID, friendID) {
+            this.props.acceptStreakRequest(requestID, userID, friendID);
             this.toggleRequestsModal();
         }
     }, {
         key: 'handleRequestRejection',
-        value: function handleRequestRejection(friendID) {
-            this.props.rejectStreakRequest(this.props.uid, friendID);
+        value: function handleRequestRejection(requestID, userID, friendID) {
+            this.props.rejectStreakRequest(requestID, userID, friendID);
             this.toggleRequestsModal();
         }
     }, {
@@ -55937,7 +55942,7 @@ var Streaks = function (_Component) {
                         _react2.default.createElement(
                             'span',
                             { className: 'friend-list-item row-item btn btn-success', onClick: function onClick() {
-                                    return _this2.handleStreakStart(friend.uid);
+                                    return _this2.handleStreakStart(_this2.props.uid, friend.uid);
                                 } },
                             ' Start Streak'
                         )
@@ -55955,31 +55960,34 @@ var Streaks = function (_Component) {
                 )
             );
             if (this.props.requests.length != 0) {
+                //handle no unanswered requests
                 requestsRender = this.props.requests.map(function (request, index) {
-                    return _react2.default.createElement(
-                        'div',
-                        { className: 'col-item row-container', key: index },
-                        _react2.default.createElement(
-                            'span',
-                            { className: 'row-item' },
-                            '@',
-                            request.senderUsername
-                        ),
-                        _react2.default.createElement(
-                            'span',
-                            { className: 'row-item btn btn-success', onClick: function onClick() {
-                                    return _this2.handleRequestAcceptance(request.id, friend.uid);
-                                } },
-                            'Accept Streak'
-                        ),
-                        _react2.default.createElement(
-                            'span',
-                            { className: 'row-item btn btn-danger', onClick: function onClick() {
-                                    return _this2.handleRequestRejection(request.id, friend.uid);
-                                } },
-                            'Reject Streak'
-                        )
-                    );
+                    if (request.answered !== true) {
+                        return _react2.default.createElement(
+                            'div',
+                            { className: 'col-item row-container request-list-container', key: index },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'request-list-item row-item' },
+                                '@',
+                                request.senderUsername
+                            ),
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'request-list-item row-item btn btn-success', onClick: function onClick() {
+                                        return _this2.handleRequestAcceptance(request.id, request.recipient, request.sender);
+                                    } },
+                                'Accept Streak'
+                            ),
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'request-list-item row-item btn btn-danger', onClick: function onClick() {
+                                        return _this2.handleRequestRejection(request.id, request.recipient, request.sender);
+                                    } },
+                                'Reject Streak'
+                            )
+                        );
+                    }
                 });
             }
 
