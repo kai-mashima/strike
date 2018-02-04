@@ -22,10 +22,12 @@ export default class Streak extends Component {
                     <span>@{this.props.streak.users[0]} & @{this.props.streak.users[1]}</span>
                 </div>
                 <div className='streak-item'>
-                    <span>{this.props.streak.days} Days</span>
+                    <span>{this.props.streak.days}</span>
+                    <span className='glyphicon glyphicon-fire'></span>
                 </div>
                 <div className='streak-item'>
-                    <span>{this.props.streak.expirationTime} Minutes</span>
+                    <span>{this.props.streak.expiration}</span>
+                    <span className='glyphicon glyphicon-time'></span>
                 </div>
             </div>
         );

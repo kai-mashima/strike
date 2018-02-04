@@ -40021,6 +40021,7 @@ var App = function (_Component) {
         _this.getUsername = _this.getUsername.bind(_this);
         _this.getStreakRequests = _this.getStreakRequests.bind(_this);
         _this.sendStreakRequest = _this.sendStreakRequest.bind(_this);
+        _this.expirationTimeToTimeToExpiration = _this.expirationTimeToTimeToExpiration.bind(_this);
 
         //STATE
         _this.state = {
@@ -40227,7 +40228,6 @@ var App = function (_Component) {
                     return _this7.streakRequestToInfo(request);
                 });
                 Promise.all(funcs).then(function (results) {
-                    console.log(results);
                     _this7.setState({
                         streakRequestsInfo: results
                     });
@@ -40288,12 +40288,14 @@ var App = function (_Component) {
 
                 var date = new Date();
                 var time = date.getTime();
+                var expirationTime = time + 24 * 3600000;
                 var newStreakID = this.db.ref().child('streaks').push().key;
                 this.db.ref('streaks/' + newStreakID).set({
                     participants: (_participants = {}, _defineProperty(_participants, userID, true), _defineProperty(_participants, friendID, true), _participants),
                     value: 0,
                     timestamp: time,
-                    expirationTime: 0, //24 hours plus timestamp
+                    expirationTime: expirationTime, // timestamp plus 24 hours
+                    expired: false,
                     days: 0,
                     allowance: 1,
                     penalty: 0
@@ -40345,6 +40347,10 @@ var App = function (_Component) {
             return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
                 if (snapshot.exists()) {
                     var info = snapshot.val();
+                    info.expiration = _this11.expirationTimeToTimeToExpiration(info.expirationTime);
+                    if (info.expiration <= 0) {
+                        info.expired = true;
+                    }
                     var participants = Object.keys(info.participants);
                     var funcs = participants.map(function (participant) {
                         return _this11.db.ref('users/' + participant).once('value').then(function (snapshot) {
@@ -40368,6 +40374,17 @@ var App = function (_Component) {
             }).catch(function (reason) {
                 console.log(reason);
             });
+        }
+    }, {
+        key: 'expirationTimeToTimeToExpiration',
+        value: function expirationTimeToTimeToExpiration(expirationTime) {
+            var date = new Date();
+            var currentTime = date.getTime();
+            var timeDifference = expirationTime - currentTime;
+            var minutes = (timeDifference / (1000 * 60)).toFixed(0);
+            var hours = (timeDifference / (1000 * 60 * 60)).toFixed(0);
+            var timeDiffString = hours + ':' + minutes;
+            return timeDiffString;
         }
     }, {
         key: 'streakToOwner',
@@ -56185,9 +56202,9 @@ var Streak = function (_Component) {
                     _react2.default.createElement(
                         'span',
                         null,
-                        this.props.streak.days,
-                        ' Days'
-                    )
+                        this.props.streak.days
+                    ),
+                    _react2.default.createElement('span', { className: 'glyphicon glyphicon-fire' })
                 ),
                 _react2.default.createElement(
                     'div',
@@ -56195,9 +56212,9 @@ var Streak = function (_Component) {
                     _react2.default.createElement(
                         'span',
                         null,
-                        this.props.streak.expirationTime,
-                        ' Minutes'
-                    )
+                        this.props.streak.expiration
+                    ),
+                    _react2.default.createElement('span', { className: 'glyphicon glyphicon-time' })
                 )
             );
         }

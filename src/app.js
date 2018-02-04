@@ -45,6 +45,7 @@ export default class App extends Component {
         this.getUsername = this.getUsername.bind(this);
         this.getStreakRequests = this.getStreakRequests.bind(this);
         this.sendStreakRequest = this.sendStreakRequest.bind(this);
+        this.expirationTimeToTimeToExpiration = this.expirationTimeToTimeToExpiration.bind(this);
 
         //STATE
         this.state = {
@@ -210,7 +211,6 @@ export default class App extends Component {
         }).then(streakRequests => {
             const funcs = streakRequests.map(request => this.streakRequestToInfo(request));
             Promise.all(funcs).then(results => {
-                console.log(results);
                 this.setState({
                     streakRequestsInfo: results
                 });
@@ -265,6 +265,7 @@ export default class App extends Component {
         if (userID !== friendID) {
             const date = new Date();
             const time = date.getTime();
+            let expirationTime = time + (24 * 3600000);
             const newStreakID = this.db.ref().child('streaks').push().key;
             this.db.ref(`streaks/${newStreakID}`)
             .set({
@@ -274,7 +275,8 @@ export default class App extends Component {
                 },
                 value: 0,
                 timestamp: time,
-                expirationTime: 0, //24 hours plus timestamp
+                expirationTime: expirationTime, // timestamp plus 24 hours
+                expired: false,
                 days: 0,
                 allowance: 1,
                 penalty: 0,
@@ -321,6 +323,10 @@ export default class App extends Component {
         .then(snapshot => {
             if (snapshot.exists()) {
                 let info = snapshot.val();
+                info.expiration = this.expirationTimeToTimeToExpiration(info.expirationTime);
+                if (info.expiration <= 0) {
+                    info.expired = true;
+                }
                 let participants = Object.keys(info.participants);
                 const funcs = participants.map(participant => {
                         return this.db.ref(`users/${participant}`)
@@ -346,6 +352,16 @@ export default class App extends Component {
         }).catch(reason => {
             console.log(reason);
         });
+    }
+
+    expirationTimeToTimeToExpiration(expirationTime) {
+        const date = new Date();
+        const currentTime = date.getTime();
+        let timeDifference = expirationTime - currentTime;
+        let minutes = (timeDifference / (1000 * 60)).toFixed(0);
+        let hours = (timeDifference / (1000 * 60 * 60)).toFixed(0);
+        let timeDiffString = `${hours}:${minutes}`;
+        return timeDiffString;
     }
 
     streakToOwner(ownerID, streakID) {
