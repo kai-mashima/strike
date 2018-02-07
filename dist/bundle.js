@@ -40201,12 +40201,12 @@ var App = function (_Component) {
     }, {
         key: 'streakRequestToSender',
         value: function streakRequestToSender(ownerID, streakRequestID) {
-            this.db.ref('streakRequestOwners/' + ownerID + '/sent').child('' + streakRequestID).set(true);
+            this.db.ref('streakRequestOwners/' + ownerID + '/sent/' + streakRequestID).set(true);
         }
     }, {
         key: 'streakRequestToRecipient',
         value: function streakRequestToRecipient(recipientID, streakRequestID) {
-            this.db.ref('streakRequestOwners/' + recipientID + '/received').child('' + streakRequestID).set(true);
+            this.db.ref('streakRequestOwners/' + recipientID + '/received/' + streakRequestID).set(true);
         }
     }, {
         key: 'getStreakRequests',
@@ -40228,6 +40228,9 @@ var App = function (_Component) {
                     return _this7.streakRequestToInfo(request);
                 });
                 Promise.all(funcs).then(function (results) {
+                    results = results.filter(function (n) {
+                        return n;
+                    });
                     _this7.setState({
                         streakRequestsInfo: results
                     });
@@ -40245,14 +40248,16 @@ var App = function (_Component) {
             return this.db.ref('streakRequests/' + streakRequestID).once('value').then(function (snapshot) {
                 if (snapshot.exists()) {
                     streakRequest = snapshot.val();
-                    _this8.getUsername(streakRequest.sender).then(function (username) {
-                        streakRequest.senderUsername = username;
-                    });
-                    _this8.getUsername(streakRequest.recipient).then(function (username) {
-                        streakRequest.recipientUsername = username;
-                    });
-                } else {
-                    throw 'No streak requests found for this streak request ID';
+                    if (streakRequest.answered === false) {
+                        _this8.getUsername(streakRequest.sender).then(function (username) {
+                            streakRequest.senderUsername = username;
+                        });
+                        _this8.getUsername(streakRequest.recipient).then(function (username) {
+                            streakRequest.recipientUsername = username;
+                        });
+                    } else {
+                        streakRequest = null;
+                    }
                 }
             }).then(function () {
                 return streakRequest;
@@ -40288,13 +40293,15 @@ var App = function (_Component) {
 
                 var date = new Date();
                 var time = date.getTime();
-                var expirationTime = time + 24 * 3600000;
+                var expirationDate = time + 24 * 3600000;
+                var expirationTime = this.expirationTimeToTimeToExpiration(expirationDate);
                 var newStreakID = this.db.ref().child('streaks').push().key;
                 this.db.ref('streaks/' + newStreakID).set({
-                    participants: (_participants = {}, _defineProperty(_participants, userID, true), _defineProperty(_participants, friendID, true), _participants),
+                    participants: (_participants = {}, _defineProperty(_participants, userID, true), _defineProperty(_participants, friendID, false), _participants),
                     value: 0,
                     timestamp: time,
-                    expirationTime: expirationTime, // timestamp plus 24 hours
+                    expirationDate: expirationDate,
+                    expirationTime: expirationTime,
                     expired: false,
                     days: 0,
                     allowance: 1,
@@ -40321,16 +40328,23 @@ var App = function (_Component) {
                     _this10.setState({
                         streaks: streaks
                     });
-                    console.log('streaks grabbed: ' + _this10.state.streaks);
                     return streaks;
                 } else {
                     throw 'No owners found for this user ID';
                 }
             }).then(function (streakList) {
+                streakList.map(function (streakID) {
+                    return _this10.checkForExpiredStreaks(streakID);
+                });
+                return streakList;
+            }).then(function (streakList) {
                 var infoFuncs = streakList.map(function (streakID) {
-                    return _this10.streakToInfo(streakID);
+                    return _this10.streakToInfo(streakID, userID);
                 });
                 Promise.all(infoFuncs).then(function (results) {
+                    results = results.filter(function (n) {
+                        return n;
+                    });
                     _this10.setState({
                         streaksInfo: results
                     });
@@ -40341,39 +40355,60 @@ var App = function (_Component) {
         }
     }, {
         key: 'streakToInfo',
-        value: function streakToInfo(streakID) {
+        value: function streakToInfo(streakID, userID) {
             var _this11 = this;
 
+            var info = null;
             return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
                 if (snapshot.exists()) {
-                    var info = snapshot.val();
-                    info.expiration = _this11.expirationTimeToTimeToExpiration(info.expirationTime);
-                    if (info.expiration <= 0) {
-                        info.expired = true;
-                    }
-                    var participants = Object.keys(info.participants);
-                    var funcs = participants.map(function (participant) {
-                        return _this11.db.ref('users/' + participant).once('value').then(function (snapshot) {
-                            if (snapshot.exists()) {
-                                return snapshot.val().username;
-                            } else {
-                                throw 'No user by this participant id';
-                            }
-                        }).catch(function (reason) {
-                            console.log(reason);
-                        });
-                    });
-                    return Promise.all(funcs).then(function (results) {
-                        info.users = results;
+                    info = snapshot.val();
+                    if (info.expired === false) {
                         info.id = streakID;
-                        return info;
-                    });
+                        Object.keys(info.participants).map(function (participant) {
+                            if (participant === userID) {
+                                _this11.getUsername(participant).then(function (username) {
+                                    info.user = username;
+                                });
+                            } else {
+                                _this11.getUsername(participant).then(function (username) {
+                                    info.friend = username;
+                                });
+                            }
+                        });
+                    } else {
+                        info = null;
+                    }
+                }
+            }).then(function () {
+                return info;
+            }).catch(function (reason) {
+                console.log(reason);
+            });
+        }
+    }, {
+        key: 'checkForExpiredTime',
+        value: function checkForExpiredTime(val) {
+            return val === '0:0' ? true : false;
+        }
+    }, {
+        key: 'checkForExpiredStreaks',
+        value: function checkForExpiredStreaks(streakID) {
+            var _this12 = this;
+
+            this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+                if (snapshot.exists()) {
+                    var info = snapshot.val();
+                    var expirationTime = _this12.expirationTimeToTimeToExpiration(info.expirationDate);
+                    var expired = _this12.checkForExpiredTime(expirationTime);
+                    _this12.db.ref('streaks/' + streakID + '/expirationTime').set(expirationTime);
+                    _this12.db.ref('streaks/' + streakID + '/expired').set(expired);
                 } else {
-                    throw 'No streak found for this streakID';
+                    throw 'Check for Expired: No streak found for this streakID';
                 }
             }).catch(function (reason) {
                 console.log(reason);
             });
+            //send streak termination info to history db
         }
     }, {
         key: 'expirationTimeToTimeToExpiration',
@@ -40381,10 +40416,17 @@ var App = function (_Component) {
             var date = new Date();
             var currentTime = date.getTime();
             var timeDifference = expirationTime - currentTime;
-            var minutes = (timeDifference / (1000 * 60)).toFixed(0);
-            var hours = (timeDifference / (1000 * 60 * 60)).toFixed(0);
-            var timeDiffString = hours + ':' + minutes;
-            return timeDiffString;
+            var totalMinutes = (timeDifference / (1000 * 60)).toFixed(0);
+            var hours = Math.floor(totalMinutes / 60);
+            var minutes = totalMinutes % 60;
+            var timeDiffString = void 0;
+            if (hours < 0 && minutes < 0) {
+                timeDiffString = '0:0';
+                return timeDiffString;
+            } else {
+                timeDiffString = hours + ':' + minutes;
+                return timeDiffString;
+            }
         }
     }, {
         key: 'streakToOwner',
@@ -40418,12 +40460,12 @@ var App = function (_Component) {
     }, {
         key: 'getFriends',
         value: function getFriends(uid) {
-            var _this12 = this;
+            var _this13 = this;
 
             this.db.ref('friends/' + uid).once('value').then(function (snapshot) {
                 if (snapshot.exists()) {
                     var friends = Object.keys(snapshot.val());
-                    _this12.setState({
+                    _this13.setState({
                         friends: friends
                     });
                     return friends;
@@ -40432,10 +40474,10 @@ var App = function (_Component) {
                 }
             }).then(function (friends) {
                 var funcs = friends.map(function (friend) {
-                    return _this12.friendToInfo(friend);
+                    return _this13.friendToInfo(friend);
                 });
                 Promise.all(funcs).then(function (friendsInfo) {
-                    _this12.setState({
+                    _this13.setState({
                         friendsInfo: friendsInfo
                     });
                 });
@@ -40450,7 +40492,7 @@ var App = function (_Component) {
                 if (snapshot.exists()) {
                     return snapshot.val().username;
                 } else {
-                    throw 'No user found';
+                    throw 'Get Username: No user found';
                 }
             }).catch(function (reason) {
                 console.log(reason);
@@ -40467,7 +40509,7 @@ var App = function (_Component) {
                     info.uid = userID;
                     return info;
                 } else {
-                    throw 'No user found';
+                    throw 'Friend to Info: No user found';
                 }
             }).catch(function (reason) {
                 console.log(reason);
@@ -40476,13 +40518,13 @@ var App = function (_Component) {
     }, {
         key: 'addFriend',
         value: function addFriend(userID, friendID) {
-            var _this13 = this;
+            var _this14 = this;
 
             if (userID !== friendID) {
                 var stringID = friendID.toString();
                 //add functionality to check that friend isn't already a friend
                 this.state.friends.map(function (friend, index) {
-                    _this13.db.ref('friends/' + userID + '/' + stringID).set(true);
+                    _this14.db.ref('friends/' + userID + '/' + stringID).set(true);
                 });
                 var friends = this.state.friends.slice();
                 friends.push(friendID);
@@ -40507,7 +40549,7 @@ var App = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this14 = this;
+            var _this15 = this;
 
             return _react2.default.createElement(
                 _reactRouterDom.BrowserRouter,
@@ -40527,14 +40569,14 @@ var App = function (_Component) {
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/streaks', component: function component() {
                                     return _react2.default.createElement(_streaks2.default, {
-                                        uid: _this14.state.uid,
-                                        streaks: _this14.state.streaksInfo,
-                                        friends: _this14.state.friendsInfo,
-                                        sendStreakRequest: _this14.sendStreakRequest,
-                                        value: _this14.state.user.value,
-                                        requests: _this14.state.streakRequestsInfo,
-                                        acceptStreakRequest: _this14.acceptStreakRequest,
-                                        rejectStreakRequest: _this14.rejectStreakRequest
+                                        uid: _this15.state.uid,
+                                        streaks: _this15.state.streaksInfo,
+                                        friends: _this15.state.friendsInfo,
+                                        sendStreakRequest: _this15.sendStreakRequest,
+                                        value: _this15.state.user.value,
+                                        requests: _this15.state.streakRequestsInfo,
+                                        acceptStreakRequest: _this15.acceptStreakRequest,
+                                        rejectStreakRequest: _this15.rejectStreakRequest
                                     });
                                 }
                             }),
@@ -40544,17 +40586,17 @@ var App = function (_Component) {
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/profile', component: function component() {
                                     return _react2.default.createElement(_profile2.default, {
-                                        signOut: _this14.signOut,
-                                        user: _this14.state.user
+                                        signOut: _this15.signOut,
+                                        user: _this15.state.user
                                     });
                                 }
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/friends', component: function component() {
                                     return _react2.default.createElement(_friends2.default, {
-                                        friends: _this14.state.friendsInfo,
-                                        addFriend: _this14.addFriend,
-                                        user: _this14.state.uid,
-                                        searchUsers: _this14.searchUsers
+                                        friends: _this15.state.friendsInfo,
+                                        addFriend: _this15.addFriend,
+                                        user: _this15.state.uid,
+                                        searchUsers: _this15.searchUsers
                                     });
                                 }
                             }),
@@ -56017,9 +56059,15 @@ var Streaks = function (_Component) {
                     'You have no streaks'
                 )
             );
+            var turn = null;
             if (this.props.streaks.length != 0) {
                 streaksRender = this.props.streaks.map(function (streak, index) {
-                    return _react2.default.createElement(_streak2.default, { key: index, streak: streak });
+                    Object.keys(streak.participants).map(function (participant) {
+                        if (Object.keys(participant)[0] === _this2.props.uid) {
+                            turn = streak.participants[participant];
+                        }
+                    });
+                    return _react2.default.createElement(_streak2.default, { key: index, streak: streak, userTurn: turn, uid: _this2.props.uid });
                 });
             }
 
@@ -56156,6 +56204,8 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactDom = __webpack_require__(14);
 
+var _reactBootstrap = __webpack_require__(62);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -56170,51 +56220,140 @@ var Streak = function (_Component) {
     function Streak(props) {
         _classCallCheck(this, Streak);
 
-        return _possibleConstructorReturn(this, (Streak.__proto__ || Object.getPrototypeOf(Streak)).call(this, props));
+        var _this = _possibleConstructorReturn(this, (Streak.__proto__ || Object.getPrototypeOf(Streak)).call(this, props));
+
+        _this.toggleModal = _this.toggleModal.bind(_this);
+
+        _this.state = {
+            isVisible: false
+        };
+        return _this;
     }
 
     _createClass(Streak, [{
+        key: 'toggleModal',
+        value: function toggleModal() {
+            this.setState({
+                isVisible: !this.state.isVisible
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
-            return _react2.default.createElement(
+            var userRender = _react2.default.createElement('span', { className: 'streak-user-glyph glyphicon glyphicon-user' });
+            // this.props.streak.imgAvailable ? (
+            //     <img src='' className='' />
+            // ) : (
+            //     <span className='streak-user-glyph glyphicon glyphicon-user'></span>
+            // );
+
+            var stokeBtnRender = this.props.turn ? _react2.default.createElement(
                 'div',
-                { className: 'streaks-item' },
+                { className: 'streak-item' },
                 _react2.default.createElement(
-                    'div',
-                    { className: 'streak-item-img streak-user-img' },
-                    this.props.streak.imgAvailable ? _react2.default.createElement('img', { src: '', className: '' }) : _react2.default.createElement('span', { className: 'streak-user-glyph glyphicon glyphicon-user' })
-                ),
+                    'span',
+                    { className: 'btn btn-success' },
+                    'Stoke'
+                )
+            ) : _react2.default.createElement(
+                'div',
+                { className: 'streak-item' },
                 _react2.default.createElement(
-                    'div',
-                    { className: 'streak-item' },
+                    'span',
+                    { className: 'btn btn-default disabled' },
+                    'Stoke'
+                )
+            );
+
+            var modalRender = _react2.default.createElement(
+                _reactBootstrap.Modal,
+                { show: this.state.isVisible, onHide: this.toggleModal },
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Header,
+                    null,
                     _react2.default.createElement(
-                        'span',
+                        _reactBootstrap.Modal.Title,
                         null,
-                        '@',
-                        this.props.streak.users[0],
-                        ' & @',
-                        this.props.streak.users[1]
+                        'Streak Info'
                     )
                 ),
                 _react2.default.createElement(
-                    'div',
-                    { className: 'streak-item' },
+                    _reactBootstrap.Modal.Body,
+                    null,
                     _react2.default.createElement(
-                        'span',
-                        null,
-                        this.props.streak.days
-                    ),
-                    _react2.default.createElement('span', { className: 'glyphicon glyphicon-fire' })
+                        'div',
+                        { className: 'col-container' },
+                        _react2.default.createElement(
+                            'p',
+                            null,
+                            'Streak Info'
+                        )
+                    )
                 ),
                 _react2.default.createElement(
-                    'div',
-                    { className: 'streak-item' },
+                    _reactBootstrap.Modal.Footer,
+                    null,
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'streak-item' },
+                        _react2.default.createElement(
+                            'span',
+                            { className: 'btn btn-success' },
+                            'Boost'
+                        )
+                    ),
+                    stokeBtnRender,
                     _react2.default.createElement(
                         'span',
-                        null,
-                        this.props.streak.expiration
+                        { onClick: this.toggleModal },
+                        'Close'
+                    )
+                )
+            );
+
+            console.log(this.pro);
+            return _react2.default.createElement(
+                'div',
+                null,
+                modalRender,
+                _react2.default.createElement(
+                    'div',
+                    { onClick: this.toggleModal, className: 'streaks-item' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'streak-item-img streak-user-img' },
+                        userRender
                     ),
-                    _react2.default.createElement('span', { className: 'glyphicon glyphicon-time' })
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'streak-item' },
+                        _react2.default.createElement(
+                            'span',
+                            null,
+                            '@',
+                            this.props.streak.friend
+                        )
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'streak-item' },
+                        _react2.default.createElement(
+                            'span',
+                            null,
+                            this.props.streak.days
+                        ),
+                        _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-fire' })
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'streak-item' },
+                        _react2.default.createElement(
+                            'span',
+                            null,
+                            this.props.streak.expirationTime
+                        ),
+                        _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time' })
+                    )
                 )
             );
         }

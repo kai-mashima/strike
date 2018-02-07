@@ -188,11 +188,11 @@ export default class App extends Component {
     }
 
     streakRequestToSender(ownerID, streakRequestID) {
-        this.db.ref(`streakRequestOwners/${ownerID}/sent`).child(`${streakRequestID}`).set(true);
+        this.db.ref(`streakRequestOwners/${ownerID}/sent/${streakRequestID}`).set(true);
     }
 
     streakRequestToRecipient(recipientID, streakRequestID) {
-        this.db.ref(`streakRequestOwners/${recipientID}/received`).child(`${streakRequestID}`).set(true);
+        this.db.ref(`streakRequestOwners/${recipientID}/received/${streakRequestID}`).set(true);
     }
 
     getStreakRequests(userID) {
@@ -211,6 +211,7 @@ export default class App extends Component {
         }).then(streakRequests => {
             const funcs = streakRequests.map(request => this.streakRequestToInfo(request));
             Promise.all(funcs).then(results => {
+                results = results.filter(n => n);
                 this.setState({
                     streakRequestsInfo: results
                 });
@@ -227,14 +228,16 @@ export default class App extends Component {
         .then(snapshot => {
             if (snapshot.exists()) {
                 streakRequest = snapshot.val();
-                this.getUsername(streakRequest.sender).then(username => {
-                    streakRequest.senderUsername = username;
-                });
-                this.getUsername(streakRequest.recipient).then(username => {
-                    streakRequest.recipientUsername = username;
-                });
-            } else {
-                throw 'No streak requests found for this streak request ID';
+                if (streakRequest.answered === false) {
+                    this.getUsername(streakRequest.sender).then(username => {
+                        streakRequest.senderUsername = username;
+                    });
+                    this.getUsername(streakRequest.recipient).then(username => {
+                        streakRequest.recipientUsername = username;
+                    });
+                } else {
+                    streakRequest = null;
+                }
             }
         }).then(() => {
             return streakRequest;
@@ -265,17 +268,19 @@ export default class App extends Component {
         if (userID !== friendID) {
             const date = new Date();
             const time = date.getTime();
-            let expirationTime = time + (24 * 3600000);
+            let expirationDate = time + (24 * 3600000);
+            let expirationTime = this.expirationTimeToTimeToExpiration(expirationDate);
             const newStreakID = this.db.ref().child('streaks').push().key;
             this.db.ref(`streaks/${newStreakID}`)
             .set({
                 participants: {
                     [userID]: true,
-                    [friendID]: true,
+                    [friendID]: false,
                 },
                 value: 0,
                 timestamp: time,
-                expirationTime: expirationTime, // timestamp plus 24 hours
+                expirationDate: expirationDate,
+                expirationTime: expirationTime,
                 expired: false,
                 days: 0,
                 allowance: 1,
@@ -300,14 +305,17 @@ export default class App extends Component {
                 this.setState({
                     streaks: streaks
                 });
-                console.log('streaks grabbed: ' + this.state.streaks);
                 return streaks;
             } else {
                 throw 'No owners found for this user ID';
             }
         }).then(streakList => {
-            const infoFuncs = streakList.map(streakID => this.streakToInfo(streakID));
+            streakList.map(streakID => this.checkForExpiredStreaks(streakID));
+            return streakList;
+        }).then(streakList => {
+            const infoFuncs = streakList.map(streakID => this.streakToInfo(streakID, userID));
             Promise.all(infoFuncs).then(results => {
+                results = results.filter(n => n);
                 this.setState({
                     streaksInfo: results
                 });
@@ -317,51 +325,80 @@ export default class App extends Component {
         });
     }
 
-    streakToInfo(streakID){
+    streakToInfo(streakID, userID){
+        let info = null;
         return this.db.ref(`streaks/${streakID}`)
+        .once('value')
+        .then(snapshot => { 
+            if (snapshot.exists()) {
+                info = snapshot.val();
+                if (info.expired === false) {
+                    info.id = streakID;
+                    Object.keys(info.participants).map(participant => {
+                        if (participant === userID) {
+                            this.getUsername(participant).then(username => {
+                                info.user = username;
+                            });
+                        } else {
+                            this.getUsername(participant).then(username => {
+                                info.friend = username;
+                            });
+                        } 
+                    });
+                    
+                } else {
+                    info = null;
+                }
+            }
+        }).then(() => {
+            return info;
+        }).catch(reason => {
+            console.log(reason);
+        });
+    }
+
+    checkForExpiredTime(val){
+        return (val === '0:0') ? (
+            true
+        ) : (
+            false
+        )
+    }
+
+    checkForExpiredStreaks(streakID) {
+        this.db.ref(`streaks/${streakID}`)
         .once('value')
         .then(snapshot => {
             if (snapshot.exists()) {
                 let info = snapshot.val();
-                info.expiration = this.expirationTimeToTimeToExpiration(info.expirationTime);
-                if (info.expiration <= 0) {
-                    info.expired = true;
-                }
-                let participants = Object.keys(info.participants);
-                const funcs = participants.map(participant => {
-                        return this.db.ref(`users/${participant}`)
-                        .once('value')
-                        .then(snapshot => {
-                            if (snapshot.exists()) {
-                                return snapshot.val().username;
-                            } else {
-                                throw 'No user by this participant id';
-                            }
-                        }).catch(reason => {
-                            console.log(reason);
-                        });
-                    });
-                return Promise.all(funcs).then(results => {
-                    info.users = results;
-                    info.id = streakID;
-                    return info;
-                });
+                let expirationTime = this.expirationTimeToTimeToExpiration(info.expirationDate);
+                let expired = this.checkForExpiredTime(expirationTime);
+                this.db.ref(`streaks/${streakID}/expirationTime`).set(expirationTime);
+                this.db.ref(`streaks/${streakID}/expired`).set(expired);
             } else {
-                throw 'No streak found for this streakID';
+                throw 'Check for Expired: No streak found for this streakID';
             }
         }).catch(reason => {
             console.log(reason);
         });
+        //send streak termination info to history db
     }
 
     expirationTimeToTimeToExpiration(expirationTime) {
         const date = new Date();
         const currentTime = date.getTime();
         let timeDifference = expirationTime - currentTime;
-        let minutes = (timeDifference / (1000 * 60)).toFixed(0);
-        let hours = (timeDifference / (1000 * 60 * 60)).toFixed(0);
-        let timeDiffString = `${hours}:${minutes}`;
-        return timeDiffString;
+        let totalMinutes = (timeDifference / (1000 * 60)).toFixed(0);
+        let hours = Math.floor(totalMinutes/60);
+        let minutes = totalMinutes % 60;
+        let timeDiffString;
+        if (hours < 0 && minutes < 0) {
+            timeDiffString = '0:0';
+            return timeDiffString;
+        } else {
+            timeDiffString = `${hours}:${minutes}`;
+            return timeDiffString;
+        }
     }
 
     streakToOwner(ownerID, streakID) {
@@ -427,7 +464,7 @@ export default class App extends Component {
             if (snapshot.exists()) {
                 return snapshot.val().username;
             } else {
-                throw 'No user found';
+                throw 'Get Username: No user found';
             }
         }).catch(reason => {
             console.log(reason);
@@ -443,7 +480,7 @@ export default class App extends Component {
                 info.uid = userID;
                 return info;
             } else {
-                throw 'No user found';
+                throw 'Friend to Info: No user found';
             }
         }).catch(reason => {
             console.log(reason);

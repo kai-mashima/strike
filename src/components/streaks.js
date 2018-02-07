@@ -77,10 +77,16 @@ export default class Streaks extends Component {
         }
 
         let streaksRender = <div><span>You have no streaks</span></div>;
+        let turn = null;
         if (this.props.streaks.length != 0) {
-            streaksRender = this.props.streaks.map((streak, index) => (
-                <Streak key={index} streak={streak}/>
-            ));
+            streaksRender = this.props.streaks.map((streak, index) => {
+                Object.keys(streak.participants).map(participant => {
+                    if (Object.keys(participant)[0] === this.props.uid) {
+                        turn = streak.participants[participant];
+                    }
+                });
+                return <Streak key={index} streak={streak} userTurn={turn} uid={this.props.uid}/>;
+            });
         }
 
         return (

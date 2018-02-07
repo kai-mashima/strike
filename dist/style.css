@@ -296,13 +296,17 @@ li {
     font-size: 20pt;
 }
 
+.glyphicon.streak-item-glyph::before {
+    font-size: 20pt;
+}
+
 .streak-item-img {
     flex: 0 1 auto;
 }
 
 .streak-item {
     flex: 0 1 auto;
-    width: 25%;
+    width: 17%;
 }
 
 .friends-content {
