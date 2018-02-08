@@ -55,7 +55,7 @@ export default class Streaks extends Component {
             friendsRender = this.props.friends.map((friend, index) => (
                 <div className='col-item row-container friend-list-container' key={index}>
                     <span className='friend-list-item row-item'>@{friend.username}</span>
-                    <span className='friend-list-item row-item btn btn-success' onClick={() => this.handleStreakStart(this.props.uid, friend.uid)}> Start Streak</span>
+                    <span className='friend-list-item row-item btn btn-success' onClick={() => this.handleStreakStart(this.props.userID, friend.uid)}> Start Streak</span>
                 </div>
             ));
         }
@@ -81,12 +81,11 @@ export default class Streaks extends Component {
         if (this.props.streaks.length != 0) {
             streaksRender = this.props.streaks.map((streak, index) => {
                 Object.keys(streak.participants).map(participant => {
-                    if (Object.keys(participant)[0] === this.props.uid) {
+                    if (Object.keys(participant)[0] === this.props.userID) {
                         turn = streak.participants[participant];
                     }
                 });
-                //add streaks to stoke and boost to streak props
-                return <Streak key={index} streak={streak} userTurn={turn} uid={this.props.uid}/>;
+                return <Streak key={index} streak={streak} stokeStreak={this.props.stokeStreak} userTurn={turn} userID={this.props.userID}/>;
             });
         }
 

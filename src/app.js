@@ -38,6 +38,7 @@ export default class App extends Component {
         this.getFriends = this.getFriends.bind(this);
         this.searchUsers = this.searchUsers.bind(this);
         this.startStreak = this.startStreak.bind(this);
+        this.stokeStreak = this.stokeStreak.bind(this);
         this.getStreaks = this.getStreaks.bind(this);
         this.searchUsers = this.searchUsers.bind(this);
         this.acceptStreakRequest = this.acceptStreakRequest.bind(this);
@@ -50,7 +51,7 @@ export default class App extends Component {
         //STATE
         this.state = {
             loggedIn: false,
-            uid: '',
+            userID: '',
             user: {},
             streaks: [],
             streaksInfo: [],
@@ -79,10 +80,10 @@ export default class App extends Component {
         });
     }
 
-    addNewUser(username = '', uid, first = '', last = '', email = '', value = 0, allowance = 5, imgAvailable = false, img = null, totalStreaks = 0, totalDays = 0) {
+    addNewUser(username = '', userID, first = '', last = '', email = '', value = 0, allowance = 5, imgAvailable = false, img = null, totalStreaks = 0, totalDays = 0) {
         const date = new Date();
         const time = date.getTime();
-        this.db.ref(`users/${uid}`).set({
+        this.db.ref(`users/${userID}`).set({
             first: first,
             last: last, 
             email: email,
@@ -96,12 +97,12 @@ export default class App extends Component {
             totalDays: totalDays,
         });
         this.setState({
-            uid: uid,
+            userID: userID,
         });
     }
 
-    getUserInfo(uid) {
-        this.db.ref(`users/${uid}`)
+    getUserInfo(userID) {
+        this.db.ref(`users/${userID}`)
         .once('value')
         .then(snapshot => {
             this.setState({
@@ -131,18 +132,18 @@ export default class App extends Component {
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 let email = user.email;
-                let uid = user.uid;
+                let userID = user.uid;
                 this.setState({
                     loggedIn: true,
                     email: email,
-                    uid: uid,
+                    userID: userID,
                 }); 
                 console.log('Logged In');
             } else {
                 this.setState({
                     loggedIn: false,
                     email: '',
-                    uid: '',
+                    userID: '',
                 });
                 console.log('Not Logged In');
             }
@@ -155,7 +156,7 @@ export default class App extends Component {
             console.log('Signed Out');
             this.setState({
                 loggedIn: false,
-                uid: '',
+                userID: '',
                 user: {},
                 streaks: [],
                 streaksInfo: [],
@@ -357,12 +358,38 @@ export default class App extends Component {
         });
     }
 
-    stokeStreak() {
+    stokeStreak(streakID, userID) {
+        // this.checkForExpiredStreaks(streakID);
+        this.db.ref(`streaks/${streakID}`)
+        .once('value')
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                let streak = snapshot.val();
 
+                const date = new Date();
+                const time = date.getTime();
+                let expirationDate = time + (24 * 3600000);
+                this.db.ref(`streaks/${streakID}/expirationDate`).set(expirationDate);
+
+                let expirationTime = this.expirationTimeToTimeToExpiration(expirationDate);
+                this.db.ref(`streaks/${streakID}/expirationTime`).set(expirationTime);
+
+                Object.keys(streak.participants).map(participant => {
+                    let boolVal = !streak.participants[participant];
+                    this.db.ref(`streaks/${streakID}/participants/${participant}`).set(boolVal);
+                });
+            } else {
+                throw 'No streak found for this streakID';
+            }
+        }).then(() => {
+            this.getStreaks(userID);
+        }).catch(reason => {
+            console.log(reason);
+        });
     }
 
     boostStreak() {
-        
+
     }
 
     checkForExpiredTime(val){
@@ -422,15 +449,15 @@ export default class App extends Component {
             if (snapshot.exists()) {
                 let result = {};
                 let data = snapshot.val();
-                let uid = Object.keys(data)[0];
-                if (uid === userID) {
+                let foundUserID = Object.keys(data)[0];
+                if (foundUserID === userID) {
                     console.log('You cannot add yourself as a friend');
                     result.self = true;
                 } else {
                     result.self = false;
                 }
-                result.uid = uid;
-                let innerData = snapshot.child(`${uid}`).val();
+                result.uid = foundUserID;
+                let innerData = snapshot.child(`${foundUserID}`).val();
                 result.first = innerData.first;
                 result.last = innerData.last
                 return result;
@@ -440,8 +467,8 @@ export default class App extends Component {
         });
     }
 
-    getFriends(uid) {
-        this.db.ref(`friends/${uid}`)
+    getFriends(userID) {
+        this.db.ref(`friends/${userID}`)
         .once('value')
         .then(snapshot => {
             if (snapshot.exists()) {
@@ -535,7 +562,7 @@ export default class App extends Component {
                                     />
                                     <Route path='/streaks' component={() => (
                                             <Streaks 
-                                                uid={this.state.uid}
+                                                userID={this.state.userID}
                                                 streaks={this.state.streaksInfo}
                                                 friends={this.state.friendsInfo}
                                                 sendStreakRequest={this.sendStreakRequest}
@@ -543,6 +570,7 @@ export default class App extends Component {
                                                 requests={this.state.streakRequestsInfo}
                                                 acceptStreakRequest={this.acceptStreakRequest}
                                                 rejectStreakRequest={this.rejectStreakRequest}
+                                                stokeStreak={this.stokeStreak}
                                             />
                                         )}
                                     />
@@ -561,7 +589,7 @@ export default class App extends Component {
                                             <Friends 
                                                 friends={this.state.friendsInfo}
                                                 addFriend={this.addFriend}
-                                                user={this.state.uid}
+                                                user={this.state.userID}
                                                 searchUsers={this.searchUsers}
                                             />
                                         )}

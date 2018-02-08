@@ -7,6 +7,7 @@ export default class Streak extends Component {
         super(props);
 
         this.toggleModal = this.toggleModal.bind(this);
+        this.handleStreakStoke = this.handleStreakStoke.bind(this);
 
         this.state = {
             isVisible: false,
@@ -19,7 +20,10 @@ export default class Streak extends Component {
         });
     }
 
-    //add function to handle onlick and invoke func to stoke streak from props
+    handleStreakStoke() {
+        this.props.stokeStreak(this.props.streak.id, this.props.userID);
+        this.toggleModal();
+    }
 
     render() {
         let userRender = <span className='streak-user-glyph glyphicon glyphicon-user'></span>;
@@ -30,7 +34,7 @@ export default class Streak extends Component {
         // );
 
         let stokeBtnRender = (this.props.streak.friendTurn) ? ( //add onclick to active btn
-            <span className='btn btn-success'>Stoke</span>
+            <span onClick={this.handleStreakStoke} className='btn btn-success'>Stoke</span>
         ) : (
             <span className='btn btn-default disabled'>Stoke</span>
         );
