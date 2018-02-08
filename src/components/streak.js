@@ -14,12 +14,14 @@ export default class Streak extends Component {
         }
     }
 
+    //toggle state for streak information modal
     toggleModal() {
         this.setState({
             isVisible: !this.state.isVisible
         });
     }
 
+    //stoke a streak and toggle modal
     handleStreakStoke() {
         this.props.stokeStreak(this.props.streak.id, this.props.userID);
         this.toggleModal();

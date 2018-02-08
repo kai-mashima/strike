@@ -22,12 +22,14 @@ export default class Friends extends Component {
         }
     }
 
+    //grab search input information
     handleSearchInput(e) {
         this.setState({
             searchInput: e.target.value
         });
     }
 
+    //search for a user by username and populate state with results
     handleSearchSubmit() {
         this.props.searchUsers(this.state.searchInput, this.props.user)
         .then(result => {
@@ -37,12 +39,14 @@ export default class Friends extends Component {
         });
     }
 
+    //toggle state for adding a friend modal
     toggleAddFriendModal(){
         this.setState({
             isVisible: !this.state.isVisible
         });
     }
 
+    //add a friend with search results info
     handleAddFriend(){
         this.props.addFriend(this.props.user, this.state.searchResults.uid);
     }

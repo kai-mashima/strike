@@ -40004,19 +40004,21 @@ var App = function (_Component) {
         _this.db = _this.app.database();
 
         //BINDING
+        //login|signup|setup
         _this.loginUser = _this.loginUser.bind(_this);
         _this.getUserInfo = _this.getUserInfo.bind(_this);
         _this.signupUser = _this.signupUser.bind(_this);
         _this.addNewUser = _this.addNewUser.bind(_this);
         _this.signOut = _this.signOut.bind(_this);
-        _this.addFriend = _this.addFriend.bind(_this);
         _this.confirmLogin = _this.confirmLogin.bind(_this);
+        //friends
+        _this.addFriend = _this.addFriend.bind(_this);
         _this.getFriends = _this.getFriends.bind(_this);
         _this.searchUsers = _this.searchUsers.bind(_this);
+        //streaks
         _this.startStreak = _this.startStreak.bind(_this);
         _this.stokeStreak = _this.stokeStreak.bind(_this);
         _this.getStreaks = _this.getStreaks.bind(_this);
-        _this.searchUsers = _this.searchUsers.bind(_this);
         _this.acceptStreakRequest = _this.acceptStreakRequest.bind(_this);
         _this.rejectStreakRequest = _this.rejectStreakRequest.bind(_this);
         _this.getUsername = _this.getUsername.bind(_this);
@@ -40038,6 +40040,9 @@ var App = function (_Component) {
         };
         return _this;
     }
+
+    //creates a new firebase auth for a user and initials relevant functions to grab user info and set states
+
 
     _createClass(App, [{
         key: 'signupUser',
@@ -40070,6 +40075,9 @@ var App = function (_Component) {
                 console.log('User Signup Error: ' + errorCode + ': ' + errorMessage);
             });
         }
+
+        //adds a new user to the db
+
     }, {
         key: 'addNewUser',
         value: function addNewUser() {
@@ -40104,6 +40112,9 @@ var App = function (_Component) {
                 userID: userID
             });
         }
+
+        //grabs the information of a user by id
+
     }, {
         key: 'getUserInfo',
         value: function getUserInfo(userID) {
@@ -40115,6 +40126,9 @@ var App = function (_Component) {
                 });
             });
         }
+
+        //login a user with an email and password
+
     }, {
         key: 'loginUser',
         value: function loginUser(email, password) {
@@ -40134,6 +40148,9 @@ var App = function (_Component) {
                 console.log('User Login Error: ' + errorCode + ': ' + errorMessage);
             });
         }
+
+        //confirms firebase auth
+
     }, {
         key: 'confirmLogin',
         value: function confirmLogin() {
@@ -40159,6 +40176,9 @@ var App = function (_Component) {
                 }
             });
         }
+
+        //signs out of firebase auth and resets state
+
     }, {
         key: 'signOut',
         value: function signOut() {
@@ -40181,6 +40201,9 @@ var App = function (_Component) {
                 console.log('Error Signing Out:' + error);
             });
         }
+
+        //adds a streak request to the db and calls functions to assign streak request to sender and recipient
+
     }, {
         key: 'sendStreakRequest',
         value: function sendStreakRequest(userID, recipientID) {
@@ -40199,16 +40222,25 @@ var App = function (_Component) {
                 console.log('No request sent: You cannot send a streak request to yourself.');
             }
         }
+
+        //sets the given streak request id to the sender of the request
+
     }, {
         key: 'streakRequestToSender',
         value: function streakRequestToSender(ownerID, streakRequestID) {
             this.db.ref('streakRequestOwners/' + ownerID + '/sent/' + streakRequestID).set(true);
         }
+
+        //sets the given streak request id to the recipient of the request
+
     }, {
         key: 'streakRequestToRecipient',
         value: function streakRequestToRecipient(recipientID, streakRequestID) {
             this.db.ref('streakRequestOwners/' + recipientID + '/received/' + streakRequestID).set(true);
         }
+
+        //grabs and sets streak information to state by user id
+
     }, {
         key: 'getStreakRequests',
         value: function getStreakRequests(userID) {
@@ -40240,6 +40272,9 @@ var App = function (_Component) {
                 console.log(reason);
             });
         }
+
+        //returns a promise containing the information of a streak request by streak request id
+
     }, {
         key: 'streakRequestToInfo',
         value: function streakRequestToInfo(streakRequestID) {
@@ -40266,6 +40301,9 @@ var App = function (_Component) {
                 console.log(reason);
             });
         }
+
+        //accept a streak request and set according information on streak request and start a streak with relevant information
+
     }, {
         key: 'acceptStreakRequest',
         value: function acceptStreakRequest(streakRequestID, userID, senderID) {
@@ -40276,6 +40314,9 @@ var App = function (_Component) {
 
             this.startStreak(userID, senderID);
         }
+
+        //reject a streak request and set according information on streak request 
+
     }, {
         key: 'rejectStreakRequest',
         value: function rejectStreakRequest(streakRequestID, userID, senderID) {
@@ -40284,6 +40325,9 @@ var App = function (_Component) {
                 accepted: false
             });
         }
+
+        //adds a new streak to both users streak lists and the streak list
+
     }, {
         key: 'startStreak',
         value: function startStreak(userID, friendID) {
@@ -40317,6 +40361,9 @@ var App = function (_Component) {
                 console.log('No streak started: You cannot start a streak with yourself.');
             }
         }
+
+        //grabs and sets state to the streaks by user id
+
     }, {
         key: 'getStreaks',
         value: function getStreaks(userID) {
@@ -40354,6 +40401,9 @@ var App = function (_Component) {
                 console.log(reason);
             });
         }
+
+        //returns a promise containing the information of a streak by streak id
+
     }, {
         key: 'streakToInfo',
         value: function streakToInfo(streakID, userID) {
@@ -40387,6 +40437,9 @@ var App = function (_Component) {
                 console.log(reason);
             });
         }
+
+        //toggles and resests the time for the ownership of a streaks termination period 
+
     }, {
         key: 'stokeStreak',
         value: function stokeStreak(streakID, userID) {
@@ -40421,11 +40474,17 @@ var App = function (_Component) {
     }, {
         key: 'boostStreak',
         value: function boostStreak() {}
+
+        //returns a boolean depending on the input value
+
     }, {
         key: 'checkForExpiredTime',
         value: function checkForExpiredTime(val) {
             return val === '0:0' ? true : false;
         }
+
+        //checks a streak by id and check the termination time on it and sets the expired key on the streak
+
     }, {
         key: 'checkForExpiredStreaks',
         value: function checkForExpiredStreaks(streakID) {
@@ -40446,6 +40505,9 @@ var App = function (_Component) {
             });
             //send streak termination info to history db
         }
+
+        //returns the time difference between the current time and a provided time 
+
     }, {
         key: 'expirationTimeToTimeToExpiration',
         value: function expirationTimeToTimeToExpiration(expirationTime) {
@@ -40464,11 +40526,17 @@ var App = function (_Component) {
                 return timeDiffString;
             }
         }
+
+        //sets a streak id to a users streaklist
+
     }, {
         key: 'streakToOwner',
         value: function streakToOwner(ownerID, streakID) {
             this.db.ref('streakOwners/' + ownerID).child('' + streakID).set(true);
         }
+
+        //searches and returns a promise containing the user information by username
+
     }, {
         key: 'searchUsers',
         value: function searchUsers(username, userID) {
@@ -40493,6 +40561,9 @@ var App = function (_Component) {
                 }
             });
         }
+
+        //grabs and sets to state the friends list of a user by id
+
     }, {
         key: 'getFriends',
         value: function getFriends(userID) {
@@ -40521,6 +40592,9 @@ var App = function (_Component) {
                 console.log(reason);
             });
         }
+
+        //Grab and returns just the username of a user by id
+
     }, {
         key: 'getUsername',
         value: function getUsername(userID) {
@@ -40534,12 +40608,13 @@ var App = function (_Component) {
                 console.log(reason);
             });
         }
+
+        //Grabs and returns user information by id
+
     }, {
         key: 'friendToInfo',
         value: function friendToInfo(userID) {
-            //uses uid to grab users data 
-            return this.db.ref('users/' + userID).once('value') //grab snapshot once
-            .then(function (snapshot) {
+            return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
                 if (snapshot.exists()) {
                     var info = snapshot.val();
                     info.uid = userID;
@@ -40551,6 +40626,9 @@ var App = function (_Component) {
                 console.log(reason);
             });
         }
+
+        //adds a friend to a users friends list
+
     }, {
         key: 'addFriend',
         value: function addFriend(userID, friendID) {
@@ -43955,6 +44033,9 @@ var Friends = function (_Component) {
         return _this;
     }
 
+    //grab search input information
+
+
     _createClass(Friends, [{
         key: 'handleSearchInput',
         value: function handleSearchInput(e) {
@@ -43962,6 +44043,9 @@ var Friends = function (_Component) {
                 searchInput: e.target.value
             });
         }
+
+        //search for a user by username and populate state with results
+
     }, {
         key: 'handleSearchSubmit',
         value: function handleSearchSubmit() {
@@ -43973,6 +44057,9 @@ var Friends = function (_Component) {
                 });
             });
         }
+
+        //toggle state for adding a friend modal
+
     }, {
         key: 'toggleAddFriendModal',
         value: function toggleAddFriendModal() {
@@ -43980,6 +44067,9 @@ var Friends = function (_Component) {
                 isVisible: !this.state.isVisible
             });
         }
+
+        //add a friend with search results info
+
     }, {
         key: 'handleAddFriend',
         value: function handleAddFriend() {
@@ -55978,6 +56068,9 @@ var Streaks = function (_Component) {
         return _this;
     }
 
+    //toggle state for streak request modal
+
+
     _createClass(Streaks, [{
         key: 'toggleRequestsModal',
         value: function toggleRequestsModal() {
@@ -55985,6 +56078,9 @@ var Streaks = function (_Component) {
                 isVisibleRequests: !this.state.isVisibleRequests
             });
         }
+
+        //toggle state for new streak modal
+
     }, {
         key: 'toggleNewStreakModal',
         value: function toggleNewStreakModal() {
@@ -55992,18 +56088,27 @@ var Streaks = function (_Component) {
                 isVisibleStreak: !this.state.isVisibleStreak
             });
         }
+
+        //initiate streak request process and toggle modal
+
     }, {
         key: 'handleStreakStart',
         value: function handleStreakStart(userID, friendID) {
             this.props.sendStreakRequest(userID, friendID);
             this.toggleNewStreakModal();
         }
+
+        //accept streak request and toggle modal
+
     }, {
         key: 'handleRequestAcceptance',
         value: function handleRequestAcceptance(requestID, userID, friendID) {
             this.props.acceptStreakRequest(requestID, userID, friendID);
             this.toggleRequestsModal();
         }
+
+        //reject streak request and toggle modal
+
     }, {
         key: 'handleRequestRejection',
         value: function handleRequestRejection(requestID, userID, friendID) {
@@ -56268,6 +56373,9 @@ var Streak = function (_Component) {
         return _this;
     }
 
+    //toggle state for streak information modal
+
+
     _createClass(Streak, [{
         key: 'toggleModal',
         value: function toggleModal() {
@@ -56275,6 +56383,9 @@ var Streak = function (_Component) {
                 isVisible: !this.state.isVisible
             });
         }
+
+        //stoke a streak and toggle modal
+
     }, {
         key: 'handleStreakStoke',
         value: function handleStreakStoke() {

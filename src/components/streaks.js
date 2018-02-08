@@ -22,28 +22,33 @@ export default class Streaks extends Component {
         }
     }
 
+    //toggle state for streak request modal
     toggleRequestsModal() {
         this.setState({
             isVisibleRequests: !this.state.isVisibleRequests
         });
     }
 
+    //toggle state for new streak modal
     toggleNewStreakModal() {
         this.setState({
             isVisibleStreak: !this.state.isVisibleStreak
         });
     }
 
+    //initiate streak request process and toggle modal
     handleStreakStart(userID, friendID) {
         this.props.sendStreakRequest(userID, friendID);
         this.toggleNewStreakModal();
     }
 
+    //accept streak request and toggle modal
     handleRequestAcceptance(requestID, userID, friendID) {
         this.props.acceptStreakRequest(requestID, userID, friendID);
         this.toggleRequestsModal();
     }
 
+    //reject streak request and toggle modal
     handleRequestRejection(requestID, userID, friendID) {
         this.props.rejectStreakRequest(requestID, userID, friendID);
         this.toggleRequestsModal();

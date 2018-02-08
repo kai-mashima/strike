@@ -28,19 +28,21 @@ export default class App extends Component {
         this.db = this.app.database();
 
         //BINDING
+        //login|signup|setup
         this.loginUser = this.loginUser.bind(this);
         this.getUserInfo = this.getUserInfo.bind(this);
         this.signupUser = this.signupUser.bind(this);
         this.addNewUser = this.addNewUser.bind(this);
         this.signOut = this.signOut.bind(this);
-        this.addFriend = this.addFriend.bind(this);
         this.confirmLogin = this.confirmLogin.bind(this);
+        //friends
+        this.addFriend = this.addFriend.bind(this);
         this.getFriends = this.getFriends.bind(this);
         this.searchUsers = this.searchUsers.bind(this);
+        //streaks
         this.startStreak = this.startStreak.bind(this);
         this.stokeStreak = this.stokeStreak.bind(this);
         this.getStreaks = this.getStreaks.bind(this);
-        this.searchUsers = this.searchUsers.bind(this);
         this.acceptStreakRequest = this.acceptStreakRequest.bind(this);
         this.rejectStreakRequest = this.rejectStreakRequest.bind(this);
         this.getUsername = this.getUsername.bind(this);
@@ -62,6 +64,7 @@ export default class App extends Component {
         };
     }
 
+    //creates a new firebase auth for a user and initials relevant functions to grab user info and set states
     signupUser(email, password, username = '', first = '', last = '', value = 0, allowance = 5, imgAvailable = false, img = null, totalStreaks = 0, totalDays = 0) {
         firebase.auth().createUserWithEmailAndPassword(email, password)
         .then(user => {
@@ -80,6 +83,7 @@ export default class App extends Component {
         });
     }
 
+    //adds a new user to the db
     addNewUser(username = '', userID, first = '', last = '', email = '', value = 0, allowance = 5, imgAvailable = false, img = null, totalStreaks = 0, totalDays = 0) {
         const date = new Date();
         const time = date.getTime();
@@ -101,6 +105,7 @@ export default class App extends Component {
         });
     }
 
+    //grabs the information of a user by id
     getUserInfo(userID) {
         this.db.ref(`users/${userID}`)
         .once('value')
@@ -111,6 +116,7 @@ export default class App extends Component {
         });
     }
 
+    //login a user with an email and password
     loginUser(email, password) {
         firebase.auth().signInWithEmailAndPassword(email, password)
         .then(user => {
@@ -128,6 +134,7 @@ export default class App extends Component {
         });
     }
 
+    //confirms firebase auth
     confirmLogin() {
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
@@ -150,6 +157,7 @@ export default class App extends Component {
         });
     }
 
+    //signs out of firebase auth and resets state
     signOut() {
         firebase.auth().signOut()
         .then(() => {
@@ -170,6 +178,7 @@ export default class App extends Component {
         });
     }
 
+    //adds a streak request to the db and calls functions to assign streak request to sender and recipient
     sendStreakRequest(userID, recipientID) {
         if (userID !== recipientID) {
             const newRequestID = this.db.ref().child(`streakRequests/`).push().key;
@@ -188,14 +197,17 @@ export default class App extends Component {
         }
     }
 
+    //sets the given streak request id to the sender of the request
     streakRequestToSender(ownerID, streakRequestID) {
         this.db.ref(`streakRequestOwners/${ownerID}/sent/${streakRequestID}`).set(true);
     }
 
+    //sets the given streak request id to the recipient of the request
     streakRequestToRecipient(recipientID, streakRequestID) {
         this.db.ref(`streakRequestOwners/${recipientID}/received/${streakRequestID}`).set(true);
     }
 
+    //grabs and sets streak information to state by user id
     getStreakRequests(userID) {
         this.db.ref(`streakRequestOwners/${userID}/received`)
         .once('value')
@@ -222,6 +234,7 @@ export default class App extends Component {
         });
     }
 
+    //returns a promise containing the information of a streak request by streak request id
     streakRequestToInfo(streakRequestID) {
         let streakRequest = null;
         return this.db.ref(`streakRequests/${streakRequestID}`)
@@ -247,6 +260,7 @@ export default class App extends Component {
         });
     }
 
+    //accept a streak request and set according information on streak request and start a streak with relevant information
     acceptStreakRequest(streakRequestID, userID, senderID) {
         this.db.ref(`streakRequests/${streakRequestID}`)
         .set({
@@ -257,6 +271,7 @@ export default class App extends Component {
         this.startStreak(userID, senderID);
     }
 
+    //reject a streak request and set according information on streak request 
     rejectStreakRequest(streakRequestID, userID, senderID) {
         this.db.ref(`streakRequests/${streakRequestID}`)
         .set({
@@ -265,6 +280,7 @@ export default class App extends Component {
         });
     }
 
+    //adds a new streak to both users streak lists and the streak list
     startStreak(userID, friendID) {
         if (userID !== friendID) {
             const date = new Date();
@@ -297,6 +313,7 @@ export default class App extends Component {
         }
     }
 
+    //grabs and sets state to the streaks by user id
     getStreaks(userID) {
         this.db.ref(`streakOwners/${userID}`) //grab streak list from streakOwners db
         .once('value')
@@ -326,6 +343,7 @@ export default class App extends Component {
         });
     }
 
+    //returns a promise containing the information of a streak by streak id
     streakToInfo(streakID, userID){
         let info = null;
         return this.db.ref(`streaks/${streakID}`)
@@ -358,6 +376,7 @@ export default class App extends Component {
         });
     }
 
+    //toggles and resests the time for the ownership of a streaks termination period 
     stokeStreak(streakID, userID) {
         // this.checkForExpiredStreaks(streakID);
         this.db.ref(`streaks/${streakID}`)
@@ -392,6 +411,7 @@ export default class App extends Component {
 
     }
 
+    //returns a boolean depending on the input value
     checkForExpiredTime(val){
         return (val === '0:0') ? (
             true
@@ -400,6 +420,7 @@ export default class App extends Component {
         )
     }
 
+    //checks a streak by id and check the termination time on it and sets the expired key on the streak
     checkForExpiredStreaks(streakID) {
         this.db.ref(`streaks/${streakID}`)
         .once('value')
@@ -419,6 +440,7 @@ export default class App extends Component {
         //send streak termination info to history db
     }
 
+    //returns the time difference between the current time and a provided time 
     expirationTimeToTimeToExpiration(expirationTime) {
         const date = new Date();
         const currentTime = date.getTime();
@@ -436,10 +458,12 @@ export default class App extends Component {
         }
     }
 
+    //sets a streak id to a users streaklist
     streakToOwner(ownerID, streakID) {
         this.db.ref(`streakOwners/${ownerID}`).child(`${streakID}`).set(true);
     }
 
+    //searches and returns a promise containing the user information by username
     searchUsers(username, userID) {
         return this.db.ref('users')
         .orderByChild('username')
@@ -467,6 +491,7 @@ export default class App extends Component {
         });
     }
 
+    //grabs and sets to state the friends list of a user by id
     getFriends(userID) {
         this.db.ref(`friends/${userID}`)
         .once('value')
@@ -492,6 +517,7 @@ export default class App extends Component {
         });
     }
 
+    //Grab and returns just the username of a user by id
     getUsername(userID) {
         return this.db.ref(`users/${userID}`)
         .once('value')
@@ -506,9 +532,10 @@ export default class App extends Component {
         });
     }
 
-    friendToInfo(userID) { //uses uid to grab users data 
+    //Grabs and returns user information by id
+    friendToInfo(userID) {
         return this.db.ref(`users/${userID}`)
-        .once('value') //grab snapshot once
+        .once('value')
         .then(snapshot => {
             if (snapshot.exists()) {
                 let info = snapshot.val();
@@ -522,6 +549,7 @@ export default class App extends Component {
         });
     }
 
+    //adds a friend to a users friends list
     addFriend(userID, friendID) {
         if (userID !== friendID) {
             let stringID = friendID.toString();
