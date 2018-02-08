@@ -342,10 +342,10 @@ export default class App extends Component {
                         } else {
                             this.getUsername(participant).then(username => {
                                 info.friend = username;
+                                info.friendTurn = info.participants[participant];
                             });
                         } 
                     });
-                    
                 } else {
                     info = null;
                 }
@@ -355,6 +355,14 @@ export default class App extends Component {
         }).catch(reason => {
             console.log(reason);
         });
+    }
+
+    stokeStreak() {
+
+    }
+
+    boostStreak() {
+        
     }
 
     checkForExpiredTime(val){

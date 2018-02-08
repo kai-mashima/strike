@@ -19,6 +19,8 @@ export default class Streak extends Component {
         });
     }
 
+    //add function to handle onlick and invoke func to stoke streak from props
+
     render() {
         let userRender = <span className='streak-user-glyph glyphicon glyphicon-user'></span>;
         // this.props.streak.imgAvailable ? (
@@ -27,14 +29,10 @@ export default class Streak extends Component {
         //     <span className='streak-user-glyph glyphicon glyphicon-user'></span>
         // );
 
-        let stokeBtnRender = (this.props.turn) ? (
-            <div className='streak-item'>
-                <span className='btn btn-success'>Stoke</span>
-            </div>
+        let stokeBtnRender = (this.props.streak.friendTurn) ? ( //add onclick to active btn
+            <span className='btn btn-success'>Stoke</span>
         ) : (
-            <div className='streak-item'>
-                <span className='btn btn-default disabled'>Stoke</span>
-            </div>
+            <span className='btn btn-default disabled'>Stoke</span>
         );
 
         let modalRender = (
@@ -48,16 +46,21 @@ export default class Streak extends Component {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <div className='streak-item'>
-                        <span className='btn btn-success'>Boost</span>
+                    <div className='streak-modal-footer-container row-container'>
+                        <div className='streak-modal-footer-item row-item'>
+                            <span className='btn btn-success'>Boost</span>
+                        </div>
+                        <div className='streak-modal-footer-item row-item'>
+                            {stokeBtnRender}
+                        </div>
+                        <div className='streak-modal-footer-item row-item'>
+                            <span className='btn btn-danger' onClick={this.toggleModal}>Close</span>
+                        </div>
                     </div>
-                    {stokeBtnRender}
-                    <span onClick={this.toggleModal}>Close</span>
                 </Modal.Footer>
             </Modal>
         );
 
-        console.log(this.pro)
         return (
             <div>
                 {modalRender}

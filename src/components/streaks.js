@@ -85,6 +85,7 @@ export default class Streaks extends Component {
                         turn = streak.participants[participant];
                     }
                 });
+                //add streaks to stoke and boost to streak props
                 return <Streak key={index} streak={streak} userTurn={turn} uid={this.props.uid}/>;
             });
         }

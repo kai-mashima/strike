@@ -40372,6 +40372,7 @@ var App = function (_Component) {
                             } else {
                                 _this11.getUsername(participant).then(function (username) {
                                     info.friend = username;
+                                    info.friendTurn = info.participants[participant];
                                 });
                             }
                         });
@@ -40385,6 +40386,12 @@ var App = function (_Component) {
                 console.log(reason);
             });
         }
+    }, {
+        key: 'stokeStreak',
+        value: function stokeStreak() {}
+    }, {
+        key: 'boostStreak',
+        value: function boostStreak() {}
     }, {
         key: 'checkForExpiredTime',
         value: function checkForExpiredTime(val) {
@@ -56067,6 +56074,7 @@ var Streaks = function (_Component) {
                             turn = streak.participants[participant];
                         }
                     });
+                    //add streaks to stoke and boost to streak props
                     return _react2.default.createElement(_streak2.default, { key: index, streak: streak, userTurn: turn, uid: _this2.props.uid });
                 });
             }
@@ -56237,6 +56245,9 @@ var Streak = function (_Component) {
                 isVisible: !this.state.isVisible
             });
         }
+
+        //add function to handle onlick and invoke func to stoke streak from props
+
     }, {
         key: 'render',
         value: function render() {
@@ -56247,22 +56258,15 @@ var Streak = function (_Component) {
             //     <span className='streak-user-glyph glyphicon glyphicon-user'></span>
             // );
 
-            var stokeBtnRender = this.props.turn ? _react2.default.createElement(
-                'div',
-                { className: 'streak-item' },
-                _react2.default.createElement(
-                    'span',
-                    { className: 'btn btn-success' },
-                    'Stoke'
-                )
+            var stokeBtnRender = this.props.streak.friendTurn ? //add onclick to active btn
+            _react2.default.createElement(
+                'span',
+                { className: 'btn btn-success' },
+                'Stoke'
             ) : _react2.default.createElement(
-                'div',
-                { className: 'streak-item' },
-                _react2.default.createElement(
-                    'span',
-                    { className: 'btn btn-default disabled' },
-                    'Stoke'
-                )
+                'span',
+                { className: 'btn btn-default disabled' },
+                'Stoke'
             );
 
             var modalRender = _react2.default.createElement(
@@ -56295,23 +56299,34 @@ var Streak = function (_Component) {
                     null,
                     _react2.default.createElement(
                         'div',
-                        { className: 'streak-item' },
+                        { className: 'streak-modal-footer-container row-container' },
                         _react2.default.createElement(
-                            'span',
-                            { className: 'btn btn-success' },
-                            'Boost'
+                            'div',
+                            { className: 'streak-modal-footer-item row-item' },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'btn btn-success' },
+                                'Boost'
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'streak-modal-footer-item row-item' },
+                            stokeBtnRender
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'streak-modal-footer-item row-item' },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'btn btn-danger', onClick: this.toggleModal },
+                                'Close'
+                            )
                         )
-                    ),
-                    stokeBtnRender,
-                    _react2.default.createElement(
-                        'span',
-                        { onClick: this.toggleModal },
-                        'Close'
                     )
                 )
             );
 
-            console.log(this.pro);
             return _react2.default.createElement(
                 'div',
                 null,
