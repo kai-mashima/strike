@@ -64,7 +64,7 @@ export default class Signup extends Component {
     }
 
     handleSignup(){
-        this.props.signupUser(this.state.email, this.state.password, this.state.username, this.state.firstName, this.state.lastName, 0, 5, false, null, 0, 0);
+        this.props.signupUser(this.state.email, this.state.password, this.state.username, this.state.firstName, this.state.lastName, 0, 5, 0, 0);
     }
 
     render() {

@@ -29,13 +29,8 @@ export default class Streak extends Component {
 
     render() {
         let userRender = <span className='streak-user-glyph glyphicon glyphicon-user'></span>;
-        // this.props.streak.imgAvailable ? (
-        //     <img src='' className='' />
-        // ) : (
-        //     <span className='streak-user-glyph glyphicon glyphicon-user'></span>
-        // );
 
-        let stokeBtnRender = (this.props.streak.friendTurn) ? ( //add onclick to active btn
+        let stokeBtnRender = (!this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID) ? (
             <span onClick={this.handleStreakStoke} className='btn btn-success'>Stoke</span>
         ) : (
             <span className='btn btn-default disabled'>Stoke</span>
@@ -82,7 +77,7 @@ export default class Streak extends Component {
                         <span className='streak-item-glyph glyphicon glyphicon-fire'></span>
                     </div>
                     <div className='streak-item'>
-                        <span>{this.props.streak.expirationTime}</span>
+                        <span>{this.props.streak.currentExpirationTime}</span>
                         <span className='streak-item-glyph glyphicon glyphicon-time'></span>
                     </div>
                 </div>

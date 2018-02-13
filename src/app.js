@@ -48,7 +48,11 @@ export default class App extends Component {
         this.getUsername = this.getUsername.bind(this);
         this.getStreakRequests = this.getStreakRequests.bind(this);
         this.sendStreakRequest = this.sendStreakRequest.bind(this);
-        this.expirationTimeToTimeToExpiration = this.expirationTimeToTimeToExpiration.bind(this);
+        this.convertDateToTimeDifference = this.convertDateToTimeDifference.bind(this);
+        this.getDate24HoursAheadOfGiven = this.getDate24HoursAheadOfGiven.bind(this);
+        this.getDate24HoursAhead = this.getDate24HoursAhead.bind(this);
+        this.getDate = this.getDate.bind(this);
+
 
         //STATE
         this.state = {
@@ -64,8 +68,9 @@ export default class App extends Component {
         };
     }
 
+//SIGNUP
     //creates a new firebase auth for a user and initials relevant functions to grab user info and set states
-    signupUser(email, password, username = '', first = '', last = '', value = 0, allowance = 5, imgAvailable = false, img = null, totalStreaks = 0, totalDays = 0) {
+    signupUser(email, password, username = '', first = '', last = '', value = 0, allowance = 5, imgAvailable = false, totalStreaks = 0, totalDays = 0) {
         firebase.auth().createUserWithEmailAndPassword(email, password)
         .then(user => {
             this.confirmLogin();
@@ -75,7 +80,7 @@ export default class App extends Component {
             this.getFriends(user.uid);
             this.getStreaks(user.uid);
             this.getStreakRequests(user.uid);
-            this.addNewUser(username, user.uid, first, last, email, value, allowance, imgAvailable, img, totalStreaks, totalDays);
+            this.addNewUser(username, user.uid, first, last, email, value, allowance, totalStreaks, totalDays);
         }).catch(error => {
             var errorCode = error.code;
             var errorMessage = error.message;
@@ -84,7 +89,7 @@ export default class App extends Component {
     }
 
     //adds a new user to the db
-    addNewUser(username = '', userID, first = '', last = '', email = '', value = 0, allowance = 5, imgAvailable = false, img = null, totalStreaks = 0, totalDays = 0) {
+    addNewUser(username = '', userID, first = '', last = '', email = '', value = 0, allowance = 5, totalStreaks = 0, totalDays = 0) {
         const date = new Date();
         const time = date.getTime();
         this.db.ref(`users/${userID}`).set({
@@ -95,8 +100,6 @@ export default class App extends Component {
             allowance: allowance,
             username: username,
             created: time,
-            imgAvailable: imgAvailable,
-            img: img,
             totalStreaks: totalStreaks,
             totalDays: totalDays,
         });
@@ -105,6 +108,8 @@ export default class App extends Component {
         });
     }
 
+
+//LOGIN | LOGOUT
     //grabs the information of a user by id
     getUserInfo(userID) {
         this.db.ref(`users/${userID}`)
@@ -178,6 +183,7 @@ export default class App extends Component {
         });
     }
 
+//STREAK REQUESTS
     //adds a streak request to the db and calls functions to assign streak request to sender and recipient
     sendStreakRequest(userID, recipientID) {
         if (userID !== recipientID) {
@@ -280,28 +286,35 @@ export default class App extends Component {
         });
     }
 
+//STREAKS
     //adds a new streak to both users streak lists and the streak list
     startStreak(userID, friendID) {
         if (userID !== friendID) {
-            const date = new Date();
-            const time = date.getTime();
-            let expirationDate = time + (24 * 3600000);
-            let expirationTime = this.expirationTimeToTimeToExpiration(expirationDate);
+            let time = this.getDate();
+            let expirationDate = this.getDate24HoursAhead();
+            let expirationTime = this.convertDateToTimeDifference(expirationDate);
             const newStreakID = this.db.ref().child('streaks').push().key;
             this.db.ref(`streaks/${newStreakID}`)
             .set({
                 participants: {
                     [userID]: true,
-                    [friendID]: false,
+                    [friendID]: true,
                 },
+                terminated: false,
+                neutral: false,
                 value: 0,
-                timestamp: time,
-                expirationDate: expirationDate,
-                expirationTime: expirationTime,
-                expired: false,
                 days: 0,
                 allowance: 1,
                 penalty: 0,
+                timestamp: time,
+                currentOwner: friendID,
+                currentExpirationDate: expirationDate,
+                currentExpirationTime: expirationTime,
+                currentExpired: false,
+                nextOwner: userID,
+                nextExpirationDate: 0,
+                nextExpirationTime: 0,
+                nextExpired: true,
             }).then(() => {
                 this.streakToOwner(friendID, newStreakID);
                 this.streakToOwner(userID, newStreakID);
@@ -328,8 +341,10 @@ export default class App extends Component {
                 throw 'No owners found for this user ID';
             }
         }).then(streakList => {
-            streakList.map(streakID => this.checkForExpiredStreaks(streakID));
-            return streakList;
+            const streakFuncs = streakList.map(streakID => this.checkForExpiredStreaks(streakID));
+            return Promise.all(streakFuncs).then(results => {
+                return results;
+            });
         }).then(streakList => {
             const infoFuncs = streakList.map(streakID => this.streakToInfo(streakID, userID));
             Promise.all(infoFuncs).then(results => {
@@ -345,58 +360,63 @@ export default class App extends Component {
 
     //returns a promise containing the information of a streak by streak id
     streakToInfo(streakID, userID){
-        let info = null;
+        let streak = null;
         return this.db.ref(`streaks/${streakID}`)
         .once('value')
         .then(snapshot => { 
             if (snapshot.exists()) {
-                info = snapshot.val();
-                if (info.expired === false) {
-                    info.id = streakID;
-                    Object.keys(info.participants).map(participant => {
-                        if (participant === userID) {
-                            this.getUsername(participant).then(username => {
-                                info.user = username;
-                            });
-                        } else {
-                            this.getUsername(participant).then(username => {
-                                info.friend = username;
-                                info.friendTurn = info.participants[participant];
-                            });
-                        } 
-                    });
-                } else {
-                    info = null;
-                }
+                streak = snapshot.val();
+                streak.id = streakID;
+                Object.keys(streak.participants).map(participant => {
+                    if (participant === userID) {
+                        this.getUsername(participant).then(username => {
+                            streak.user = username;
+                        });
+                    } else {
+                        this.getUsername(participant).then(username => {
+                            streak.friend = username;
+                            streak.friendTurn = streak.participants[participant];
+                        });
+                    } 
+                });
             }
         }).then(() => {
-            return info;
+            return streak;
         }).catch(reason => {
             console.log(reason);
         });
     }
 
+    getDate() {
+        const newDate = new Date();
+        let date = newDate.getTime();
+        return date;
+    }
+
+    getDate24HoursAhead() {
+        const newdate = new Date();
+        let date = newdate.getTime();
+        date = date + (24 * 3600000);
+        return date;
+    }
+
+    getDate24HoursAheadOfGiven(date) {
+        let result = date + (24 * 3600000);
+        return result;
+    }
+
     //toggles and resests the time for the ownership of a streaks termination period 
     stokeStreak(streakID, userID) {
-        // this.checkForExpiredStreaks(streakID);
         this.db.ref(`streaks/${streakID}`)
         .once('value')
         .then(snapshot => {
             if (snapshot.exists()) {
                 let streak = snapshot.val();
-
-                const date = new Date();
-                const time = date.getTime();
-                let expirationDate = time + (24 * 3600000);
-                this.db.ref(`streaks/${streakID}/expirationDate`).set(expirationDate);
-
-                let expirationTime = this.expirationTimeToTimeToExpiration(expirationDate);
-                this.db.ref(`streaks/${streakID}/expirationTime`).set(expirationTime);
-
-                Object.keys(streak.participants).map(participant => {
-                    let boolVal = !streak.participants[participant];
-                    this.db.ref(`streaks/${streakID}/participants/${participant}`).set(boolVal);
-                });
+                let nextExpirationDate = this.getDate24HoursAheadOfGiven(streak.currentExpirationDate);
+                let nextExpirationTime = this.convertDateToTimeDifference(nextExpirationDate);
+                this.db.ref(`streaks/${streakID}/nextExpirationDate`).set(nextExpirationDate);
+                this.db.ref(`streaks/${streakID}/nextExpirationTime`).set(nextExpirationTime);
+                this.db.ref(`streaks/${streakID}/nextExpired`).set(false);
             } else {
                 throw 'No streak found for this streakID';
             }
@@ -405,10 +425,6 @@ export default class App extends Component {
         }).catch(reason => {
             console.log(reason);
         });
-    }
-
-    boostStreak() {
-
     }
 
     //returns a boolean depending on the input value
@@ -422,15 +438,49 @@ export default class App extends Component {
 
     //checks a streak by id and check the termination time on it and sets the expired key on the streak
     checkForExpiredStreaks(streakID) {
-        this.db.ref(`streaks/${streakID}`)
+        return this.db.ref(`streaks/${streakID}`)
         .once('value')
         .then(snapshot => {
             if (snapshot.exists()) {
-                let info = snapshot.val();
-                let expirationTime = this.expirationTimeToTimeToExpiration(info.expirationDate);
-                let expired = this.checkForExpiredTime(expirationTime);
-                this.db.ref(`streaks/${streakID}/expirationTime`).set(expirationTime);
-                this.db.ref(`streaks/${streakID}/expired`).set(expired);
+                let streak = snapshot.val();
+
+                let currentExpirationTime = this.convertDateToTimeDifference(streak.currentExpirationDate);
+                let currentExpired = this.checkForExpiredTime(currentExpirationTime);
+                this.db.ref(`streaks/${streakID}/currentExpirationTime`).set(currentExpirationTime);
+                this.db.ref(`streaks/${streakID}/currentExpired`).set(currentExpired);
+
+                let nextExpirationTime = streak.nextExpirationTime;
+                let nextExpired = streak.nextExpired;
+                if (!streak.nextExpired) {
+                    nextExpirationTime = this.convertDateToTimeDifference(streak.nextExpirationDate);
+                    nextExpired = this.checkForExpiredTime(nextExpirationTime);
+                    this.db.ref(`streaks/${streakID}/nextExpirationTime`).set(nextExpirationTime);
+                    this.db.ref(`streaks/${streakID}/nextExpired`).set(nextExpired);
+                }
+
+                if (!currentExpired && !nextExpired) { //streak active | stoked | neutral
+                    this.db.ref(`streaks/${streakID}/neutral`).set(true);
+                    return streakID;
+                } else if (!currentExpired && nextExpired) { //streak active | unstoked
+                    return streakID;
+                } else if (currentExpired && nextExpired) { //streak terminated
+                    this.db.ref(`streaks/${streakID}/terminated`).set(true);
+                } else if (currentExpired && !nextExpired) { //streak transition
+                    let currentExpirationDate = this.getDate24HoursAhead();
+                    let currentExpirationTime = this.convertDateToTimeDifference(currentExpirationDate)
+                    this.db.ref(`streaks/${streakID}`).update({
+                        neutral: false,
+                        currentOwner: streak.nextOwner,
+                        currentExpirationDate: currentExpirationDate,
+                        currentExpirationTime: currentExpirationTime,
+                        currentExpired: false,
+                        nextExpirationDate: null,
+                        nextExpirationTime: null,
+                        nextExpired: true,
+                        nextOwner: streak.currentOwner,
+                    });
+                    return streakID;
+                }
             } else {
                 throw 'Check for Expired: No streak found for this streakID';
             }
@@ -441,10 +491,10 @@ export default class App extends Component {
     }
 
     //returns the time difference between the current time and a provided time 
-    expirationTimeToTimeToExpiration(expirationTime) {
+    convertDateToTimeDifference(expirationDate) {
         const date = new Date();
         const currentTime = date.getTime();
-        let timeDifference = expirationTime - currentTime;
+        let timeDifference = expirationDate - currentTime;
         let totalMinutes = (timeDifference / (1000 * 60)).toFixed(0);
         let hours = Math.floor(totalMinutes/60);
         let minutes = totalMinutes % 60;
@@ -460,7 +510,7 @@ export default class App extends Component {
 
     //sets a streak id to a users streaklist
     streakToOwner(ownerID, streakID) {
-        this.db.ref(`streakOwners/${ownerID}`).child(`${streakID}`).set(true);
+        this.db.ref(`streakOwners/${ownerID}/${streakID}`).set(true);
     }
 
     //searches and returns a promise containing the user information by username
@@ -491,6 +541,7 @@ export default class App extends Component {
         });
     }
 
+//FRIENDS
     //grabs and sets to state the friends list of a user by id
     getFriends(userID) {
         this.db.ref(`friends/${userID}`)
