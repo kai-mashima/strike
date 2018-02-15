@@ -52,7 +52,7 @@ export default class App extends Component {
         this.getDate24HoursAheadOfGiven = this.getDate24HoursAheadOfGiven.bind(this);
         this.getDate24HoursAhead = this.getDate24HoursAhead.bind(this);
         this.getDate = this.getDate.bind(this);
-
+        this.convertTimestampToDays = this.convertTimestampToDays.bind(this);
 
         //STATE
         this.state = {
@@ -367,6 +367,7 @@ export default class App extends Component {
             if (snapshot.exists()) {
                 streak = snapshot.val();
                 streak.id = streakID;
+                streak.days = this.convertTimestampToDays(streak.timestamp);
                 Object.keys(streak.participants).map(participant => {
                     if (participant === userID) {
                         this.getUsername(participant).then(username => {
@@ -387,17 +388,24 @@ export default class App extends Component {
         });
     }
 
+    convertTimestampToDays(timestamp) {
+        const newDate = new Date();
+        const date = newDate.getTime();
+        let days = ((date - timestamp) / (3600000 * 24)).toFixed(0);
+        return days;
+    }
+
     getDate() {
         const newDate = new Date();
-        let date = newDate.getTime();
+        const date = newDate.getTime();
         return date;
     }
 
     getDate24HoursAhead() {
         const newdate = new Date();
-        let date = newdate.getTime();
-        date = date + (24 * 3600000);
-        return date;
+        const date = newdate.getTime();
+        let newDate = date + (24 * 3600000);
+        return newDate;
     }
 
     getDate24HoursAheadOfGiven(date) {
@@ -496,7 +504,7 @@ export default class App extends Component {
         const currentTime = date.getTime();
         let timeDifference = expirationDate - currentTime;
         let totalMinutes = (timeDifference / (1000 * 60)).toFixed(0);
-        let hours = Math.floor(totalMinutes/60);
+        let hours = Math.floor(totalMinutes / 60);
         let minutes = totalMinutes % 60;
         let timeDiffString;
         if (hours < 0 && minutes < 0) {

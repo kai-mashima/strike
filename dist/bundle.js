@@ -40028,6 +40028,7 @@ var App = function (_Component) {
         _this.getDate24HoursAheadOfGiven = _this.getDate24HoursAheadOfGiven.bind(_this);
         _this.getDate24HoursAhead = _this.getDate24HoursAhead.bind(_this);
         _this.getDate = _this.getDate.bind(_this);
+        _this.convertTimestampToDays = _this.convertTimestampToDays.bind(_this);
 
         //STATE
         _this.state = {
@@ -40424,6 +40425,7 @@ var App = function (_Component) {
                 if (snapshot.exists()) {
                     streak = snapshot.val();
                     streak.id = streakID;
+                    streak.days = _this11.convertTimestampToDays(streak.timestamp);
                     Object.keys(streak.participants).map(function (participant) {
                         if (participant === userID) {
                             _this11.getUsername(participant).then(function (username) {
@@ -40444,6 +40446,14 @@ var App = function (_Component) {
             });
         }
     }, {
+        key: 'convertTimestampToDays',
+        value: function convertTimestampToDays(timestamp) {
+            var newDate = new Date();
+            var date = newDate.getTime();
+            var days = ((date - timestamp) / (3600000 * 24)).toFixed(0);
+            return days;
+        }
+    }, {
         key: 'getDate',
         value: function getDate() {
             var newDate = new Date();
@@ -40455,8 +40465,8 @@ var App = function (_Component) {
         value: function getDate24HoursAhead() {
             var newdate = new Date();
             var date = newdate.getTime();
-            date = date + 24 * 3600000;
-            return date;
+            var newDate = date + 24 * 3600000;
+            return newDate;
         }
     }, {
         key: 'getDate24HoursAheadOfGiven',
