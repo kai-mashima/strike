@@ -627,10 +627,121 @@ export default class App extends Component {
         }
     }
 
+//CURRENCY
+    //if a streak is terminated, this function should be called to handle currency related termination penalties
+    streakTermination(streakID) { 
+        let streak = null;
+        this.getStreak(streakID).then(result => {
+            streak = result;
+        });
+        Object.keys(streak.participants).map(participant => {
+            this.calculateStreakTP(participant);
+        });
+        //update db with users value changes 
+    }
+
+    calculateStreakTP(terminatorID, betrayedID) {
+        //handle both types of participants
+            //terminator
+            //betrayed
+    }
+
+    getStreak(streakID) {
+        return this.db.ref(`streaks/${streakID}`)
+        .once('value')
+        .then(snapshot => (
+            snapshot
+        ));
+    }
+
+    getUser(userID) {
+        return this.db.ref(`users/${userID}`)
+        .once('value')
+        .then(snapshot => (
+            snapshot
+        ));
+    }
+
+    updateUserValue(userID, currentValue, currencyAmount) {
+        let newValue = currentValue + currencyAmount;
+        this.db.ref(`users/${userID}`)
+        .update({
+            value: newValue
+        });
+    }
+
+    updateStreakValue(streakID, currentValue, currencyAmount) {
+        let newValue = currentValue + currencyAmount;
+        this.db.ref(`streaks/${userID}`)
+        .update({
+            value: newValue
+        });
+    }
+
+    streakStoke(streakID, userID, currencyAmount) {
+        let streak = null;
+        this.getStreak(streakID).then(result => {
+            streak = result;
+        });
+        let user = null;
+        this.getUser(userID).then(result => {
+            user = result;
+        });
+        this.updateStreakValue(streakID, streak.value, currencyAmount);
+        this.updateUserValue(userID, user.value, currencyAmount);
+    }
+
+    streakPayout(streakID) {
+        let streak = null;
+        this.getStreak(streakID).then(result => {
+            streak = result;
+        });
+        let user = null;
+        this.getUser(userID).then(result => {
+            user = result;
+        });
+        let payout = this.calculateStreakPayout(streak);
+        Object.keys(streak.participants).map(participant => {
+            this.updateUserValue(userID, user.value, payout);
+        });
+    }
+
+    calculateStreakPayout(streak) {
+        //calculate streak payout using streak details 
+    }
+
+    streakBoost(streakID, userID, currencyAmount) {
+        let streak = null;
+        this.getStreak(streakID).then(result => {
+            streak = result;
+        });
+        let user = null;
+        this.getUser(userID).then(result => {
+            user = result;
+        });
+        this.updateStreakValue(streakID, streak.value, currencyAmount);
+        this.updateUserValue(userID, user.value, currencyAmount);
+    }
+
+    dailyAllowance(userID) {
+        let user = null;
+        this.getUser(userID).then(result => {
+            user = result;
+        });
+        let allowance = this.calculateDailyAllowance(user);
+        this.updateUserValue(userID, user.value, allowance);
+    }
+
+    calculateDailyAllowance(user) {
+        //return number
+    }
+
+//HISTORY
     getHistory(){
         //grab history by UID
     }
 
+//UNLOCKS
     getUnlocks(){
         //grab unlocks by UID
     }

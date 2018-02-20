@@ -40160,11 +40160,11 @@ var App = function (_Component) {
             _app2.default.auth().onAuthStateChanged(function (user) {
                 if (user) {
                     var email = user.email;
-                    var userID = user.uid;
+                    var _userID = user.uid;
                     _this5.setState({
                         loggedIn: true,
                         email: email,
-                        userID: userID
+                        userID: _userID
                     });
                     console.log('Logged In');
                 } else {
@@ -40714,11 +40714,138 @@ var App = function (_Component) {
                 console.log('No friend added: You cannot add yourself as a friend.');
             }
         }
+
+        //CURRENCY
+        //if a streak is terminated, this function should be called to handle currency related termination penalties
+
+    }, {
+        key: 'streakTermination',
+        value: function streakTermination(streakID) {
+            var _this16 = this;
+
+            var streak = null;
+            this.getStreak(streakID).then(function (result) {
+                streak = result;
+            });
+            Object.keys(streak.participants).map(function (participant) {
+                _this16.calculateStreakTP(participant);
+            });
+            //update db with users value changes 
+        }
+    }, {
+        key: 'calculateStreakTP',
+        value: function calculateStreakTP(terminatorID, betrayedID) {
+            //handle both types of participants
+            //terminator
+            //betrayed
+        }
+    }, {
+        key: 'getStreak',
+        value: function getStreak(streakID) {
+            return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+                return snapshot;
+            });
+        }
+    }, {
+        key: 'getUser',
+        value: function getUser(userID) {
+            return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
+                return snapshot;
+            });
+        }
+    }, {
+        key: 'updateUserValue',
+        value: function updateUserValue(userID, currentValue, currencyAmount) {
+            var newValue = currentValue + currencyAmount;
+            this.db.ref('users/' + userID).update({
+                value: newValue
+            });
+        }
+    }, {
+        key: 'updateStreakValue',
+        value: function updateStreakValue(streakID, currentValue, currencyAmount) {
+            var newValue = currentValue + currencyAmount;
+            this.db.ref('streaks/' + userID).update({
+                value: newValue
+            });
+        }
+    }, {
+        key: 'streakStoke',
+        value: function streakStoke(streakID, userID, currencyAmount) {
+            var streak = null;
+            this.getStreak(streakID).then(function (result) {
+                streak = result;
+            });
+            var user = null;
+            this.getUser(userID).then(function (result) {
+                user = result;
+            });
+            this.updateStreakValue(streakID, streak.value, currencyAmount);
+            this.updateUserValue(userID, user.value, currencyAmount);
+        }
+    }, {
+        key: 'streakPayout',
+        value: function streakPayout(streakID) {
+            var _this17 = this;
+
+            var streak = null;
+            this.getStreak(streakID).then(function (result) {
+                streak = result;
+            });
+            var user = null;
+            this.getUser(userID).then(function (result) {
+                user = result;
+            });
+            var payout = this.calculateStreakPayout(streak);
+            Object.keys(streak.participants).map(function (participant) {
+                _this17.updateUserValue(userID, user.value, payout);
+            });
+        }
+    }, {
+        key: 'calculateStreakPayout',
+        value: function calculateStreakPayout(streak) {
+            //calculate streak payout using streak details 
+        }
+    }, {
+        key: 'streakBoost',
+        value: function streakBoost(streakID, userID, currencyAmount) {
+            var streak = null;
+            this.getStreak(streakID).then(function (result) {
+                streak = result;
+            });
+            var user = null;
+            this.getUser(userID).then(function (result) {
+                user = result;
+            });
+            this.updateStreakValue(streakID, streak.value, currencyAmount);
+            this.updateUserValue(userID, user.value, currencyAmount);
+        }
+    }, {
+        key: 'dailyAllowance',
+        value: function dailyAllowance(userID) {
+            var user = null;
+            this.getUser(userID).then(function (result) {
+                user = result;
+            });
+            var allowance = this.calculateDailyAllowance(user);
+            this.updateUserValue(userID, user.value, allowance);
+        }
+    }, {
+        key: 'calculateDailyAllowance',
+        value: function calculateDailyAllowance(user) {}
+        //return number
+
+
+        //HISTORY
+
     }, {
         key: 'getHistory',
-        value: function getHistory() {
-            //grab history by UID
-        }
+        value: function getHistory() {}
+        //grab history by UID
+
+
+        //UNLOCKS
+
     }, {
         key: 'getUnlocks',
         value: function getUnlocks() {
@@ -40727,7 +40854,7 @@ var App = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this16 = this;
+            var _this18 = this;
 
             return _react2.default.createElement(
                 _reactRouterDom.BrowserRouter,
@@ -40747,15 +40874,15 @@ var App = function (_Component) {
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/streaks', component: function component() {
                                     return _react2.default.createElement(_streaks2.default, {
-                                        userID: _this16.state.userID,
-                                        streaks: _this16.state.streaksInfo,
-                                        friends: _this16.state.friendsInfo,
-                                        sendStreakRequest: _this16.sendStreakRequest,
-                                        value: _this16.state.user.value,
-                                        requests: _this16.state.streakRequestsInfo,
-                                        acceptStreakRequest: _this16.acceptStreakRequest,
-                                        rejectStreakRequest: _this16.rejectStreakRequest,
-                                        stokeStreak: _this16.stokeStreak
+                                        userID: _this18.state.userID,
+                                        streaks: _this18.state.streaksInfo,
+                                        friends: _this18.state.friendsInfo,
+                                        sendStreakRequest: _this18.sendStreakRequest,
+                                        value: _this18.state.user.value,
+                                        requests: _this18.state.streakRequestsInfo,
+                                        acceptStreakRequest: _this18.acceptStreakRequest,
+                                        rejectStreakRequest: _this18.rejectStreakRequest,
+                                        stokeStreak: _this18.stokeStreak
                                     });
                                 }
                             }),
@@ -40765,17 +40892,17 @@ var App = function (_Component) {
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/profile', component: function component() {
                                     return _react2.default.createElement(_profile2.default, {
-                                        signOut: _this16.signOut,
-                                        user: _this16.state.user
+                                        signOut: _this18.signOut,
+                                        user: _this18.state.user
                                     });
                                 }
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/friends', component: function component() {
                                     return _react2.default.createElement(_friends2.default, {
-                                        friends: _this16.state.friendsInfo,
-                                        addFriend: _this16.addFriend,
-                                        user: _this16.state.userID,
-                                        searchUsers: _this16.searchUsers
+                                        friends: _this18.state.friendsInfo,
+                                        addFriend: _this18.addFriend,
+                                        user: _this18.state.userID,
+                                        searchUsers: _this18.searchUsers
                                     });
                                 }
                             }),
