@@ -40029,6 +40029,20 @@ var App = function (_Component) {
         _this.getDate24HoursAhead = _this.getDate24HoursAhead.bind(_this);
         _this.getDate = _this.getDate.bind(_this);
         _this.convertTimestampToDays = _this.convertTimestampToDays.bind(_this);
+        //currency
+        _this.streakTermination = _this.streakTermination.bind(_this);
+        _this.calculateStreakTP = _this.calculateStreakTP.bind(_this);
+        _this.getStreak = _this.getStreak.bind(_this);
+        _this.getUser = _this.getUser.bind(_this);
+        _this.updateUserValue = _this.updateUserValue.bind(_this);
+        _this.updateStreakValue = _this.updateStreakValue.bind(_this);
+        _this.streakStoke = _this.streakStoke.bind(_this);
+        _this.calculateStokePrice = _this.calculateStokePrice.bind(_this);
+        _this.streakPayout = _this.streakPayout.bind(_this);
+        _this.streakBoost = _this.streakBoost.bind(_this);
+        _this.calculateStreakPayout = _this.calculateStreakPayout.bind(_this);
+        _this.dailyAllowance = _this.dailyAllowance.bind(_this);
+        _this.calculateDailyAllowance = _this.calculateDailyAllowance.bind(_this);
 
         //STATE
         _this.state = {
@@ -40487,9 +40501,12 @@ var App = function (_Component) {
                     var streak = snapshot.val();
                     var nextExpirationDate = _this12.getDate24HoursAheadOfGiven(streak.currentExpirationDate);
                     var nextExpirationTime = _this12.convertDateToTimeDifference(nextExpirationDate);
-                    _this12.db.ref('streaks/' + streakID + '/nextExpirationDate').set(nextExpirationDate);
-                    _this12.db.ref('streaks/' + streakID + '/nextExpirationTime').set(nextExpirationTime);
-                    _this12.db.ref('streaks/' + streakID + '/nextExpired').set(false);
+                    _this12.db.ref('streaks/' + streakID).set({
+                        nextExpirationDate: nextExpirationDate,
+                        nextExpirationTime: nextExpirationTime,
+                        nextExpired: false
+                    });
+                    _this12.streakStoke(streakID, userID);
                 } else {
                     throw 'No streak found for this streakID';
                 }
@@ -40542,7 +40559,12 @@ var App = function (_Component) {
                         return streakID;
                     } else if (currentExpired && nextExpired) {
                         //streak terminated
-                        _this13.db.ref('streaks/' + streakID + '/terminated').set(true);
+                        _this13.db.ref('streaks/' + streakID).set({
+                            terminated: true,
+                            terminator: streak.owner,
+                            betrayed: streak.nextOwner
+                        });
+                        _this13.streakTermination(streakID);
                     } else if (currentExpired && !nextExpired) {
                         //streak transition
                         var currentExpirationDate = _this13.getDate24HoursAhead();
@@ -40721,24 +40743,41 @@ var App = function (_Component) {
     }, {
         key: 'streakTermination',
         value: function streakTermination(streakID) {
-            var _this16 = this;
-
             var streak = null;
             this.getStreak(streakID).then(function (result) {
                 streak = result;
             });
-            Object.keys(streak.participants).map(function (participant) {
-                _this16.calculateStreakTP(participant);
+
+            var payments = this.calculateStreakTP(streak.value, streak.terminator, streak.betrayed);
+            var terminatorPayment = payments[0];
+            var betrayedPayment = payments[1];
+
+            var terminator = null;
+            this.getUser(userID).then(function (result) {
+                terminator = result;
             });
-            //update db with users value changes 
+            var betrayed = null;
+            this.getUser(userID).then(function (result) {
+                betrayed = result;
+            });
+
+            this.updateUserValue(streak.terminator, terminator.value, terminatorPayment);
+            this.updateUserValue(streak.betrayed, betrayed.value, betrayedPayment);
         }
+
+        //returns an array of payments for the terminator and betrayed from a terminated streak
+
     }, {
         key: 'calculateStreakTP',
-        value: function calculateStreakTP(terminatorID, betrayedID) {
-            //handle both types of participants
-            //terminator
-            //betrayed
+        value: function calculateStreakTP(streakValue, terminatorID, betrayedID) {
+            var payments = [];
+            payments[0] = streakValue * .75;
+            payments[1] = streakValue * .25;
+            return payments;
         }
+
+        //returns a promise containing the streak info 
+
     }, {
         key: 'getStreak',
         value: function getStreak(streakID) {
@@ -40746,6 +40785,9 @@ var App = function (_Component) {
                 return snapshot;
             });
         }
+
+        //returns a promise containing the user info 
+
     }, {
         key: 'getUser',
         value: function getUser(userID) {
@@ -40753,6 +40795,9 @@ var App = function (_Component) {
                 return snapshot;
             });
         }
+
+        //updates a users value based on currenctValue and the amount to change the currency by
+
     }, {
         key: 'updateUserValue',
         value: function updateUserValue(userID, currentValue, currencyAmount) {
@@ -40761,6 +40806,9 @@ var App = function (_Component) {
                 value: newValue
             });
         }
+
+        //updates a streaks value based on currenctValue and the amount to change the currency by
+
     }, {
         key: 'updateStreakValue',
         value: function updateStreakValue(streakID, currentValue, currencyAmount) {
@@ -40769,24 +40817,44 @@ var App = function (_Component) {
                 value: newValue
             });
         }
+
+        //calculate the price of stoking a streak based on streak info
+
+    }, {
+        key: 'calculateStokePrice',
+        value: function calculateStokePrice(streak) {
+            var stokePrice = 0;
+            stokePrice = streak.value * .25;
+            return stokePrice;
+        }
+
+        //updates both the streak value and user value for a streak that has been stoked
+
     }, {
         key: 'streakStoke',
-        value: function streakStoke(streakID, userID, currencyAmount) {
+        value: function streakStoke(streakID, userID) {
             var streak = null;
             this.getStreak(streakID).then(function (result) {
                 streak = result;
             });
+
             var user = null;
             this.getUser(userID).then(function (result) {
                 user = result;
             });
-            this.updateStreakValue(streakID, streak.value, currencyAmount);
-            this.updateUserValue(userID, user.value, currencyAmount);
+
+            var stokePrice = this.calculateStokePrice(streak);
+
+            this.updateStreakValue(streakID, streak.value, stokePrice);
+            this.updateUserValue(userID, user.value, stokePrice);
         }
+
+        //updates streak participants values based on streak payout 
+
     }, {
         key: 'streakPayout',
         value: function streakPayout(streakID) {
-            var _this17 = this;
+            var _this16 = this;
 
             var streak = null;
             this.getStreak(streakID).then(function (result) {
@@ -40798,14 +40866,22 @@ var App = function (_Component) {
             });
             var payout = this.calculateStreakPayout(streak);
             Object.keys(streak.participants).map(function (participant) {
-                _this17.updateUserValue(userID, user.value, payout);
+                _this16.updateUserValue(userID, user.value, payout);
             });
         }
+
+        //calculate streak payout using streak details 
+
     }, {
         key: 'calculateStreakPayout',
         value: function calculateStreakPayout(streak) {
-            //calculate streak payout using streak details 
+            var streakPayout = 0;
+            streakPayout = .1 * (streak.days * streak.value);
+            return streakPayout;
         }
+
+        //updates a streaks value and the users value for a streak boost
+
     }, {
         key: 'streakBoost',
         value: function streakBoost(streakID, userID, currencyAmount) {
@@ -40820,6 +40896,9 @@ var App = function (_Component) {
             this.updateStreakValue(streakID, streak.value, currencyAmount);
             this.updateUserValue(userID, user.value, currencyAmount);
         }
+
+        //updates a users value based on daily allowance calculations
+
     }, {
         key: 'dailyAllowance',
         value: function dailyAllowance(userID) {
@@ -40830,11 +40909,16 @@ var App = function (_Component) {
             var allowance = this.calculateDailyAllowance(user);
             this.updateUserValue(userID, user.value, allowance);
         }
+
+        //determines how much a users daily allowance is
+
     }, {
         key: 'calculateDailyAllowance',
-        value: function calculateDailyAllowance(user) {}
-        //return number
-
+        value: function calculateDailyAllowance(user) {
+            var dailyAllowance = 0;
+            //calc
+            return dailyAllowance;
+        }
 
         //HISTORY
 
@@ -40854,7 +40938,7 @@ var App = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this18 = this;
+            var _this17 = this;
 
             return _react2.default.createElement(
                 _reactRouterDom.BrowserRouter,
@@ -40874,15 +40958,15 @@ var App = function (_Component) {
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/streaks', component: function component() {
                                     return _react2.default.createElement(_streaks2.default, {
-                                        userID: _this18.state.userID,
-                                        streaks: _this18.state.streaksInfo,
-                                        friends: _this18.state.friendsInfo,
-                                        sendStreakRequest: _this18.sendStreakRequest,
-                                        value: _this18.state.user.value,
-                                        requests: _this18.state.streakRequestsInfo,
-                                        acceptStreakRequest: _this18.acceptStreakRequest,
-                                        rejectStreakRequest: _this18.rejectStreakRequest,
-                                        stokeStreak: _this18.stokeStreak
+                                        userID: _this17.state.userID,
+                                        streaks: _this17.state.streaksInfo,
+                                        friends: _this17.state.friendsInfo,
+                                        sendStreakRequest: _this17.sendStreakRequest,
+                                        value: _this17.state.user.value,
+                                        requests: _this17.state.streakRequestsInfo,
+                                        acceptStreakRequest: _this17.acceptStreakRequest,
+                                        rejectStreakRequest: _this17.rejectStreakRequest,
+                                        stokeStreak: _this17.stokeStreak
                                     });
                                 }
                             }),
@@ -40892,17 +40976,17 @@ var App = function (_Component) {
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/profile', component: function component() {
                                     return _react2.default.createElement(_profile2.default, {
-                                        signOut: _this18.signOut,
-                                        user: _this18.state.user
+                                        signOut: _this17.signOut,
+                                        user: _this17.state.user
                                     });
                                 }
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/friends', component: function component() {
                                     return _react2.default.createElement(_friends2.default, {
-                                        friends: _this18.state.friendsInfo,
-                                        addFriend: _this18.addFriend,
-                                        user: _this18.state.userID,
-                                        searchUsers: _this18.searchUsers
+                                        friends: _this17.state.friendsInfo,
+                                        addFriend: _this17.addFriend,
+                                        user: _this17.state.userID,
+                                        searchUsers: _this17.searchUsers
                                     });
                                 }
                             }),

@@ -53,6 +53,20 @@ export default class App extends Component {
         this.getDate24HoursAhead = this.getDate24HoursAhead.bind(this);
         this.getDate = this.getDate.bind(this);
         this.convertTimestampToDays = this.convertTimestampToDays.bind(this);
+        //currency
+        this.streakTermination = this.streakTermination.bind(this);
+        this.calculateStreakTP = this.calculateStreakTP.bind(this);
+        this.getStreak = this.getStreak.bind(this);
+        this.getUser = this.getUser.bind(this);
+        this.updateUserValue = this.updateUserValue.bind(this);
+        this.updateStreakValue = this.updateStreakValue.bind(this);
+        this.streakStoke = this.streakStoke.bind(this);
+        this.calculateStokePrice = this.calculateStokePrice.bind(this);
+        this.streakPayout = this.streakPayout.bind(this);
+        this.streakBoost = this.streakBoost.bind(this);
+        this.calculateStreakPayout = this.calculateStreakPayout.bind(this);
+        this.dailyAllowance = this.dailyAllowance.bind(this);
+        this.calculateDailyAllowance = this.calculateDailyAllowance.bind(this);
 
         //STATE
         this.state = {
@@ -422,9 +436,12 @@ export default class App extends Component {
                 let streak = snapshot.val();
                 let nextExpirationDate = this.getDate24HoursAheadOfGiven(streak.currentExpirationDate);
                 let nextExpirationTime = this.convertDateToTimeDifference(nextExpirationDate);
-                this.db.ref(`streaks/${streakID}/nextExpirationDate`).set(nextExpirationDate);
-                this.db.ref(`streaks/${streakID}/nextExpirationTime`).set(nextExpirationTime);
-                this.db.ref(`streaks/${streakID}/nextExpired`).set(false);
+                this.db.ref(`streaks/${streakID}`).set({
+                    nextExpirationDate: nextExpirationDate,
+                    nextExpirationTime: nextExpirationTime,
+                    nextExpired: false,
+                });
+                this.streakStoke(streakID, userID);
             } else {
                 throw 'No streak found for this streakID';
             }
@@ -472,7 +489,12 @@ export default class App extends Component {
                 } else if (!currentExpired && nextExpired) { //streak active | unstoked
                     return streakID;
                 } else if (currentExpired && nextExpired) { //streak terminated
-                    this.db.ref(`streaks/${streakID}/terminated`).set(true);
+                    this.db.ref(`streaks/${streakID}`).set({
+                        terminated: true,
+                        terminator: streak.owner,
+                        betrayed: streak.nextOwner,
+                    });
+                    this.streakTermination(streakID);
                 } else if (currentExpired && !nextExpired) { //streak transition
                     let currentExpirationDate = this.getDate24HoursAhead();
                     let currentExpirationTime = this.convertDateToTimeDifference(currentExpirationDate)
@@ -611,7 +633,7 @@ export default class App extends Component {
     //adds a friend to a users friends list
     addFriend(userID, friendID) {
         if (userID !== friendID) {
-            let stringID = friendID.toString();
+            const stringID = friendID.toString();
             //add functionality to check that friend isn't already a friend
             this.state.friends.map((friend, index) => {
                 this.db.ref(`friends/${userID}/${stringID}`).set(true);
@@ -634,18 +656,33 @@ export default class App extends Component {
         this.getStreak(streakID).then(result => {
             streak = result;
         });
-        Object.keys(streak.participants).map(participant => {
-            this.calculateStreakTP(participant);
+
+        let payments = this.calculateStreakTP(streak.value, streak.terminator, streak.betrayed);
+        const terminatorPayment = payments[0];
+        const betrayedPayment = payments[1];
+
+        let terminator = null;
+        this.getUser(userID).then(result => {
+            terminator = result;
         });
-        //update db with users value changes 
+        let betrayed = null;
+        this.getUser(userID).then(result => {
+            betrayed = result;
+        });
+
+        this.updateUserValue(streak.terminator, terminator.value, terminatorPayment);
+        this.updateUserValue(streak.betrayed, betrayed.value, betrayedPayment);   
     }
 
-    calculateStreakTP(terminatorID, betrayedID) {
-        //handle both types of participants
-            //terminator
-            //betrayed
+    //returns an array of payments for the terminator and betrayed from a terminated streak
+    calculateStreakTP(streakValue, terminatorID, betrayedID) {
+        let payments = [];
+        payments[0] = streakValue * .75;
+        payments[1] = streakValue * .25;
+        return payments;
     }
 
+    //returns a promise containing the streak info 
     getStreak(streakID) {
         return this.db.ref(`streaks/${streakID}`)
         .once('value')
@@ -654,6 +691,7 @@ export default class App extends Component {
         ));
     }
 
+    //returns a promise containing the user info 
     getUser(userID) {
         return this.db.ref(`users/${userID}`)
         .once('value')
@@ -662,6 +700,7 @@ export default class App extends Component {
         ));
     }
 
+    //updates a users value based on currenctValue and the amount to change the currency by
     updateUserValue(userID, currentValue, currencyAmount) {
         let newValue = currentValue + currencyAmount;
         this.db.ref(`users/${userID}`)
@@ -670,6 +709,7 @@ export default class App extends Component {
         });
     }
 
+    //updates a streaks value based on currenctValue and the amount to change the currency by
     updateStreakValue(streakID, currentValue, currencyAmount) {
         let newValue = currentValue + currencyAmount;
         this.db.ref(`streaks/${userID}`)
@@ -678,19 +718,32 @@ export default class App extends Component {
         });
     }
 
-    streakStoke(streakID, userID, currencyAmount) {
+    //calculate the price of stoking a streak based on streak info
+    calculateStokePrice(streak) {
+        let stokePrice = 0;
+        stokePrice = streak.value * .25;
+        return stokePrice;
+    }
+
+    //updates both the streak value and user value for a streak that has been stoked
+    streakStoke(streakID, userID) {
         let streak = null;
         this.getStreak(streakID).then(result => {
             streak = result;
         });
+
         let user = null;
         this.getUser(userID).then(result => {
             user = result;
         });
-        this.updateStreakValue(streakID, streak.value, currencyAmount);
-        this.updateUserValue(userID, user.value, currencyAmount);
+
+        let stokePrice = this.calculateStokePrice(streak);
+
+        this.updateStreakValue(streakID, streak.value, stokePrice);
+        this.updateUserValue(userID, user.value, stokePrice);
     }
 
+    //updates streak participants values based on streak payout 
     streakPayout(streakID) {
         let streak = null;
         this.getStreak(streakID).then(result => {
@@ -706,10 +759,14 @@ export default class App extends Component {
         });
     }
 
+    //calculate streak payout using streak details 
     calculateStreakPayout(streak) {
-        //calculate streak payout using streak details 
+        let streakPayout = 0;
+        streakPayout = .1 * (streak.days * streak.value);
+        return streakPayout;
     }
 
+    //updates a streaks value and the users value for a streak boost
     streakBoost(streakID, userID, currencyAmount) {
         let streak = null;
         this.getStreak(streakID).then(result => {
@@ -723,6 +780,7 @@ export default class App extends Component {
         this.updateUserValue(userID, user.value, currencyAmount);
     }
 
+    //updates a users value based on daily allowance calculations
     dailyAllowance(userID) {
         let user = null;
         this.getUser(userID).then(result => {
@@ -732,8 +790,11 @@ export default class App extends Component {
         this.updateUserValue(userID, user.value, allowance);
     }
 
+    //determines how much a users daily allowance is
     calculateDailyAllowance(user) {
-        //return number
+        let dailyAllowance = 0;
+        //calc
+        return dailyAllowance;
     }
 
 //HISTORY
