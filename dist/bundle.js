@@ -39981,9 +39981,17 @@ __webpack_require__(437);
 
 __webpack_require__(472);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _currency = __webpack_require__(476);
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+var _friends3 = __webpack_require__(477);
+
+var _streaks3 = __webpack_require__(478);
+
+var _streakRequests = __webpack_require__(479);
+
+var _login3 = __webpack_require__(475);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -40005,44 +40013,60 @@ var App = function (_Component) {
 
         //BINDING
         //login|signup|setup
-        _this.loginUser = _this.loginUser.bind(_this);
-        _this.getUserInfo = _this.getUserInfo.bind(_this);
-        _this.signupUser = _this.signupUser.bind(_this);
-        _this.addNewUser = _this.addNewUser.bind(_this);
-        _this.signOut = _this.signOut.bind(_this);
-        _this.confirmLogin = _this.confirmLogin.bind(_this);
+        _this.loginUser = _login3.loginUser.bind(_this);
+        _this.getUserInfo = _login3.getUserInfo.bind(_this);
+        _this.signOut = _login3.signOut.bind(_this);
+        _this.confirmLogin = _login3.confirmLogin.bind(_this);
+        _this.signupUser = _login3.signupUser.bind(_this);
+        _this.addNewUser = _login3.addNewUser.bind(_this);
+
         //friends
-        _this.addFriend = _this.addFriend.bind(_this);
-        _this.getFriends = _this.getFriends.bind(_this);
-        _this.searchUsers = _this.searchUsers.bind(_this);
+        _this.addFriend = _friends3.addFriend.bind(_this);
+        _this.getFriends = _friends3.getFriends.bind(_this);
+        _this.friendToInfo = _friends3.friendToInfo.bind(_this);
+        _this.getUsername = _friends3.getUsername.bind(_this);
+
+        //streakRequests
+        _this.sendStreakRequest = _streakRequests.sendStreakRequest.bind(_this);
+        _this.streakRequestToSender = _streakRequests.streakRequestToSender.bind(_this);
+        _this.streakRequestToRecipient = _streakRequests.streakRequestToRecipient.bind(_this);
+        _this.getStreakRequests = _streakRequests.getStreakRequests.bind(_this);
+        _this.streakRequestToInfo = _streakRequests.streakRequestToInfo.bind(_this);
+        _this.acceptStreakRequest = _streakRequests.acceptStreakRequest.bind(_this);
+        _this.rejectStreakRequest = _streakRequests.rejectStreakRequest.bind(_this);
+
         //streaks
-        _this.startStreak = _this.startStreak.bind(_this);
-        _this.stokeStreak = _this.stokeStreak.bind(_this);
-        _this.getStreaks = _this.getStreaks.bind(_this);
-        _this.acceptStreakRequest = _this.acceptStreakRequest.bind(_this);
-        _this.rejectStreakRequest = _this.rejectStreakRequest.bind(_this);
-        _this.getUsername = _this.getUsername.bind(_this);
-        _this.getStreakRequests = _this.getStreakRequests.bind(_this);
-        _this.sendStreakRequest = _this.sendStreakRequest.bind(_this);
-        _this.convertDateToTimeDifference = _this.convertDateToTimeDifference.bind(_this);
-        _this.getDate24HoursAheadOfGiven = _this.getDate24HoursAheadOfGiven.bind(_this);
-        _this.getDate24HoursAhead = _this.getDate24HoursAhead.bind(_this);
-        _this.getDate = _this.getDate.bind(_this);
-        _this.convertTimestampToDays = _this.convertTimestampToDays.bind(_this);
+        _this.startStreak = _streaks3.startStreak.bind(_this);
+        _this.getStreaks = _streaks3.getStreaks.bind(_this);
+        _this.streakToInfo = _streaks3.streakToInfo.bind(_this);
+        _this.convertTimestampToDays = _streaks3.convertTimestampToDays.bind(_this);
+        _this.getDate = _streaks3.getDate.bind(_this);
+        _this.getDate24HoursAhead = _streaks3.getDate24HoursAhead.bind(_this);
+        _this.getDate24HoursAheadOfGiven = _streaks3.getDate24HoursAheadOfGiven.bind(_this);
+        _this.stokeStreak = _streaks3.stokeStreak.bind(_this);
+        _this.checkForExpiredTime = _streaks3.checkForExpiredTime.bind(_this);
+        _this.checkForExpiredStreaks = _streaks3.checkForExpiredStreaks.bind(_this);
+        _this.convertDateToTimeDifference = _streaks3.convertDateToTimeDifference.bind(_this);
+        _this.streakToOwner = _streaks3.streakToOwner.bind(_this);
+        _this.searchUsers = _streaks3.searchUsers.bind(_this);
+
         //currency
-        _this.streakTermination = _this.streakTermination.bind(_this);
-        _this.calculateStreakTP = _this.calculateStreakTP.bind(_this);
-        _this.getStreak = _this.getStreak.bind(_this);
-        _this.getUser = _this.getUser.bind(_this);
-        _this.updateUserValue = _this.updateUserValue.bind(_this);
-        _this.updateStreakValue = _this.updateStreakValue.bind(_this);
-        _this.streakStoke = _this.streakStoke.bind(_this);
-        _this.calculateStokePrice = _this.calculateStokePrice.bind(_this);
-        _this.streakPayout = _this.streakPayout.bind(_this);
-        _this.streakBoost = _this.streakBoost.bind(_this);
-        _this.calculateStreakPayout = _this.calculateStreakPayout.bind(_this);
-        _this.dailyAllowance = _this.dailyAllowance.bind(_this);
-        _this.calculateDailyAllowance = _this.calculateDailyAllowance.bind(_this);
+        _this.streakTermination = _currency.streakTermination.bind(_this);
+        _this.calculateStreakTP = _currency.calculateStreakTP.bind(_this);
+        _this.getStreak = _currency.getStreak.bind(_this);
+        _this.getUser = _currency.getUser.bind(_this);
+        _this.updateUserValue = _currency.updateUserValue.bind(_this);
+        _this.updateStreakValue = _currency.updateStreakValue.bind(_this);
+        _this.calculateStokePrice = _currency.calculateStokePrice.bind(_this);
+        _this.streakStoke = _currency.streakStoke.bind(_this);
+        _this.streakPayout = _currency.streakPayout.bind(_this);
+        _this.streakBoost = _currency.streakBoost.bind(_this);
+        _this.checkforStreakPayouts = _currency.checkforStreakPayouts.bind(_this);
+        _this.calculateStreakPayout = _currency.calculateStreakPayout.bind(_this);
+        _this.checkForDailyAllowance = _currency.checkForDailyAllowance.bind(_this);
+        _this.calculateDailyAllowance = _currency.calculateDailyAllowance.bind(_this);
+        _this.getNumberOfFriends = _currency.getNumberOfFriends.bind(_this);
+        _this.getNumberOfStreaks = _currency.getNumberOfStreaks.bind(_this);
 
         //STATE
         _this.state = {
@@ -40059,886 +40083,10 @@ var App = function (_Component) {
         return _this;
     }
 
-    //SIGNUP
-    //creates a new firebase auth for a user and initials relevant functions to grab user info and set states
-
-
     _createClass(App, [{
-        key: 'signupUser',
-        value: function signupUser(email, password) {
-            var username = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-            var first = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
-            var last = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
-            var value = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
-            var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
-            var imgAvailable = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : false;
-
-            var _this2 = this;
-
-            var totalStreaks = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
-            var totalDays = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : 0;
-
-            _app2.default.auth().createUserWithEmailAndPassword(email, password).then(function (user) {
-                _this2.confirmLogin();
-                return user;
-            }).then(function (user) {
-                _this2.getUserInfo(user.uid);
-                _this2.getFriends(user.uid);
-                _this2.getStreaks(user.uid);
-                _this2.getStreakRequests(user.uid);
-                _this2.addNewUser(username, user.uid, first, last, email, value, allowance, totalStreaks, totalDays);
-            }).catch(function (error) {
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                console.log('User Signup Error: ' + errorCode + ': ' + errorMessage);
-            });
-        }
-
-        //adds a new user to the db
-
-    }, {
-        key: 'addNewUser',
-        value: function addNewUser() {
-            var username = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-            var userID = arguments[1];
-            var first = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-            var last = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
-            var email = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
-            var value = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
-            var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
-            var totalStreaks = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 0;
-            var totalDays = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
-
-            var date = new Date();
-            var time = date.getTime();
-            this.db.ref('users/' + userID).set({
-                first: first,
-                last: last,
-                email: email,
-                value: value,
-                allowance: allowance,
-                username: username,
-                created: time,
-                totalStreaks: totalStreaks,
-                totalDays: totalDays
-            });
-            this.setState({
-                userID: userID
-            });
-        }
-
-        //LOGIN | LOGOUT
-        //grabs the information of a user by id
-
-    }, {
-        key: 'getUserInfo',
-        value: function getUserInfo(userID) {
-            var _this3 = this;
-
-            this.db.ref('users/' + userID).once('value').then(function (snapshot) {
-                _this3.setState({
-                    user: snapshot.val()
-                });
-            });
-        }
-
-        //login a user with an email and password
-
-    }, {
-        key: 'loginUser',
-        value: function loginUser(email, password) {
-            var _this4 = this;
-
-            _app2.default.auth().signInWithEmailAndPassword(email, password).then(function (user) {
-                _this4.confirmLogin();
-                return user;
-            }).then(function (user) {
-                _this4.getUserInfo(user.uid);
-                _this4.getFriends(user.uid);
-                _this4.getStreaks(user.uid);
-                _this4.getStreakRequests(user.uid);
-            }).catch(function (error) {
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                console.log('User Login Error: ' + errorCode + ': ' + errorMessage);
-            });
-        }
-
-        //confirms firebase auth
-
-    }, {
-        key: 'confirmLogin',
-        value: function confirmLogin() {
-            var _this5 = this;
-
-            _app2.default.auth().onAuthStateChanged(function (user) {
-                if (user) {
-                    var email = user.email;
-                    var _userID = user.uid;
-                    _this5.setState({
-                        loggedIn: true,
-                        email: email,
-                        userID: _userID
-                    });
-                    console.log('Logged In');
-                } else {
-                    _this5.setState({
-                        loggedIn: false,
-                        email: '',
-                        userID: ''
-                    });
-                    console.log('Not Logged In');
-                }
-            });
-        }
-
-        //signs out of firebase auth and resets state
-
-    }, {
-        key: 'signOut',
-        value: function signOut() {
-            var _this6 = this;
-
-            _app2.default.auth().signOut().then(function () {
-                console.log('Signed Out');
-                _this6.setState({
-                    loggedIn: false,
-                    userID: '',
-                    user: {},
-                    streaks: [],
-                    streaksInfo: [],
-                    friends: [],
-                    friendsInfo: [],
-                    streakRequests: [],
-                    streakRequestsInfo: []
-                });
-            }).catch(function (error) {
-                console.log('Error Signing Out:' + error);
-            });
-        }
-
-        //STREAK REQUESTS
-        //adds a streak request to the db and calls functions to assign streak request to sender and recipient
-
-    }, {
-        key: 'sendStreakRequest',
-        value: function sendStreakRequest(userID, recipientID) {
-            if (userID !== recipientID) {
-                var newRequestID = this.db.ref().child('streakRequests/').push().key;
-                this.streakRequestToSender(userID, newRequestID);
-                this.streakRequestToRecipient(recipientID, newRequestID);
-                this.db.ref('streakRequests/' + newRequestID).set({
-                    id: newRequestID,
-                    sender: userID,
-                    recipient: recipientID,
-                    answered: false,
-                    accepted: false
-                });
-            } else {
-                console.log('No request sent: You cannot send a streak request to yourself.');
-            }
-        }
-
-        //sets the given streak request id to the sender of the request
-
-    }, {
-        key: 'streakRequestToSender',
-        value: function streakRequestToSender(ownerID, streakRequestID) {
-            this.db.ref('streakRequestOwners/' + ownerID + '/sent/' + streakRequestID).set(true);
-        }
-
-        //sets the given streak request id to the recipient of the request
-
-    }, {
-        key: 'streakRequestToRecipient',
-        value: function streakRequestToRecipient(recipientID, streakRequestID) {
-            this.db.ref('streakRequestOwners/' + recipientID + '/received/' + streakRequestID).set(true);
-        }
-
-        //grabs and sets streak information to state by user id
-
-    }, {
-        key: 'getStreakRequests',
-        value: function getStreakRequests(userID) {
-            var _this7 = this;
-
-            this.db.ref('streakRequestOwners/' + userID + '/received').once('value').then(function (snapshot) {
-                if (snapshot.exists()) {
-                    var streakRequests = Object.keys(snapshot.val());
-                    _this7.setState({
-                        streakRequests: streakRequests
-                    });
-                    return streakRequests;
-                } else {
-                    throw 'No streak requests found for this user ID';
-                }
-            }).then(function (streakRequests) {
-                var funcs = streakRequests.map(function (request) {
-                    return _this7.streakRequestToInfo(request);
-                });
-                Promise.all(funcs).then(function (results) {
-                    results = results.filter(function (n) {
-                        return n;
-                    });
-                    _this7.setState({
-                        streakRequestsInfo: results
-                    });
-                });
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-        }
-
-        //returns a promise containing the information of a streak request by streak request id
-
-    }, {
-        key: 'streakRequestToInfo',
-        value: function streakRequestToInfo(streakRequestID) {
-            var _this8 = this;
-
-            var streakRequest = null;
-            return this.db.ref('streakRequests/' + streakRequestID).once('value').then(function (snapshot) {
-                if (snapshot.exists()) {
-                    streakRequest = snapshot.val();
-                    if (streakRequest.answered === false) {
-                        _this8.getUsername(streakRequest.sender).then(function (username) {
-                            streakRequest.senderUsername = username;
-                        });
-                        _this8.getUsername(streakRequest.recipient).then(function (username) {
-                            streakRequest.recipientUsername = username;
-                        });
-                    } else {
-                        streakRequest = null;
-                    }
-                }
-            }).then(function () {
-                return streakRequest;
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-        }
-
-        //accept a streak request and set according information on streak request and start a streak with relevant information
-
-    }, {
-        key: 'acceptStreakRequest',
-        value: function acceptStreakRequest(streakRequestID, userID, senderID) {
-            this.db.ref('streakRequests/' + streakRequestID).set({
-                answered: true,
-                accepted: true
-            });
-
-            this.startStreak(userID, senderID);
-        }
-
-        //reject a streak request and set according information on streak request 
-
-    }, {
-        key: 'rejectStreakRequest',
-        value: function rejectStreakRequest(streakRequestID, userID, senderID) {
-            this.db.ref('streakRequests/' + streakRequestID).set({
-                answered: true,
-                accepted: false
-            });
-        }
-
-        //STREAKS
-        //adds a new streak to both users streak lists and the streak list
-
-    }, {
-        key: 'startStreak',
-        value: function startStreak(userID, friendID) {
-            var _this9 = this;
-
-            if (userID !== friendID) {
-                var _participants;
-
-                var time = this.getDate();
-                var expirationDate = this.getDate24HoursAhead();
-                var expirationTime = this.convertDateToTimeDifference(expirationDate);
-                var newStreakID = this.db.ref().child('streaks').push().key;
-                this.db.ref('streaks/' + newStreakID).set({
-                    participants: (_participants = {}, _defineProperty(_participants, userID, true), _defineProperty(_participants, friendID, true), _participants),
-                    terminated: false,
-                    neutral: false,
-                    value: 0,
-                    days: 0,
-                    allowance: 1,
-                    penalty: 0,
-                    timestamp: time,
-                    currentOwner: friendID,
-                    currentExpirationDate: expirationDate,
-                    currentExpirationTime: expirationTime,
-                    currentExpired: false,
-                    nextOwner: userID,
-                    nextExpirationDate: 0,
-                    nextExpirationTime: 0,
-                    nextExpired: true
-                }).then(function () {
-                    _this9.streakToOwner(friendID, newStreakID);
-                    _this9.streakToOwner(userID, newStreakID);
-                }).then(function () {
-                    _this9.getStreaks(userID);
-                });
-            } else {
-                console.log('No streak started: You cannot start a streak with yourself.');
-            }
-        }
-
-        //grabs and sets state to the streaks by user id
-
-    }, {
-        key: 'getStreaks',
-        value: function getStreaks(userID) {
-            var _this10 = this;
-
-            this.db.ref('streakOwners/' + userID) //grab streak list from streakOwners db
-            .once('value').then(function (snapshot) {
-                if (snapshot.exists()) {
-                    var streaks = Object.keys(snapshot.val());
-                    _this10.setState({
-                        streaks: streaks
-                    });
-                    return streaks;
-                } else {
-                    throw 'No owners found for this user ID';
-                }
-            }).then(function (streakList) {
-                var streakFuncs = streakList.map(function (streakID) {
-                    return _this10.checkForExpiredStreaks(streakID);
-                });
-                return Promise.all(streakFuncs).then(function (results) {
-                    return results;
-                });
-            }).then(function (streakList) {
-                var infoFuncs = streakList.map(function (streakID) {
-                    return _this10.streakToInfo(streakID, userID);
-                });
-                Promise.all(infoFuncs).then(function (results) {
-                    results = results.filter(function (n) {
-                        return n;
-                    });
-                    _this10.setState({
-                        streaksInfo: results
-                    });
-                });
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-        }
-
-        //returns a promise containing the information of a streak by streak id
-
-    }, {
-        key: 'streakToInfo',
-        value: function streakToInfo(streakID, userID) {
-            var _this11 = this;
-
-            var streak = null;
-            return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
-                if (snapshot.exists()) {
-                    streak = snapshot.val();
-                    streak.id = streakID;
-                    streak.days = _this11.convertTimestampToDays(streak.timestamp);
-                    Object.keys(streak.participants).map(function (participant) {
-                        if (participant === userID) {
-                            _this11.getUsername(participant).then(function (username) {
-                                streak.user = username;
-                            });
-                        } else {
-                            _this11.getUsername(participant).then(function (username) {
-                                streak.friend = username;
-                                streak.friendTurn = streak.participants[participant];
-                            });
-                        }
-                    });
-                }
-            }).then(function () {
-                return streak;
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-        }
-    }, {
-        key: 'convertTimestampToDays',
-        value: function convertTimestampToDays(timestamp) {
-            var newDate = new Date();
-            var date = newDate.getTime();
-            var days = ((date - timestamp) / (3600000 * 24)).toFixed(0);
-            return days;
-        }
-    }, {
-        key: 'getDate',
-        value: function getDate() {
-            var newDate = new Date();
-            var date = newDate.getTime();
-            return date;
-        }
-    }, {
-        key: 'getDate24HoursAhead',
-        value: function getDate24HoursAhead() {
-            var newdate = new Date();
-            var date = newdate.getTime();
-            var newDate = date + 24 * 3600000;
-            return newDate;
-        }
-    }, {
-        key: 'getDate24HoursAheadOfGiven',
-        value: function getDate24HoursAheadOfGiven(date) {
-            var result = date + 24 * 3600000;
-            return result;
-        }
-
-        //toggles and resests the time for the ownership of a streaks termination period 
-
-    }, {
-        key: 'stokeStreak',
-        value: function stokeStreak(streakID, userID) {
-            var _this12 = this;
-
-            this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
-                if (snapshot.exists()) {
-                    var streak = snapshot.val();
-                    var nextExpirationDate = _this12.getDate24HoursAheadOfGiven(streak.currentExpirationDate);
-                    var nextExpirationTime = _this12.convertDateToTimeDifference(nextExpirationDate);
-                    _this12.db.ref('streaks/' + streakID).set({
-                        nextExpirationDate: nextExpirationDate,
-                        nextExpirationTime: nextExpirationTime,
-                        nextExpired: false
-                    });
-                    _this12.streakStoke(streakID, userID);
-                } else {
-                    throw 'No streak found for this streakID';
-                }
-            }).then(function () {
-                _this12.getStreaks(userID);
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-        }
-
-        //returns a boolean depending on the input value
-
-    }, {
-        key: 'checkForExpiredTime',
-        value: function checkForExpiredTime(val) {
-            return val === '0:0' ? true : false;
-        }
-
-        //checks a streak by id and check the termination time on it and sets the expired key on the streak
-
-    }, {
-        key: 'checkForExpiredStreaks',
-        value: function checkForExpiredStreaks(streakID) {
-            var _this13 = this;
-
-            return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
-                if (snapshot.exists()) {
-                    var streak = snapshot.val();
-
-                    var currentExpirationTime = _this13.convertDateToTimeDifference(streak.currentExpirationDate);
-                    var currentExpired = _this13.checkForExpiredTime(currentExpirationTime);
-                    _this13.db.ref('streaks/' + streakID + '/currentExpirationTime').set(currentExpirationTime);
-                    _this13.db.ref('streaks/' + streakID + '/currentExpired').set(currentExpired);
-
-                    var nextExpirationTime = streak.nextExpirationTime;
-                    var nextExpired = streak.nextExpired;
-                    if (!streak.nextExpired) {
-                        nextExpirationTime = _this13.convertDateToTimeDifference(streak.nextExpirationDate);
-                        nextExpired = _this13.checkForExpiredTime(nextExpirationTime);
-                        _this13.db.ref('streaks/' + streakID + '/nextExpirationTime').set(nextExpirationTime);
-                        _this13.db.ref('streaks/' + streakID + '/nextExpired').set(nextExpired);
-                    }
-
-                    if (!currentExpired && !nextExpired) {
-                        //streak active | stoked | neutral
-                        _this13.db.ref('streaks/' + streakID + '/neutral').set(true);
-                        return streakID;
-                    } else if (!currentExpired && nextExpired) {
-                        //streak active | unstoked
-                        return streakID;
-                    } else if (currentExpired && nextExpired) {
-                        //streak terminated
-                        _this13.db.ref('streaks/' + streakID).set({
-                            terminated: true,
-                            terminator: streak.owner,
-                            betrayed: streak.nextOwner
-                        });
-                        _this13.streakTermination(streakID);
-                    } else if (currentExpired && !nextExpired) {
-                        //streak transition
-                        var currentExpirationDate = _this13.getDate24HoursAhead();
-                        var _currentExpirationTime = _this13.convertDateToTimeDifference(currentExpirationDate);
-                        _this13.db.ref('streaks/' + streakID).update({
-                            neutral: false,
-                            currentOwner: streak.nextOwner,
-                            currentExpirationDate: currentExpirationDate,
-                            currentExpirationTime: _currentExpirationTime,
-                            currentExpired: false,
-                            nextExpirationDate: null,
-                            nextExpirationTime: null,
-                            nextExpired: true,
-                            nextOwner: streak.currentOwner
-                        });
-                        return streakID;
-                    }
-                } else {
-                    throw 'Check for Expired: No streak found for this streakID';
-                }
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-            //send streak termination info to history db
-        }
-
-        //returns the time difference between the current time and a provided time 
-
-    }, {
-        key: 'convertDateToTimeDifference',
-        value: function convertDateToTimeDifference(expirationDate) {
-            var date = new Date();
-            var currentTime = date.getTime();
-            var timeDifference = expirationDate - currentTime;
-            var totalMinutes = (timeDifference / (1000 * 60)).toFixed(0);
-            var hours = Math.floor(totalMinutes / 60);
-            var minutes = totalMinutes % 60;
-            var timeDiffString = void 0;
-            if (hours < 0 && minutes < 0) {
-                timeDiffString = '0:0';
-                return timeDiffString;
-            } else {
-                timeDiffString = hours + ':' + minutes;
-                return timeDiffString;
-            }
-        }
-
-        //sets a streak id to a users streaklist
-
-    }, {
-        key: 'streakToOwner',
-        value: function streakToOwner(ownerID, streakID) {
-            this.db.ref('streakOwners/' + ownerID + '/' + streakID).set(true);
-        }
-
-        //searches and returns a promise containing the user information by username
-
-    }, {
-        key: 'searchUsers',
-        value: function searchUsers(username, userID) {
-            return this.db.ref('users').orderByChild('username').equalTo(username).once('value').then(function (snapshot) {
-                if (snapshot.exists()) {
-                    var result = {};
-                    var data = snapshot.val();
-                    var foundUserID = Object.keys(data)[0];
-                    if (foundUserID === userID) {
-                        console.log('You cannot add yourself as a friend');
-                        result.self = true;
-                    } else {
-                        result.self = false;
-                    }
-                    result.uid = foundUserID;
-                    var innerData = snapshot.child('' + foundUserID).val();
-                    result.first = innerData.first;
-                    result.last = innerData.last;
-                    return result;
-                } else {
-                    return {};
-                }
-            });
-        }
-
-        //FRIENDS
-        //grabs and sets to state the friends list of a user by id
-
-    }, {
-        key: 'getFriends',
-        value: function getFriends(userID) {
-            var _this14 = this;
-
-            this.db.ref('friends/' + userID).once('value').then(function (snapshot) {
-                if (snapshot.exists()) {
-                    var friends = Object.keys(snapshot.val());
-                    _this14.setState({
-                        friends: friends
-                    });
-                    return friends;
-                } else {
-                    throw 'No friends found';
-                }
-            }).then(function (friends) {
-                var funcs = friends.map(function (friend) {
-                    return _this14.friendToInfo(friend);
-                });
-                Promise.all(funcs).then(function (friendsInfo) {
-                    _this14.setState({
-                        friendsInfo: friendsInfo
-                    });
-                });
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-        }
-
-        //Grab and returns just the username of a user by id
-
-    }, {
-        key: 'getUsername',
-        value: function getUsername(userID) {
-            return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
-                if (snapshot.exists()) {
-                    return snapshot.val().username;
-                } else {
-                    throw 'Get Username: No user found';
-                }
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-        }
-
-        //Grabs and returns user information by id
-
-    }, {
-        key: 'friendToInfo',
-        value: function friendToInfo(userID) {
-            return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
-                if (snapshot.exists()) {
-                    var info = snapshot.val();
-                    info.uid = userID;
-                    return info;
-                } else {
-                    throw 'Friend to Info: No user found';
-                }
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-        }
-
-        //adds a friend to a users friends list
-
-    }, {
-        key: 'addFriend',
-        value: function addFriend(userID, friendID) {
-            var _this15 = this;
-
-            if (userID !== friendID) {
-                var stringID = friendID.toString();
-                //add functionality to check that friend isn't already a friend
-                this.state.friends.map(function (friend, index) {
-                    _this15.db.ref('friends/' + userID + '/' + stringID).set(true);
-                });
-                var friends = this.state.friends.slice();
-                friends.push(friendID);
-                this.setState({ //set state to reflect updated friends list
-                    friends: friends
-                });
-                this.getFriends(userID);
-            } else {
-                console.log('No friend added: You cannot add yourself as a friend.');
-            }
-        }
-
-        //CURRENCY
-        //if a streak is terminated, this function should be called to handle currency related termination penalties
-
-    }, {
-        key: 'streakTermination',
-        value: function streakTermination(streakID) {
-            var streak = null;
-            this.getStreak(streakID).then(function (result) {
-                streak = result;
-            });
-
-            var payments = this.calculateStreakTP(streak.value, streak.terminator, streak.betrayed);
-            var terminatorPayment = payments[0];
-            var betrayedPayment = payments[1];
-
-            var terminator = null;
-            this.getUser(userID).then(function (result) {
-                terminator = result;
-            });
-            var betrayed = null;
-            this.getUser(userID).then(function (result) {
-                betrayed = result;
-            });
-
-            this.updateUserValue(streak.terminator, terminator.value, terminatorPayment);
-            this.updateUserValue(streak.betrayed, betrayed.value, betrayedPayment);
-        }
-
-        //returns an array of payments for the terminator and betrayed from a terminated streak
-
-    }, {
-        key: 'calculateStreakTP',
-        value: function calculateStreakTP(streakValue, terminatorID, betrayedID) {
-            var payments = [];
-            payments[0] = streakValue * .75;
-            payments[1] = streakValue * .25;
-            return payments;
-        }
-
-        //returns a promise containing the streak info 
-
-    }, {
-        key: 'getStreak',
-        value: function getStreak(streakID) {
-            return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
-                return snapshot;
-            });
-        }
-
-        //returns a promise containing the user info 
-
-    }, {
-        key: 'getUser',
-        value: function getUser(userID) {
-            return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
-                return snapshot;
-            });
-        }
-
-        //updates a users value based on currenctValue and the amount to change the currency by
-
-    }, {
-        key: 'updateUserValue',
-        value: function updateUserValue(userID, currentValue, currencyAmount) {
-            var newValue = currentValue + currencyAmount;
-            this.db.ref('users/' + userID).update({
-                value: newValue
-            });
-        }
-
-        //updates a streaks value based on currenctValue and the amount to change the currency by
-
-    }, {
-        key: 'updateStreakValue',
-        value: function updateStreakValue(streakID, currentValue, currencyAmount) {
-            var newValue = currentValue + currencyAmount;
-            this.db.ref('streaks/' + userID).update({
-                value: newValue
-            });
-        }
-
-        //calculate the price of stoking a streak based on streak info
-
-    }, {
-        key: 'calculateStokePrice',
-        value: function calculateStokePrice(streak) {
-            var stokePrice = 0;
-            stokePrice = streak.value * .25;
-            return stokePrice;
-        }
-
-        //updates both the streak value and user value for a streak that has been stoked
-
-    }, {
-        key: 'streakStoke',
-        value: function streakStoke(streakID, userID) {
-            var streak = null;
-            this.getStreak(streakID).then(function (result) {
-                streak = result;
-            });
-
-            var user = null;
-            this.getUser(userID).then(function (result) {
-                user = result;
-            });
-
-            var stokePrice = this.calculateStokePrice(streak);
-
-            this.updateStreakValue(streakID, streak.value, stokePrice);
-            this.updateUserValue(userID, user.value, stokePrice);
-        }
-
-        //updates streak participants values based on streak payout 
-
-    }, {
-        key: 'streakPayout',
-        value: function streakPayout(streakID) {
-            var _this16 = this;
-
-            var streak = null;
-            this.getStreak(streakID).then(function (result) {
-                streak = result;
-            });
-            var user = null;
-            this.getUser(userID).then(function (result) {
-                user = result;
-            });
-            var payout = this.calculateStreakPayout(streak);
-            Object.keys(streak.participants).map(function (participant) {
-                _this16.updateUserValue(userID, user.value, payout);
-            });
-        }
-
-        //calculate streak payout using streak details 
-
-    }, {
-        key: 'calculateStreakPayout',
-        value: function calculateStreakPayout(streak) {
-            var streakPayout = 0;
-            streakPayout = .1 * (streak.days * streak.value);
-            return streakPayout;
-        }
-
-        //updates a streaks value and the users value for a streak boost
-
-    }, {
-        key: 'streakBoost',
-        value: function streakBoost(streakID, userID, currencyAmount) {
-            var streak = null;
-            this.getStreak(streakID).then(function (result) {
-                streak = result;
-            });
-            var user = null;
-            this.getUser(userID).then(function (result) {
-                user = result;
-            });
-            this.updateStreakValue(streakID, streak.value, currencyAmount);
-            this.updateUserValue(userID, user.value, currencyAmount);
-        }
-
-        //updates a users value based on daily allowance calculations
-
-    }, {
-        key: 'dailyAllowance',
-        value: function dailyAllowance(userID) {
-            var user = null;
-            this.getUser(userID).then(function (result) {
-                user = result;
-            });
-            var allowance = this.calculateDailyAllowance(user);
-            this.updateUserValue(userID, user.value, allowance);
-        }
-
-        //determines how much a users daily allowance is
-
-    }, {
-        key: 'calculateDailyAllowance',
-        value: function calculateDailyAllowance(user) {
-            var dailyAllowance = 0;
-            //calc
-            return dailyAllowance;
-        }
-
-        //HISTORY
-
-    }, {
-        key: 'getHistory',
-        value: function getHistory() {}
-        //grab history by UID
-
-
-        //UNLOCKS
-
-    }, {
-        key: 'getUnlocks',
-        value: function getUnlocks() {
-            //grab unlocks by UID
-        }
-    }, {
         key: 'render',
         value: function render() {
-            var _this17 = this;
+            var _this2 = this;
 
             return _react2.default.createElement(
                 _reactRouterDom.BrowserRouter,
@@ -40958,15 +40106,15 @@ var App = function (_Component) {
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/streaks', component: function component() {
                                     return _react2.default.createElement(_streaks2.default, {
-                                        userID: _this17.state.userID,
-                                        streaks: _this17.state.streaksInfo,
-                                        friends: _this17.state.friendsInfo,
-                                        sendStreakRequest: _this17.sendStreakRequest,
-                                        value: _this17.state.user.value,
-                                        requests: _this17.state.streakRequestsInfo,
-                                        acceptStreakRequest: _this17.acceptStreakRequest,
-                                        rejectStreakRequest: _this17.rejectStreakRequest,
-                                        stokeStreak: _this17.stokeStreak
+                                        userID: _this2.state.userID,
+                                        streaks: _this2.state.streaksInfo,
+                                        friends: _this2.state.friendsInfo,
+                                        sendStreakRequest: _this2.sendStreakRequest,
+                                        value: _this2.state.user.value,
+                                        requests: _this2.state.streakRequestsInfo,
+                                        acceptStreakRequest: _this2.acceptStreakRequest,
+                                        rejectStreakRequest: _this2.rejectStreakRequest,
+                                        stokeStreak: _this2.stokeStreak
                                     });
                                 }
                             }),
@@ -40976,17 +40124,17 @@ var App = function (_Component) {
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/profile', component: function component() {
                                     return _react2.default.createElement(_profile2.default, {
-                                        signOut: _this17.signOut,
-                                        user: _this17.state.user
+                                        signOut: _this2.signOut,
+                                        user: _this2.state.user
                                     });
                                 }
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/friends', component: function component() {
                                     return _react2.default.createElement(_friends2.default, {
-                                        friends: _this17.state.friendsInfo,
-                                        addFriend: _this17.addFriend,
-                                        user: _this17.state.userID,
-                                        searchUsers: _this17.searchUsers
+                                        friends: _this2.state.friendsInfo,
+                                        addFriend: _this2.addFriend,
+                                        user: _this2.state.userID,
+                                        searchUsers: _this2.searchUsers
                                     });
                                 }
                             }),
@@ -66109,6 +65257,968 @@ c){a=new ul(a);c({INTERNAL:{getUid:r(a.getUid,a),getToken:r(a.Vb,a),addAuthToken
 }).call(typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : typeof window !== 'undefined' ? window : {});
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(117)))
+
+/***/ }),
+/* 474 */,
+/* 475 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.addNewUser = exports.signupUser = exports.signOut = exports.confirmLogin = exports.getUserInfo = exports.loginUser = undefined;
+
+var _app = __webpack_require__(417);
+
+var _app2 = _interopRequireDefault(_app);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var loginUser = function loginUser(email, password) {
+    var _this = this;
+
+    _app2.default.auth().signInWithEmailAndPassword(email, password).then(function (user) {
+        _this.confirmLogin();
+        return user;
+    }).then(function (user) {
+        _this.getUserInfo(user.uid);
+        _this.getFriends(user.uid);
+        _this.getStreaks(user.uid);
+        _this.getStreakRequests(user.uid);
+    }).catch(function (error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log('User Login Error: ' + errorCode + ': ' + errorMessage);
+    });
+};
+
+//grabs the information of a user by id
+var getUserInfo = function getUserInfo(userID) {
+    var _this2 = this;
+
+    this.db.ref('users/' + userID).once('value').then(function (snapshot) {
+        _this2.setState({
+            user: snapshot.val()
+        });
+    });
+};
+
+//confirms firebase auth
+var confirmLogin = function confirmLogin() {
+    var _this3 = this;
+
+    _app2.default.auth().onAuthStateChanged(function (user) {
+        if (user) {
+            var email = user.email;
+            var userID = user.uid;
+            _this3.setState({
+                loggedIn: true,
+                email: email,
+                userID: userID
+            });
+            console.log('Logged In');
+        } else {
+            _this3.setState({
+                loggedIn: false,
+                email: '',
+                userID: ''
+            });
+            console.log('Not Logged In');
+        }
+    });
+};
+
+//signs out of firebase auth and resets state
+var signOut = function signOut() {
+    var _this4 = this;
+
+    _app2.default.auth().signOut().then(function () {
+        console.log('Signed Out');
+        _this4.setState({
+            loggedIn: false,
+            userID: '',
+            user: {},
+            streaks: [],
+            streaksInfo: [],
+            friends: [],
+            friendsInfo: [],
+            streakRequests: [],
+            streakRequestsInfo: []
+        });
+    }).catch(function (error) {
+        console.log('Error Signing Out:' + error);
+    });
+};
+
+//creates a new firebase auth for a user and initials relevant functions to grab user info and set states
+var signupUser = function signupUser(email, password) {
+    var username = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+    var first = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
+    var last = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
+    var value = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
+    var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
+    var imgAvailable = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : false;
+
+    var _this5 = this;
+
+    var totalStreaks = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
+    var totalDays = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : 0;
+
+    _app2.default.auth().createUserWithEmailAndPassword(email, password).then(function (user) {
+        _this5.confirmLogin();
+        return user;
+    }).then(function (user) {
+        _this5.getUserInfo(user.uid);
+        _this5.getFriends(user.uid);
+        _this5.getStreaks(user.uid);
+        _this5.getStreakRequests(user.uid);
+        _this5.addNewUser(username, user.uid, first, last, email, value, allowance, totalStreaks, totalDays);
+    }).catch(function (error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log('User Signup Error: ' + errorCode + ': ' + errorMessage);
+    });
+};
+
+//adds a new user to the db
+var addNewUser = function addNewUser() {
+    var username = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+    var userID = arguments[1];
+    var first = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+    var last = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
+    var email = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
+    var value = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
+    var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
+    var totalStreaks = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 0;
+    var totalDays = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
+
+    var date = new Date();
+    var time = date.getTime();
+    this.db.ref('users/' + userID).set({
+        first: first,
+        last: last,
+        email: email,
+        value: value,
+        allowance: allowance,
+        username: username,
+        created: time,
+        totalStreaks: totalStreaks,
+        totalDays: totalDays,
+        lastChecked: null
+    });
+    this.setState({
+        userID: userID
+    });
+};
+
+exports.loginUser = loginUser;
+exports.getUserInfo = getUserInfo;
+exports.confirmLogin = confirmLogin;
+exports.signOut = signOut;
+exports.signupUser = signupUser;
+exports.addNewUser = addNewUser;
+
+/***/ }),
+/* 476 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.getNumberOfStreaks = exports.getNumberOfFriends = exports.calculateDailyAllowance = exports.checkForDailyAllowance = exports.calculateStreakPayout = exports.checkforStreakPayouts = exports.streakBoost = exports.streakPayout = exports.streakStoke = exports.calculateStokePrice = exports.updateStreakValue = exports.updateUserValue = exports.getUser = exports.getStreak = exports.calculateStreakTP = exports.streakTermination = undefined;
+
+var _app = __webpack_require__(417);
+
+var _app2 = _interopRequireDefault(_app);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//if a streak is terminated, this function should be called to handle currency related termination penalties
+var streakTermination = function streakTermination(streakID) {
+    var streak = null;
+    this.getStreak(streakID).then(function (result) {
+        streak = result;
+    });
+
+    var payments = this.calculateStreakTP(streak.value, streak.terminator, streak.betrayed);
+    var terminatorPayment = payments[0];
+    var betrayedPayment = payments[1];
+
+    var terminator = null;
+    this.getUser(userID).then(function (result) {
+        terminator = result;
+    });
+    var betrayed = null;
+    this.getUser(userID).then(function (result) {
+        betrayed = result;
+    });
+
+    this.updateUserValue(streak.terminator, terminator.value, terminatorPayment);
+    this.updateUserValue(streak.betrayed, betrayed.value, betrayedPayment);
+};
+
+//returns an array of payments for the terminator and betrayed from a terminated streak
+var calculateStreakTP = function calculateStreakTP(streakValue, terminatorID, betrayedID) {
+    var payments = [];
+    payments[0] = streakValue * .75;
+    payments[1] = streakValue * .25;
+    return payments;
+};
+
+//returns a promise containing the streak info 
+var getStreak = function getStreak(streakID) {
+    return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+        return snapshot;
+    });
+};
+
+//returns a promise containing the user info 
+var getUser = function getUser(userID) {
+    return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
+        return snapshot;
+    });
+};
+
+//updates a users value based on currenctValue and the amount to change the currency by
+var updateUserValue = function updateUserValue(userID, currentValue, currencyAmount) {
+    var newValue = currentValue + currencyAmount;
+    this.db.ref('users/' + userID).update({
+        value: newValue
+    });
+};
+
+//updates a streaks value based on currenctValue and the amount to change the currency by
+var updateStreakValue = function updateStreakValue(streakID, currentValue, currencyAmount) {
+    var newValue = currentValue + currencyAmount;
+    this.db.ref('streaks/' + userID).update({
+        value: newValue
+    });
+};
+
+//calculate the price of stoking a streak based on streak info
+var calculateStokePrice = function calculateStokePrice(streak) {
+    var stokePrice = 0;
+    stokePrice = streak.value * .25;
+    return stokePrice;
+};
+
+//updates both the streak value and user value for a streak that has been stoked
+var streakStoke = function streakStoke(streakID, userID) {
+    var streak = null;
+    this.getStreak(streakID).then(function (result) {
+        streak = result;
+    });
+
+    var user = null;
+    this.getUser(userID).then(function (result) {
+        user = result;
+    });
+
+    var stokePrice = this.calculateStokePrice(streak);
+
+    this.updateStreakValue(streakID, streak.value, stokePrice);
+    this.updateUserValue(userID, user.value, stokePrice);
+};
+
+//updates streak participants values based on streak payout 
+var streakPayout = function streakPayout(streakID) {
+    var _this = this;
+
+    var streak = null;
+    this.getStreak(streakID).then(function (result) {
+        streak = result;
+    });
+    var user = null;
+    this.getUser(userID).then(function (result) {
+        user = result;
+    });
+    var payout = this.calculateStreakPayout(streak);
+    Object.keys(streak.participants).map(function (participant) {
+        _this.updateUserValue(userID, user.value, payout);
+    });
+};
+
+//updates a streaks value and the users value for a streak boost
+var streakBoost = function streakBoost(streakID, userID, currencyAmount) {
+    var streak = null;
+    this.getStreak(streakID).then(function (result) {
+        streak = result;
+    });
+    var user = null;
+    this.getUser(userID).then(function (result) {
+        user = result;
+    });
+    this.updateStreakValue(streakID, streak.value, currencyAmount);
+    this.updateUserValue(userID, user.value, currencyAmount);
+};
+
+var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
+    var streak = null;
+    this.getStreak(streakID).then(function (result) {
+        streak = result;
+    });
+
+    var lastChecked = null;
+    var start = null;
+
+    if (streak.lastChecked) {
+        lastChecked = streak.lastChecked;
+    } else {
+        lastChecked = 0;
+    }
+
+    start = streak.timestamp;
+    var difference = start - lastChecked;
+    var numberOfPayments = this.convertTimestampToDays(difference);
+
+    var payment = this.calculateStreakPayout(streak);
+    var payments = payment * numberOfPayments;
+    this.updateStreakValue(streakID, streak.value, payments);
+
+    var date = new Date();
+    var time = date.getTime();
+    this.db.ref('streaks/' + streakID).update({
+        lastChecked: time
+    });
+};
+
+var calculateStreakPayout = function calculateStreakPayout(streak) {
+    var payout = 0;
+    payout = .1 * (streak.days * streak.value);
+    return payout;
+};
+
+var checkForDailyAllowance = function checkForDailyAllowance(userID) {
+    var user = null;
+    this.getUser(userID).then(function (result) {
+        user = result;
+    });
+
+    var lastChecked = null;
+    var start = null;
+
+    if (user.lastChecked) {
+        lastChecked = user.lastChecked;
+    } else {
+        lastChecked = 0;
+    }
+
+    start = user.created;
+    var difference = start - lastChecked;
+    var numberOfPayments = this.convertTimestampToDays(difference);
+
+    //fix to check for each allowance every 24 hours 
+    var payment = this.calculateDailyAllowance(user, userID);
+    var payments = payment * numberOfPayments;
+    this.updateUserValue(userID, user.value, payments);
+
+    var date = new Date();
+    var time = date.getTime();
+    this.db.ref('users/' + userID).update({
+        lastChecked: time
+    });
+};
+
+//determines how much a users daily allowance is
+var calculateDailyAllowance = function calculateDailyAllowance(user, userID) {
+    var dailyAllowance = 0;
+    var friends = 0;
+    var streaks = 0;
+    this.getNumberOfFriends(userID).then(function (result) {
+        friends = result;
+    });
+    this.getNumberOfStreaks(userID).then(function (result) {
+        streaks = result;
+    });
+    dailyAllowance = streaks / friends * (friends * 5);
+    return dailyAllowance;
+};
+
+var getNumberOfFriends = function getNumberOfFriends(userID) {
+    return this.db.ref('friends/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var friends = snapshot.val();
+            return friends.length;
+        } else {
+            throw 'No friends found for this user';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+var getNumberOfStreaks = function getNumberOfStreaks(userID) {
+    return this.db.ref('streaks/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var streaks = snapshot.val();
+            return streaks.length;
+        } else {
+            throw 'No streaks found for this user';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+exports.streakTermination = streakTermination;
+exports.calculateStreakTP = calculateStreakTP;
+exports.getStreak = getStreak;
+exports.getUser = getUser;
+exports.updateUserValue = updateUserValue;
+exports.updateStreakValue = updateStreakValue;
+exports.calculateStokePrice = calculateStokePrice;
+exports.streakStoke = streakStoke;
+exports.streakPayout = streakPayout;
+exports.streakBoost = streakBoost;
+exports.checkforStreakPayouts = checkforStreakPayouts;
+exports.calculateStreakPayout = calculateStreakPayout;
+exports.checkForDailyAllowance = checkForDailyAllowance;
+exports.calculateDailyAllowance = calculateDailyAllowance;
+exports.getNumberOfFriends = getNumberOfFriends;
+exports.getNumberOfStreaks = getNumberOfStreaks;
+
+/***/ }),
+/* 477 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.addFriend = exports.friendToInfo = exports.getUsername = exports.getFriends = undefined;
+
+var _app = __webpack_require__(417);
+
+var _app2 = _interopRequireDefault(_app);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//grabs and sets to state the friends list of a user by id
+var getFriends = function getFriends(userID) {
+    var _this = this;
+
+    this.db.ref('friends/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var friends = Object.keys(snapshot.val());
+            _this.setState({
+                friends: friends
+            });
+            return friends;
+        } else {
+            throw 'No friends found';
+        }
+    }).then(function (friends) {
+        var funcs = friends.map(function (friend) {
+            return _this.friendToInfo(friend);
+        });
+        Promise.all(funcs).then(function (friendsInfo) {
+            _this.setState({
+                friendsInfo: friendsInfo
+            });
+        });
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+//Grab and returns just the username of a user by id
+var getUsername = function getUsername(userID) {
+    return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            return snapshot.val().username;
+        } else {
+            throw 'Get Username: No user found';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+//Grabs and returns user information by id
+var friendToInfo = function friendToInfo(userID) {
+    return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var info = snapshot.val();
+            info.uid = userID;
+            return info;
+        } else {
+            throw 'Friend to Info: No user found';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+//adds a friend to a users friends list
+var addFriend = function addFriend(userID, friendID) {
+    var _this2 = this;
+
+    if (userID !== friendID) {
+        var stringID = friendID.toString();
+        //add functionality to check that friend isn't already a friend
+        this.state.friends.map(function (friend, index) {
+            _this2.db.ref('friends/' + userID + '/' + stringID).set(true);
+        });
+        var friends = this.state.friends.slice();
+        friends.push(friendID);
+        this.setState({ //set state to reflect updated friends list
+            friends: friends
+        });
+        this.getFriends(userID);
+    } else {
+        console.log('No friend added: You cannot add yourself as a friend.');
+    }
+};
+
+exports.getFriends = getFriends;
+exports.getUsername = getUsername;
+exports.friendToInfo = friendToInfo;
+exports.addFriend = addFriend;
+
+/***/ }),
+/* 478 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.searchUsers = exports.streakToOwner = exports.convertDateToTimeDifference = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.getDate = exports.convertTimestampToDays = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
+
+var _app = __webpack_require__(417);
+
+var _app2 = _interopRequireDefault(_app);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+//adds a new streak to both users streak lists and the streak list
+var startStreak = function startStreak(userID, friendID) {
+    var _this = this;
+
+    if (userID !== friendID) {
+        var _participants;
+
+        var time = this.getDate();
+        var expirationDate = this.getDate24HoursAhead();
+        var expirationTime = this.convertDateToTimeDifference(expirationDate);
+        var newStreakID = this.db.ref().child('streaks').push().key;
+        this.db.ref('streaks/' + newStreakID).set({
+            participants: (_participants = {}, _defineProperty(_participants, userID, true), _defineProperty(_participants, friendID, true), _participants),
+            terminated: false,
+            neutral: false,
+            value: 0,
+            days: 0,
+            allowance: 1,
+            penalty: 0,
+            timestamp: time,
+            currentOwner: friendID,
+            currentExpirationDate: expirationDate,
+            currentExpirationTime: expirationTime,
+            currentExpired: false,
+            nextOwner: userID,
+            nextExpirationDate: 0,
+            nextExpirationTime: 0,
+            nextExpired: true,
+            lastChecked: null
+        }).then(function () {
+            _this.streakToOwner(friendID, newStreakID);
+            _this.streakToOwner(userID, newStreakID);
+        }).then(function () {
+            _this.getStreaks(userID);
+        });
+    } else {
+        console.log('No streak started: You cannot start a streak with yourself.');
+    }
+};
+
+//grabs and sets state to the streaks by user id
+var getStreaks = function getStreaks(userID) {
+    var _this2 = this;
+
+    this.db.ref('streakOwners/' + userID) //grab streak list from streakOwners db
+    .once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var streaks = Object.keys(snapshot.val());
+            _this2.setState({
+                streaks: streaks
+            });
+            return streaks;
+        } else {
+            throw 'No owners found for this user ID';
+        }
+    }).then(function (streakList) {
+        var streakFuncs = streakList.map(function (streakID) {
+            return _this2.checkForExpiredStreaks(streakID);
+        });
+        return Promise.all(streakFuncs).then(function (results) {
+            return results;
+        });
+    }).then(function (streakList) {
+        var infoFuncs = streakList.map(function (streakID) {
+            return _this2.streakToInfo(streakID, userID);
+        });
+        Promise.all(infoFuncs).then(function (results) {
+            results = results.filter(function (n) {
+                return n;
+            });
+            _this2.setState({
+                streaksInfo: results
+            });
+        });
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+//returns a promise containing the information of a streak by streak id
+var streakToInfo = function streakToInfo(streakID, userID) {
+    var _this3 = this;
+
+    var streak = null;
+    return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            streak = snapshot.val();
+            streak.id = streakID;
+            streak.days = _this3.convertTimestampToDays(streak.timestamp);
+            Object.keys(streak.participants).map(function (participant) {
+                if (participant === userID) {
+                    _this3.getUsername(participant).then(function (username) {
+                        streak.user = username;
+                    });
+                } else {
+                    _this3.getUsername(participant).then(function (username) {
+                        streak.friend = username;
+                        streak.friendTurn = streak.participants[participant];
+                    });
+                }
+            });
+        }
+    }).then(function () {
+        return streak;
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+var convertTimestampToDays = function convertTimestampToDays(timestamp) {
+    var newDate = new Date();
+    var date = newDate.getTime();
+    var days = ((date - timestamp) / (3600000 * 24)).toFixed(0);
+    return days;
+};
+
+var getDate = function getDate() {
+    var newDate = new Date();
+    var date = newDate.getTime();
+    return date;
+};
+
+var getDate24HoursAhead = function getDate24HoursAhead() {
+    var newdate = new Date();
+    var date = newdate.getTime();
+    var newDate = date + 24 * 3600000;
+    return newDate;
+};
+
+var getDate24HoursAheadOfGiven = function getDate24HoursAheadOfGiven(date) {
+    var result = date + 24 * 3600000;
+    return result;
+};
+
+//toggles and resests the time for the ownership of a streaks termination period 
+var stokeStreak = function stokeStreak(streakID, userID) {
+    var _this4 = this;
+
+    this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var streak = snapshot.val();
+            var nextExpirationDate = _this4.getDate24HoursAheadOfGiven(streak.currentExpirationDate);
+            var nextExpirationTime = _this4.convertDateToTimeDifference(nextExpirationDate);
+            _this4.db.ref('streaks/' + streakID).set({
+                nextExpirationDate: nextExpirationDate,
+                nextExpirationTime: nextExpirationTime,
+                nextExpired: false
+            });
+            _this4.streakStoke(streakID, userID);
+        } else {
+            throw 'No streak found for this streakID';
+        }
+    }).then(function () {
+        _this4.getStreaks(userID);
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+//returns a boolean depending on the input value
+var checkForExpiredTime = function checkForExpiredTime(val) {
+    return val === '0:0' ? true : false;
+};
+
+//checks a streak by id and check the termination time on it and sets the expired key on the streak
+var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
+    var _this5 = this;
+
+    return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var streak = snapshot.val();
+
+            var currentExpirationTime = _this5.convertDateToTimeDifference(streak.currentExpirationDate);
+            var currentExpired = _this5.checkForExpiredTime(currentExpirationTime);
+            _this5.db.ref('streaks/' + streakID + '/currentExpirationTime').set(currentExpirationTime);
+            _this5.db.ref('streaks/' + streakID + '/currentExpired').set(currentExpired);
+
+            var nextExpirationTime = streak.nextExpirationTime;
+            var nextExpired = streak.nextExpired;
+            if (!streak.nextExpired) {
+                nextExpirationTime = _this5.convertDateToTimeDifference(streak.nextExpirationDate);
+                nextExpired = _this5.checkForExpiredTime(nextExpirationTime);
+                _this5.db.ref('streaks/' + streakID + '/nextExpirationTime').set(nextExpirationTime);
+                _this5.db.ref('streaks/' + streakID + '/nextExpired').set(nextExpired);
+            }
+
+            if (!currentExpired && !nextExpired) {
+                //streak active | stoked | neutral
+                _this5.db.ref('streaks/' + streakID + '/neutral').set(true);
+                return streakID;
+            } else if (!currentExpired && nextExpired) {
+                //streak active | unstoked
+                return streakID;
+            } else if (currentExpired && nextExpired) {
+                //streak terminated
+                _this5.db.ref('streaks/' + streakID).set({
+                    terminated: true,
+                    terminator: streak.owner,
+                    betrayed: streak.nextOwner
+                });
+                _this5.streakTermination(streakID);
+            } else if (currentExpired && !nextExpired) {
+                //streak transition
+                var currentExpirationDate = _this5.getDate24HoursAhead();
+                var _currentExpirationTime = _this5.convertDateToTimeDifference(currentExpirationDate);
+                _this5.db.ref('streaks/' + streakID).update({
+                    neutral: false,
+                    currentOwner: streak.nextOwner,
+                    currentExpirationDate: currentExpirationDate,
+                    currentExpirationTime: _currentExpirationTime,
+                    currentExpired: false,
+                    nextExpirationDate: null,
+                    nextExpirationTime: null,
+                    nextExpired: true,
+                    nextOwner: streak.currentOwner
+                });
+                return streakID;
+            }
+        } else {
+            throw 'Check for Expired: No streak found for this streakID';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+    //send streak termination info to history db
+};
+
+//returns the time difference between the current time and a provided time 
+var convertDateToTimeDifference = function convertDateToTimeDifference(expirationDate) {
+    var date = new Date();
+    var currentTime = date.getTime();
+    var timeDifference = expirationDate - currentTime;
+    var totalMinutes = (timeDifference / (1000 * 60)).toFixed(0);
+    var hours = Math.floor(totalMinutes / 60);
+    var minutes = totalMinutes % 60;
+    var timeDiffString = void 0;
+    if (hours < 0 && minutes < 0) {
+        timeDiffString = '0:0';
+        return timeDiffString;
+    } else {
+        timeDiffString = hours + ':' + minutes;
+        return timeDiffString;
+    }
+};
+
+//sets a streak id to a users streaklist
+var streakToOwner = function streakToOwner(ownerID, streakID) {
+    this.db.ref('streakOwners/' + ownerID + '/' + streakID).set(true);
+};
+
+//searches and returns a promise containing the user information by username
+var searchUsers = function searchUsers(username, userID) {
+    return this.db.ref('users').orderByChild('username').equalTo(username).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var result = {};
+            var data = snapshot.val();
+            var foundUserID = Object.keys(data)[0];
+            if (foundUserID === userID) {
+                console.log('You cannot add yourself as a friend');
+                result.self = true;
+            } else {
+                result.self = false;
+            }
+            result.uid = foundUserID;
+            var innerData = snapshot.child('' + foundUserID).val();
+            result.first = innerData.first;
+            result.last = innerData.last;
+            return result;
+        } else {
+            return {};
+        }
+    });
+};
+
+exports.startStreak = startStreak;
+exports.getStreaks = getStreaks;
+exports.streakToInfo = streakToInfo;
+exports.convertTimestampToDays = convertTimestampToDays;
+exports.getDate = getDate;
+exports.getDate24HoursAhead = getDate24HoursAhead;
+exports.getDate24HoursAheadOfGiven = getDate24HoursAheadOfGiven;
+exports.stokeStreak = stokeStreak;
+exports.checkForExpiredTime = checkForExpiredTime;
+exports.checkForExpiredStreaks = checkForExpiredStreaks;
+exports.convertDateToTimeDifference = convertDateToTimeDifference;
+exports.streakToOwner = streakToOwner;
+exports.searchUsers = searchUsers;
+
+/***/ }),
+/* 479 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.rejectStreakRequest = exports.acceptStreakRequest = exports.streakRequestToInfo = exports.getStreakRequests = exports.streakRequestToRecipient = exports.streakRequestToSender = exports.sendStreakRequest = undefined;
+
+var _app = __webpack_require__(417);
+
+var _app2 = _interopRequireDefault(_app);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//adds a streak request to the db and calls functions to assign streak request to sender and recipient
+var sendStreakRequest = function sendStreakRequest(userID, recipientID) {
+    if (userID !== recipientID) {
+        var newRequestID = this.db.ref().child('streakRequests/').push().key;
+        this.streakRequestToSender(userID, newRequestID);
+        this.streakRequestToRecipient(recipientID, newRequestID);
+        this.db.ref('streakRequests/' + newRequestID).set({
+            id: newRequestID,
+            sender: userID,
+            recipient: recipientID,
+            answered: false,
+            accepted: false
+        });
+    } else {
+        console.log('No request sent: You cannot send a streak request to yourself.');
+    }
+};
+
+//sets the given streak request id to the sender of the request
+var streakRequestToSender = function streakRequestToSender(ownerID, streakRequestID) {
+    this.db.ref('streakRequestOwners/' + ownerID + '/sent/' + streakRequestID).set(true);
+};
+
+//sets the given streak request id to the recipient of the request
+var streakRequestToRecipient = function streakRequestToRecipient(recipientID, streakRequestID) {
+    this.db.ref('streakRequestOwners/' + recipientID + '/received/' + streakRequestID).set(true);
+};
+
+//grabs and sets streak information to state by user id
+var getStreakRequests = function getStreakRequests(userID) {
+    var _this = this;
+
+    this.db.ref('streakRequestOwners/' + userID + '/received').once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var streakRequests = Object.keys(snapshot.val());
+            _this.setState({
+                streakRequests: streakRequests
+            });
+            return streakRequests;
+        } else {
+            throw 'No streak requests found for this user ID';
+        }
+    }).then(function (streakRequests) {
+        var funcs = streakRequests.map(function (request) {
+            return _this.streakRequestToInfo(request);
+        });
+        Promise.all(funcs).then(function (results) {
+            results = results.filter(function (n) {
+                return n;
+            });
+            _this.setState({
+                streakRequestsInfo: results
+            });
+        });
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+//returns a promise containing the information of a streak request by streak request id
+var streakRequestToInfo = function streakRequestToInfo(streakRequestID) {
+    var _this2 = this;
+
+    var streakRequest = null;
+    return this.db.ref('streakRequests/' + streakRequestID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            streakRequest = snapshot.val();
+            if (streakRequest.answered === false) {
+                _this2.getUsername(streakRequest.sender).then(function (username) {
+                    streakRequest.senderUsername = username;
+                });
+                _this2.getUsername(streakRequest.recipient).then(function (username) {
+                    streakRequest.recipientUsername = username;
+                });
+            } else {
+                streakRequest = null;
+            }
+        }
+    }).then(function () {
+        return streakRequest;
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+//accept a streak request and set according information on streak request and start a streak with relevant information
+var acceptStreakRequest = function acceptStreakRequest(streakRequestID, userID, senderID) {
+    this.db.ref('streakRequests/' + streakRequestID).set({
+        answered: true,
+        accepted: true
+    });
+
+    this.startStreak(userID, senderID);
+};
+
+//reject a streak request and set according information on streak request 
+var rejectStreakRequest = function rejectStreakRequest(streakRequestID, userID, senderID) {
+    this.db.ref('streakRequests/' + streakRequestID).set({
+        answered: true,
+        accepted: false
+    });
+};
+
+exports.sendStreakRequest = sendStreakRequest;
+exports.streakRequestToSender = streakRequestToSender;
+exports.streakRequestToRecipient = streakRequestToRecipient;
+exports.getStreakRequests = getStreakRequests;
+exports.streakRequestToInfo = streakRequestToInfo;
+exports.acceptStreakRequest = acceptStreakRequest;
+exports.rejectStreakRequest = rejectStreakRequest;
 
 /***/ })
 /******/ ]);
