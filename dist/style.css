@@ -8,6 +8,11 @@ li {
     list-style-type: none;
 }
 
+.large-font {
+    font-size: 25px;
+    font-weight: bold;
+}
+
 .col-container {
     display: flex;
     flex-direction: column;

@@ -31,7 +31,7 @@ const friendRequestToRecipient = function(recipientID, friendRequestID) {
 
 //grabs and sets friend information to state by user id
 const getFriendRequests = function(userID) {
-    this.db.ref(`friendRequests/${userID}/received`)
+    this.db.ref(`friendRequestOwners/${userID}/received`)
     .once('value')
     .then(snapshot => {
         if (snapshot.exists()) {

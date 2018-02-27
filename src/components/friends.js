@@ -10,7 +10,7 @@ export default class Friends extends Component {
 
         //BINDING
         this.toggleAddFriendModal = this.toggleAddFriendModal.bind(this);
-        this.handleAddFriend = this.handleAddFriend.bind(this);
+        this.handleSendFriendRequest = this.handleSendFriendRequest.bind(this);
         this.handleSearchInput = this.handleSearchInput.bind(this);
         this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
         this.toggleFriendRequestModal = this.toggleFriendRequestModal.bind(this);
@@ -51,8 +51,8 @@ export default class Friends extends Component {
     }
 
     //add a friend with search results info
-    handleAddFriend(){
-        this.props.addFriend(this.props.user, this.state.searchResults.uid);
+    handleSendFriendRequest(){
+        this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid);
         this.toggleAddFriendModal();
     }
 
@@ -80,7 +80,7 @@ export default class Friends extends Component {
             let searchAddBtn = this.state.searchResults.self ? (
                 <span className='add-friend-btn search-item-part btn btn-secondary disabled'>Add</span>
             ) : (
-                <span className='add-friend-btn search-item-part btn btn-success' onClick={this.handleAddFriend}>Add</span>
+                <span className='add-friend-btn search-item-part btn btn-success' onClick={this.handleSendFriendRequest}>Add</span>
             )
             searchRender =  (
                 <div className='search-item'>
@@ -99,8 +99,8 @@ export default class Friends extends Component {
                     return (
                         <div className='col-item row-container request-list-container' key={index}>
                             <span className='request-list-item row-item'>@{request.senderUsername}</span>
-                            <span className='request-list-item row-item btn btn-success' onClick={() => this.handleRequestAcceptance(request.id, request.recipient, request.sender)}>Accept Streak</span>
-                            <span className='request-list-item row-item btn btn-danger' onClick={() => this.handleRequestRejection(request.id, request.recipient, request.sender)}>Reject Streak</span>
+                            <span className='request-list-item row-item btn btn-success' onClick={() => this.handleRequestAcceptance(request.id, request.recipient, request.sender)}>Accept Friend Request</span>
+                            <span className='request-list-item row-item btn btn-danger' onClick={() => this.handleRequestRejection(request.id, request.recipient, request.sender)}>Reject Friend Request</span>
                         </div>
                     )
                 }

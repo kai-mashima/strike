@@ -19,15 +19,18 @@ export default class Friend extends Component {
                     }
                 </div>
                 <div className='friend-item'>
-                    <span>@{this.props.friend.username}</span>
+                    <span>{this.props.friend.username}</span>
                 </div>
                 <div className='friend-item'>
+                    <span className='streak-item-glyph glyphicon glyphicon-fire'></span>
                     <span>{this.props.friend.totalStreaks}</span>
                 </div>
                 <div className='friend-item'>
+                    <span className='streak-item-glyph glyphicon glyphicon-flash'></span>
                     <span>{this.props.friend.totalDays}</span>
                 </div>
                 <div className='friend-item'>
+                    <span className='large-font'>$</span>
                     <span>{this.props.friend.value}</span>
                 </div>
             </div>

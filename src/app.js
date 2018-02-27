@@ -94,7 +94,16 @@ export default class App extends Component {
         this.app = firebase.initializeApp(DB_CONFIG);
         this.db = this.app.database();
 
-        //BINDING
+        //BINDINGS
+        //helperFunctions
+        this.getUsername = getUsername.bind(this);
+        this.convertTimestampToDays = convertTimestampToDays.bind(this);
+        this.getDate = getDate.bind(this);
+        this.getStreak = getStreak.bind(this);
+        this.getUser = getUser.bind(this);
+        this.getNumberOfFriends = getNumberOfFriends.bind(this);
+        this.getNumberOfStreaks = getNumberOfStreaks.bind(this);
+
         //login|signup|setup
         this.loginUser = loginUser.bind(this);
         this.getUserInfo = getUserInfo.bind(this);
@@ -116,7 +125,6 @@ export default class App extends Component {
         this.addFriend = addFriend.bind(this);
         this.getFriends = getFriends.bind(this);
         this.friendToInfo = friendToInfo.bind(this);
-        this.getUsername = getUsername.bind(this);
 
         //streakRequests
         this.sendStreakRequest = sendStreakRequest.bind(this);
@@ -131,8 +139,6 @@ export default class App extends Component {
         this.startStreak = startStreak.bind(this);
         this.getStreaks = getStreaks.bind(this);
         this.streakToInfo = streakToInfo.bind(this);
-        this.convertTimestampToDays = convertTimestampToDays.bind(this);
-        this.getDate = getDate.bind(this);
         this.getDate24HoursAhead = getDate24HoursAhead.bind(this);
         this.getDate24HoursAheadOfGiven = getDate24HoursAheadOfGiven.bind(this);
         this.stokeStreak = stokeStreak.bind(this);
@@ -145,8 +151,6 @@ export default class App extends Component {
         //currency
         this.streakTermination = streakTermination.bind(this);
         this.calculateStreakTP = calculateStreakTP.bind(this);
-        this.getStreak = getStreak.bind(this);
-        this.getUser = getUser.bind(this);
         this.updateUserValue = updateUserValue.bind(this);
         this.updateStreakValue = updateStreakValue.bind(this);
         this.calculateStokePrice = calculateStokePrice.bind(this);
@@ -156,8 +160,6 @@ export default class App extends Component {
         this.calculateStreakPayout = calculateStreakPayout.bind(this);
         this.checkForDailyAllowance = checkForDailyAllowance.bind(this);
         this.calculateDailyAllowance = calculateDailyAllowance.bind(this);
-        this.getNumberOfFriends = getNumberOfFriends.bind(this);
-        this.getNumberOfStreaks = getNumberOfStreaks.bind(this);
 
         //STATE
         this.state = {
@@ -215,7 +217,6 @@ export default class App extends Component {
                                     <Route path='/friends' component={() => (
                                             <Friends 
                                                 friends={this.state.friendsInfo}
-                                                addFriend={this.addFriend}
                                                 user={this.state.userID}
                                                 searchUsers={this.searchUsers}
                                                 sendFriendRequest={this.sendFriendRequest}

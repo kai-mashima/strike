@@ -40015,7 +40015,16 @@ var App = function (_Component) {
         _this.app = _app2.default.initializeApp(_config.DB_CONFIG);
         _this.db = _this.app.database();
 
-        //BINDING
+        //BINDINGS
+        //helperFunctions
+        _this.getUsername = _helperFunctions.getUsername.bind(_this);
+        _this.convertTimestampToDays = _helperFunctions.convertTimestampToDays.bind(_this);
+        _this.getDate = _helperFunctions.getDate.bind(_this);
+        _this.getStreak = _helperFunctions.getStreak.bind(_this);
+        _this.getUser = _helperFunctions.getUser.bind(_this);
+        _this.getNumberOfFriends = _helperFunctions.getNumberOfFriends.bind(_this);
+        _this.getNumberOfStreaks = _helperFunctions.getNumberOfStreaks.bind(_this);
+
         //login|signup|setup
         _this.loginUser = _login3.loginUser.bind(_this);
         _this.getUserInfo = _login3.getUserInfo.bind(_this);
@@ -40037,7 +40046,6 @@ var App = function (_Component) {
         _this.addFriend = _friends3.addFriend.bind(_this);
         _this.getFriends = _friends3.getFriends.bind(_this);
         _this.friendToInfo = _friends3.friendToInfo.bind(_this);
-        _this.getUsername = _helperFunctions.getUsername.bind(_this);
 
         //streakRequests
         _this.sendStreakRequest = _streakRequests.sendStreakRequest.bind(_this);
@@ -40052,8 +40060,6 @@ var App = function (_Component) {
         _this.startStreak = _streaks3.startStreak.bind(_this);
         _this.getStreaks = _streaks3.getStreaks.bind(_this);
         _this.streakToInfo = _streaks3.streakToInfo.bind(_this);
-        _this.convertTimestampToDays = _helperFunctions.convertTimestampToDays.bind(_this);
-        _this.getDate = _helperFunctions.getDate.bind(_this);
         _this.getDate24HoursAhead = _streaks3.getDate24HoursAhead.bind(_this);
         _this.getDate24HoursAheadOfGiven = _streaks3.getDate24HoursAheadOfGiven.bind(_this);
         _this.stokeStreak = _streaks3.stokeStreak.bind(_this);
@@ -40066,8 +40072,6 @@ var App = function (_Component) {
         //currency
         _this.streakTermination = _currency.streakTermination.bind(_this);
         _this.calculateStreakTP = _currency.calculateStreakTP.bind(_this);
-        _this.getStreak = _helperFunctions.getStreak.bind(_this);
-        _this.getUser = _helperFunctions.getUser.bind(_this);
         _this.updateUserValue = _currency.updateUserValue.bind(_this);
         _this.updateStreakValue = _currency.updateStreakValue.bind(_this);
         _this.calculateStokePrice = _currency.calculateStokePrice.bind(_this);
@@ -40077,8 +40081,6 @@ var App = function (_Component) {
         _this.calculateStreakPayout = _currency.calculateStreakPayout.bind(_this);
         _this.checkForDailyAllowance = _currency.checkForDailyAllowance.bind(_this);
         _this.calculateDailyAllowance = _currency.calculateDailyAllowance.bind(_this);
-        _this.getNumberOfFriends = _helperFunctions.getNumberOfFriends.bind(_this);
-        _this.getNumberOfStreaks = _helperFunctions.getNumberOfStreaks.bind(_this);
 
         //STATE
         _this.state = {
@@ -40146,7 +40148,6 @@ var App = function (_Component) {
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/friends', component: function component() {
                                     return _react2.default.createElement(_friends2.default, {
                                         friends: _this2.state.friendsInfo,
-                                        addFriend: _this2.addFriend,
                                         user: _this2.state.userID,
                                         searchUsers: _this2.searchUsers,
                                         sendFriendRequest: _this2.sendFriendRequest,
@@ -43461,7 +43462,7 @@ var Friends = function (_Component) {
         var _this = _possibleConstructorReturn(this, (Friends.__proto__ || Object.getPrototypeOf(Friends)).call(this, props));
 
         _this.toggleAddFriendModal = _this.toggleAddFriendModal.bind(_this);
-        _this.handleAddFriend = _this.handleAddFriend.bind(_this);
+        _this.handleSendFriendRequest = _this.handleSendFriendRequest.bind(_this);
         _this.handleSearchInput = _this.handleSearchInput.bind(_this);
         _this.handleSearchSubmit = _this.handleSearchSubmit.bind(_this);
         _this.toggleFriendRequestModal = _this.toggleFriendRequestModal.bind(_this);
@@ -43516,9 +43517,9 @@ var Friends = function (_Component) {
         //add a friend with search results info
 
     }, {
-        key: 'handleAddFriend',
-        value: function handleAddFriend() {
-            this.props.addFriend(this.props.user, this.state.searchResults.uid);
+        key: 'handleSendFriendRequest',
+        value: function handleSendFriendRequest() {
+            this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid);
             this.toggleAddFriendModal();
         }
     }, {
@@ -43567,7 +43568,7 @@ var Friends = function (_Component) {
                     'Add'
                 ) : _react2.default.createElement(
                     'span',
-                    { className: 'add-friend-btn search-item-part btn btn-success', onClick: this.handleAddFriend },
+                    { className: 'add-friend-btn search-item-part btn btn-success', onClick: this.handleSendFriendRequest },
                     'Add'
                 );
                 searchRender = _react2.default.createElement(
@@ -43614,14 +43615,14 @@ var Friends = function (_Component) {
                                 { className: 'request-list-item row-item btn btn-success', onClick: function onClick() {
                                         return _this3.handleRequestAcceptance(request.id, request.recipient, request.sender);
                                     } },
-                                'Accept Streak'
+                                'Accept Friend Request'
                             ),
                             _react2.default.createElement(
                                 'span',
                                 { className: 'request-list-item row-item btn btn-danger', onClick: function onClick() {
                                         return _this3.handleRequestRejection(request.id, request.recipient, request.sender);
                                     } },
-                                'Reject Streak'
+                                'Reject Friend Request'
                             )
                         );
                     }
@@ -43834,13 +43835,13 @@ var Friend = function (_Component) {
                     _react2.default.createElement(
                         'span',
                         null,
-                        '@',
                         this.props.friend.username
                     )
                 ),
                 _react2.default.createElement(
                     'div',
                     { className: 'friend-item' },
+                    _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-fire' }),
                     _react2.default.createElement(
                         'span',
                         null,
@@ -43850,6 +43851,7 @@ var Friend = function (_Component) {
                 _react2.default.createElement(
                     'div',
                     { className: 'friend-item' },
+                    _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-flash' }),
                     _react2.default.createElement(
                         'span',
                         null,
@@ -43859,6 +43861,11 @@ var Friend = function (_Component) {
                 _react2.default.createElement(
                     'div',
                     { className: 'friend-item' },
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'large-font' },
+                        '$'
+                    ),
                     _react2.default.createElement(
                         'span',
                         null,
@@ -56017,29 +56024,28 @@ var Streak = function (_Component) {
                         _react2.default.createElement(
                             'span',
                             null,
-                            '@',
                             this.props.streak.friend
                         )
                     ),
                     _react2.default.createElement(
                         'div',
                         { className: 'streak-item' },
+                        _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-fire' }),
                         _react2.default.createElement(
                             'span',
                             null,
                             this.props.streak.days
-                        ),
-                        _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-fire' })
+                        )
                     ),
                     _react2.default.createElement(
                         'div',
                         { className: 'streak-item' },
+                        _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time' }),
                         _react2.default.createElement(
                             'span',
                             null,
                             this.props.streak.currentExpirationTime
-                        ),
-                        _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time' })
+                        )
                     )
                 )
             );
@@ -65402,9 +65408,10 @@ var loginUser = function loginUser(email, password) {
         return user;
     }).then(function (user) {
         _this.getUserInfo(user.uid);
+        _this.getFriendRequests(user.uid);
         _this.getFriends(user.uid);
-        _this.getStreaks(user.uid);
         _this.getStreakRequests(user.uid);
+        _this.getStreaks(user.uid);
         _this.checkForDailyAllowance(user.uid);
     }).catch(function (error) {
         var errorCode = error.code;
@@ -65479,11 +65486,12 @@ var signupUser = function signupUser(email, password) {
     var value = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
     var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
     var imgAvailable = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : false;
+    var totalStreaks = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
 
     var _this5 = this;
 
-    var totalStreaks = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
     var totalDays = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : 0;
+    var lastChecked = arguments.length > 10 && arguments[10] !== undefined ? arguments[10] : null;
 
     _app2.default.auth().createUserWithEmailAndPassword(email, password).then(function (user) {
         _this5.confirmLogin();
@@ -65493,7 +65501,7 @@ var signupUser = function signupUser(email, password) {
         _this5.getFriends(user.uid);
         _this5.getStreaks(user.uid);
         _this5.getStreakRequests(user.uid);
-        _this5.addNewUser(username, user.uid, first, last, email, value, allowance, totalStreaks, totalDays);
+        _this5.addNewUser(username, user.uid, first, last, email, value, allowance, totalStreaks, totalDays, lastChecked);
     }).catch(function (error) {
         var errorCode = error.code;
         var errorMessage = error.message;
@@ -65512,6 +65520,7 @@ var addNewUser = function addNewUser() {
     var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
     var totalStreaks = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 0;
     var totalDays = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
+    var lastChecked = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : null;
 
     var date = new Date();
     var time = date.getTime();
@@ -65525,7 +65534,7 @@ var addNewUser = function addNewUser() {
         created: time,
         totalStreaks: totalStreaks,
         totalDays: totalDays,
-        lastChecked: null
+        lastChecked: lastChecked
     });
     this.setState({
         userID: userID
@@ -65577,8 +65586,8 @@ var streakTermination = function streakTermination(streakID) {
         betrayed = result;
     });
 
-    this.updateUserValue(streak.terminator, terminator.value, terminatorPayment);
-    this.updateUserValue(streak.betrayed, betrayed.value, betrayedPayment);
+    this.updateUserValue(streak.terminator, terminator.value, -terminatorPayment);
+    this.updateUserValue(streak.betrayed, betrayed.value, -betrayedPayment);
 };
 
 //returns an array of payments for the terminator and betrayed from a terminated streak
@@ -65592,6 +65601,9 @@ var calculateStreakTP = function calculateStreakTP(streakValue, terminatorID, be
 //updates a users value based on currenctValue and the amount to change the currency by
 var updateUserValue = function updateUserValue(userID, currentValue, currencyAmount) {
     var newValue = currentValue + currencyAmount;
+    if (newValue < 0) {
+        newValue = 0;
+    }
     this.db.ref('users/' + userID).update({
         value: newValue
     });
@@ -65636,10 +65648,12 @@ var streakBoost = function streakBoost(streakID, userID, currencyAmount) {
     this.getStreak(streakID).then(function (result) {
         streak = result;
     });
+
     var user = null;
     this.getUser(userID).then(function (result) {
         user = result;
     });
+
     this.updateStreakValue(streakID, streak.value, currencyAmount);
     this.updateUserValue(userID, user.value, -currencyAmount);
 };
@@ -65733,12 +65747,14 @@ var calculateDailyAllowance = function calculateDailyAllowance(user, userID) {
     var dailyAllowance = 0;
     var friends = 0;
     var streaks = 0;
+
     this.getNumberOfFriends(userID).then(function (result) {
         friends = result;
     });
     this.getNumberOfStreaks(userID).then(function (result) {
         streaks = result;
     });
+
     dailyAllowance = streaks / friends * (friends * 5);
     return dailyAllowance;
 };
@@ -65883,6 +65899,7 @@ var startStreak = function startStreak(userID, friendID) {
         }).then(function () {
             _this.streakToOwner(friendID, newStreakID);
             _this.streakToOwner(userID, newStreakID);
+            _this.streakStoke(newStreakID, userID);
         }).then(function () {
             _this.getStreaks(userID);
         });
@@ -65986,7 +66003,7 @@ var stokeStreak = function stokeStreak(streakID, userID) {
             var streak = snapshot.val();
             var nextExpirationDate = _this4.getDate24HoursAheadOfGiven(streak.currentExpirationDate);
             var nextExpirationTime = _this4.convertDateToTimeDifference(nextExpirationDate);
-            _this4.db.ref('streaks/' + streakID).set({
+            _this4.db.ref('streaks/' + streakID).update({
                 nextExpirationDate: nextExpirationDate,
                 nextExpirationTime: nextExpirationTime,
                 nextExpired: false
@@ -66308,7 +66325,7 @@ var friendRequestToRecipient = function friendRequestToRecipient(recipientID, fr
 var getFriendRequests = function getFriendRequests(userID) {
     var _this = this;
 
-    this.db.ref('friendRequests/' + userID + '/received').once('value').then(function (snapshot) {
+    this.db.ref('friendRequestOwners/' + userID + '/received').once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             var friendRequests = Object.keys(snapshot.val());
             _this.setState({

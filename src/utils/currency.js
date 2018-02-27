@@ -20,8 +20,8 @@ const streakTermination = function(streakID) {
         betrayed = result;
     });
 
-    this.updateUserValue(streak.terminator, terminator.value, terminatorPayment);
-    this.updateUserValue(streak.betrayed, betrayed.value, betrayedPayment);   
+    this.updateUserValue(streak.terminator, terminator.value, -terminatorPayment);
+    this.updateUserValue(streak.betrayed, betrayed.value, -betrayedPayment);   
 };
 
 //returns an array of payments for the terminator and betrayed from a terminated streak
@@ -35,6 +35,9 @@ const calculateStreakTP = function(streakValue, terminatorID, betrayedID) {
 //updates a users value based on currenctValue and the amount to change the currency by
 const updateUserValue = function(userID, currentValue, currencyAmount) {
     let newValue = currentValue + currencyAmount;
+    if (newValue < 0) {
+        newValue = 0;
+    }
     this.db.ref(`users/${userID}`)
     .update({
         value: newValue
@@ -81,10 +84,12 @@ const streakBoost = function(streakID, userID, currencyAmount) {
     this.getStreak(streakID).then(result => {
         streak = result;
     });
+
     let user = null;
     this.getUser(userID).then(result => {
         user = result;
     });
+
     this.updateStreakValue(streakID, streak.value, currencyAmount);
     this.updateUserValue(userID, user.value, -currencyAmount);
 };
@@ -178,13 +183,15 @@ const calculateDailyAllowance = function(user, userID) {
     let dailyAllowance = 0;
     let friends = 0;
     let streaks = 0;
+
     this.getNumberOfFriends(userID).then(result => {
         friends = result;
     });
     this.getNumberOfStreaks(userID).then(result => {
         streaks = result;
     });
-    dailyAllowance = (streaks/friends) * (friends * 5);
+
+    dailyAllowance = (streaks / friends) * (friends * 5);
     return dailyAllowance;
 };
 

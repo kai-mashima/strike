@@ -32,6 +32,7 @@ const startStreak = function(userID, friendID) {
         }).then(() => {
             this.streakToOwner(friendID, newStreakID);
             this.streakToOwner(userID, newStreakID);
+            this.streakStoke(newStreakID, userID);
         }).then(() => {
             this.getStreaks(userID);
         });
@@ -126,7 +127,7 @@ const stokeStreak = function(streakID, userID) {
             let streak = snapshot.val();
             let nextExpirationDate = this.getDate24HoursAheadOfGiven(streak.currentExpirationDate);
             let nextExpirationTime = this.convertDateToTimeDifference(nextExpirationDate);
-            this.db.ref(`streaks/${streakID}`).set({
+            this.db.ref(`streaks/${streakID}`).update({
                 nextExpirationDate: nextExpirationDate,
                 nextExpirationTime: nextExpirationTime,
                 nextExpired: false,

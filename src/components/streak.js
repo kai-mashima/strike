@@ -70,15 +70,15 @@ export default class Streak extends Component {
                         {userRender}
                     </div>
                     <div className='streak-item'>
-                        <span>@{this.props.streak.friend}</span>
+                        <span>{this.props.streak.friend}</span>
                     </div>
                     <div className='streak-item'>
-                        <span>{this.props.streak.days}</span>
                         <span className='streak-item-glyph glyphicon glyphicon-fire'></span>
+                        <span>{this.props.streak.days}</span>
                     </div>
                     <div className='streak-item'>
-                        <span>{this.props.streak.currentExpirationTime}</span>
                         <span className='streak-item-glyph glyphicon glyphicon-time'></span>
+                        <span>{this.props.streak.currentExpirationTime}</span>
                     </div>
                 </div>
             </div>
