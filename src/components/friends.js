@@ -13,10 +13,14 @@ export default class Friends extends Component {
         this.handleAddFriend = this.handleAddFriend.bind(this);
         this.handleSearchInput = this.handleSearchInput.bind(this);
         this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
+        this.toggleFriendRequestModal = this.toggleFriendRequestModal.bind(this);
+        this.handleRequestAcceptance = this.handleRequestAcceptance.bind(this);
+        this.handleRequestRejection = this.handleRequestRejection.bind(this);
 
         //STATE
         this.state = {
-            isVisible: false,
+            isVisibleAdd: false,
+            isVisibleRequests: false,
             searchResults: [],
             searchInput: null,
         }
@@ -42,13 +46,32 @@ export default class Friends extends Component {
     //toggle state for adding a friend modal
     toggleAddFriendModal(){
         this.setState({
-            isVisible: !this.state.isVisible
+            isVisibleAdd: !this.state.isVisibleAdd
         });
     }
 
     //add a friend with search results info
     handleAddFriend(){
         this.props.addFriend(this.props.user, this.state.searchResults.uid);
+        this.toggleAddFriendModal();
+    }
+
+    toggleFriendRequestModal(){
+        this.setState({
+            isVisibleRequests: !this.state.isVisibleRequests
+        });
+    }
+
+    //accept friend request and toggle modal
+    handleRequestAcceptance(requestID, userID, friendID) {
+        this.props.acceptFriendRequest(requestID, userID, friendID);
+        this.toggleFriendRequestModal();
+    }
+
+    //reject friend request and toggle modal
+    handleRequestRejection(requestID, userID, friendID) {
+        this.props.rejectFriendRequest(requestID, userID, friendID);
+        this.toggleFriendRequestModal();
     }
 
     render() {
@@ -68,10 +91,26 @@ export default class Friends extends Component {
             );
         }
 
-        let friendsCountRender = <span className='friends-header-right-item'>0 friends</span>;
-        if (this.props.friends.length != 0) {
-            friendsCountRender = <span className='friends-header-right-item'>{this.props.friends.length} friends</span>;
+        let requestsRender = <div><span>You have no friend requests</span></div>;
+        if (this.props.requests.length != 0) { 
+            //handle no unanswered requests
+            requestsRender = this.props.requests.map((request, index) => {
+                if (request.answered !== true) {
+                    return (
+                        <div className='col-item row-container request-list-container' key={index}>
+                            <span className='request-list-item row-item'>@{request.senderUsername}</span>
+                            <span className='request-list-item row-item btn btn-success' onClick={() => this.handleRequestAcceptance(request.id, request.recipient, request.sender)}>Accept Streak</span>
+                            <span className='request-list-item row-item btn btn-danger' onClick={() => this.handleRequestRejection(request.id, request.recipient, request.sender)}>Reject Streak</span>
+                        </div>
+                    )
+                }
+            });
         }
+
+        // let friendsCountRender = <span className='friends-header-right-item'>0 friends</span>;
+        // if (this.props.friends.length != 0) {
+        //     friendsCountRender = <span className='friends-header-right-item'>{this.props.friends.length} friends</span>;
+        // }
 
         let friendsRender = <div><span>You have no friends</span></div>;
         if (this.props.friends.length != 0) {
@@ -87,7 +126,7 @@ export default class Friends extends Component {
                         <div className='header-left'>
                             <div className='friends-header-left-item'>
                                 <span onClick={this.toggleAddFriendModal} className='add-friend-btn glyphicon glyphicon-plus-sign'></span>
-                                <Modal show={this.state.isVisible} onHide={this.toggleAddFriendModal}>
+                                <Modal show={this.state.isVisibleAdd} onHide={this.toggleAddFriendModal}>
                                     <Modal.Header>
                                         <Modal.Title>Add Friend</Modal.Title>
                                     </Modal.Header>
@@ -115,7 +154,22 @@ export default class Friends extends Component {
                             <img src={strikeLogo} className='logo'/>
                         </div>
                         <div className='header-right'>
-                            {friendsCountRender}
+                            <div className='friends-header-right-item'>
+                                <span onClick={this.toggleFriendRequestModal} className='add-friend-btn glyphicon glyphicon-bell'></span>
+                                <Modal show={this.state.isVisibleRequests} onHide={this.toggleFriendRequestModal}>
+                                    <Modal.Header>
+                                        <Modal.Title>Friend Requests</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <div className='col-container'>
+                                            {requestsRender}
+                                        </div>
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <span onClick={this.toggleFriendRequestModal}>Close</span>
+                                    </Modal.Footer>
+                                </Modal>
+                            </div>
                         </div>
                     </div>
                     <div className='content'>

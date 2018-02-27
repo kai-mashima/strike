@@ -26,21 +26,6 @@ const getFriends = function(userID) {
     });
 };
 
-//Grab and returns just the username of a user by id
-const getUsername = function(userID) {
-    return this.db.ref(`users/${userID}`)
-    .once('value')
-    .then(snapshot => {
-        if (snapshot.exists()) {
-            return snapshot.val().username;
-        } else {
-            throw 'Get Username: No user found';
-        }
-    }).catch(reason => {
-        console.log(reason);
-    });
-};
-
 //Grabs and returns user information by id
 const friendToInfo = function(userID) {
     return this.db.ref(`users/${userID}`)
@@ -61,16 +46,8 @@ const friendToInfo = function(userID) {
 //adds a friend to a users friends list
 const addFriend = function(userID, friendID) {
     if (userID !== friendID) {
-        const stringID = friendID.toString();
-        //add functionality to check that friend isn't already a friend
-        this.state.friends.map((friend, index) => {
-            this.db.ref(`friends/${userID}/${stringID}`).set(true);
-        });
-        let friends = this.state.friends.slice();
-        friends.push(friendID);
-        this.setState({ //set state to reflect updated friends list
-            friends: friends
-        });
+        this.db.ref(`friends/${userID}/${friendID}`).set(true);
+        this.db.ref(`friends/${friendID}/${userID}`).set(true);
         this.getFriends(userID);
     } else {
         console.log('No friend added: You cannot add yourself as a friend.')
@@ -79,7 +56,6 @@ const addFriend = function(userID, friendID) {
 
 export {
     getFriends,
-    getUsername,
     friendToInfo,
     addFriend
 };

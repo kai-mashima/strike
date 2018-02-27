@@ -21,8 +21,6 @@ import 'firebase/auth';
 import {
     streakTermination,
     calculateStreakTP,
-    getStreak,
-    getUser,
     updateUserValue,
     updateStreakValue,
     calculateStokePrice,
@@ -33,12 +31,18 @@ import {
     calculateStreakPayout,
     checkForDailyAllowance,
     calculateDailyAllowance,
-    getNumberOfFriends,
-    getNumberOfStreaks,
 } from './utils/currency.js';
 import {
+    sendFriendRequest,
+    friendRequestToSender,
+    friendRequestToRecipient,
+    getFriendRequests,
+    friendRequestsToInfo,
+    acceptFriendRequest,
+    rejectFriendRequest,
+} from './utils/friendRequests.js';
+import {
     getFriends,
-    getUsername,
     friendToInfo,
     addFriend,
 } from './utils/friends.js';
@@ -46,8 +50,6 @@ import {
     startStreak,
     getStreaks,
     streakToInfo,
-    convertTimestampToDays,
-    getDate,
     getDate24HoursAhead,
     getDate24HoursAheadOfGiven,
     stokeStreak,
@@ -74,6 +76,15 @@ import {
     signupUser,
     addNewUser,
 } from './utils/login.js';
+import {
+    getUsername,
+    getStreak,
+    getUser,
+    getNumberOfFriends,
+    getNumberOfStreaks,
+    convertTimestampToDays,
+    getDate,
+} from './utils/helperFunctions.js';
 
 export default class App extends Component {
     constructor(props) {
@@ -91,6 +102,15 @@ export default class App extends Component {
         this.confirmLogin = confirmLogin.bind(this);
         this.signupUser = signupUser.bind(this);
         this.addNewUser = addNewUser.bind(this);
+
+        //friendRequests
+        this.sendFriendRequest = sendFriendRequest.bind(this);
+        this.friendRequestToSender = friendRequestToSender.bind(this);
+        this.friendRequestToRecipient = friendRequestToRecipient.bind(this);
+        this.getFriendRequests = getFriendRequests.bind(this);
+        this.friendRequestsToInfo = friendRequestsToInfo.bind(this);
+        this.acceptFriendRequest = acceptFriendRequest.bind(this);
+        this.rejectFriendRequest = rejectFriendRequest.bind(this);
 
         //friends
         this.addFriend = addFriend.bind(this);
@@ -131,7 +151,6 @@ export default class App extends Component {
         this.updateStreakValue = updateStreakValue.bind(this);
         this.calculateStokePrice = calculateStokePrice.bind(this);
         this.streakStoke = streakStoke.bind(this);
-        this.streakPayout = streakPayout.bind(this);
         this.streakBoost = streakBoost.bind(this);
         this.checkforStreakPayouts = checkforStreakPayouts.bind(this);
         this.calculateStreakPayout = calculateStreakPayout.bind(this);
@@ -145,12 +164,14 @@ export default class App extends Component {
             loggedIn: false,
             userID: '',
             user: {},
-            streaks: [],
-            streaksInfo: [],
+            friendRequestsInfo: [],
+            friendRequests: [],
             friends: [],
             friendsInfo: [],
             streakRequests: [],
             streakRequestsInfo: [],
+            streaks: [],
+            streaksInfo: [],
         };
     }
 
@@ -197,6 +218,10 @@ export default class App extends Component {
                                                 addFriend={this.addFriend}
                                                 user={this.state.userID}
                                                 searchUsers={this.searchUsers}
+                                                sendFriendRequest={this.sendFriendRequest}
+                                                requests={this.state.friendRequestsInfo}
+                                                acceptFriendRequest={this.acceptFriendRequest}
+                                                rejectFriendRequest={this.rejectFriendRequest}
                                             />
                                         )}
                                     />

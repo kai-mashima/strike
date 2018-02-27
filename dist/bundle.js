@@ -39983,6 +39983,8 @@ __webpack_require__(472);
 
 var _currency = __webpack_require__(476);
 
+var _friendRequests = __webpack_require__(480);
+
 var _friends3 = __webpack_require__(477);
 
 var _streaks3 = __webpack_require__(478);
@@ -39990,6 +39992,8 @@ var _streaks3 = __webpack_require__(478);
 var _streakRequests = __webpack_require__(479);
 
 var _login3 = __webpack_require__(475);
+
+var _helperFunctions = __webpack_require__(481);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -40020,11 +40024,20 @@ var App = function (_Component) {
         _this.signupUser = _login3.signupUser.bind(_this);
         _this.addNewUser = _login3.addNewUser.bind(_this);
 
+        //friendRequests
+        _this.sendFriendRequest = _friendRequests.sendFriendRequest.bind(_this);
+        _this.friendRequestToSender = _friendRequests.friendRequestToSender.bind(_this);
+        _this.friendRequestToRecipient = _friendRequests.friendRequestToRecipient.bind(_this);
+        _this.getFriendRequests = _friendRequests.getFriendRequests.bind(_this);
+        _this.friendRequestsToInfo = _friendRequests.friendRequestsToInfo.bind(_this);
+        _this.acceptFriendRequest = _friendRequests.acceptFriendRequest.bind(_this);
+        _this.rejectFriendRequest = _friendRequests.rejectFriendRequest.bind(_this);
+
         //friends
         _this.addFriend = _friends3.addFriend.bind(_this);
         _this.getFriends = _friends3.getFriends.bind(_this);
         _this.friendToInfo = _friends3.friendToInfo.bind(_this);
-        _this.getUsername = _friends3.getUsername.bind(_this);
+        _this.getUsername = _helperFunctions.getUsername.bind(_this);
 
         //streakRequests
         _this.sendStreakRequest = _streakRequests.sendStreakRequest.bind(_this);
@@ -40039,8 +40052,8 @@ var App = function (_Component) {
         _this.startStreak = _streaks3.startStreak.bind(_this);
         _this.getStreaks = _streaks3.getStreaks.bind(_this);
         _this.streakToInfo = _streaks3.streakToInfo.bind(_this);
-        _this.convertTimestampToDays = _streaks3.convertTimestampToDays.bind(_this);
-        _this.getDate = _streaks3.getDate.bind(_this);
+        _this.convertTimestampToDays = _helperFunctions.convertTimestampToDays.bind(_this);
+        _this.getDate = _helperFunctions.getDate.bind(_this);
         _this.getDate24HoursAhead = _streaks3.getDate24HoursAhead.bind(_this);
         _this.getDate24HoursAheadOfGiven = _streaks3.getDate24HoursAheadOfGiven.bind(_this);
         _this.stokeStreak = _streaks3.stokeStreak.bind(_this);
@@ -40053,32 +40066,33 @@ var App = function (_Component) {
         //currency
         _this.streakTermination = _currency.streakTermination.bind(_this);
         _this.calculateStreakTP = _currency.calculateStreakTP.bind(_this);
-        _this.getStreak = _currency.getStreak.bind(_this);
-        _this.getUser = _currency.getUser.bind(_this);
+        _this.getStreak = _helperFunctions.getStreak.bind(_this);
+        _this.getUser = _helperFunctions.getUser.bind(_this);
         _this.updateUserValue = _currency.updateUserValue.bind(_this);
         _this.updateStreakValue = _currency.updateStreakValue.bind(_this);
         _this.calculateStokePrice = _currency.calculateStokePrice.bind(_this);
         _this.streakStoke = _currency.streakStoke.bind(_this);
-        _this.streakPayout = _currency.streakPayout.bind(_this);
         _this.streakBoost = _currency.streakBoost.bind(_this);
         _this.checkforStreakPayouts = _currency.checkforStreakPayouts.bind(_this);
         _this.calculateStreakPayout = _currency.calculateStreakPayout.bind(_this);
         _this.checkForDailyAllowance = _currency.checkForDailyAllowance.bind(_this);
         _this.calculateDailyAllowance = _currency.calculateDailyAllowance.bind(_this);
-        _this.getNumberOfFriends = _currency.getNumberOfFriends.bind(_this);
-        _this.getNumberOfStreaks = _currency.getNumberOfStreaks.bind(_this);
+        _this.getNumberOfFriends = _helperFunctions.getNumberOfFriends.bind(_this);
+        _this.getNumberOfStreaks = _helperFunctions.getNumberOfStreaks.bind(_this);
 
         //STATE
         _this.state = {
             loggedIn: false,
             userID: '',
             user: {},
-            streaks: [],
-            streaksInfo: [],
+            friendRequestsInfo: [],
+            friendRequests: [],
             friends: [],
             friendsInfo: [],
             streakRequests: [],
-            streakRequestsInfo: []
+            streakRequestsInfo: [],
+            streaks: [],
+            streaksInfo: []
         };
         return _this;
     }
@@ -40134,7 +40148,11 @@ var App = function (_Component) {
                                         friends: _this2.state.friendsInfo,
                                         addFriend: _this2.addFriend,
                                         user: _this2.state.userID,
-                                        searchUsers: _this2.searchUsers
+                                        searchUsers: _this2.searchUsers,
+                                        sendFriendRequest: _this2.sendFriendRequest,
+                                        requests: _this2.state.friendRequestsInfo,
+                                        acceptFriendRequest: _this2.acceptFriendRequest,
+                                        rejectFriendRequest: _this2.rejectFriendRequest
                                     });
                                 }
                             }),
@@ -43446,10 +43464,14 @@ var Friends = function (_Component) {
         _this.handleAddFriend = _this.handleAddFriend.bind(_this);
         _this.handleSearchInput = _this.handleSearchInput.bind(_this);
         _this.handleSearchSubmit = _this.handleSearchSubmit.bind(_this);
+        _this.toggleFriendRequestModal = _this.toggleFriendRequestModal.bind(_this);
+        _this.handleRequestAcceptance = _this.handleRequestAcceptance.bind(_this);
+        _this.handleRequestRejection = _this.handleRequestRejection.bind(_this);
 
         //STATE
         _this.state = {
-            isVisible: false,
+            isVisibleAdd: false,
+            isVisibleRequests: false,
             searchResults: [],
             searchInput: null
         };
@@ -43487,7 +43509,7 @@ var Friends = function (_Component) {
         key: 'toggleAddFriendModal',
         value: function toggleAddFriendModal() {
             this.setState({
-                isVisible: !this.state.isVisible
+                isVisibleAdd: !this.state.isVisibleAdd
             });
         }
 
@@ -43497,10 +43519,38 @@ var Friends = function (_Component) {
         key: 'handleAddFriend',
         value: function handleAddFriend() {
             this.props.addFriend(this.props.user, this.state.searchResults.uid);
+            this.toggleAddFriendModal();
+        }
+    }, {
+        key: 'toggleFriendRequestModal',
+        value: function toggleFriendRequestModal() {
+            this.setState({
+                isVisibleRequests: !this.state.isVisibleRequests
+            });
+        }
+
+        //accept friend request and toggle modal
+
+    }, {
+        key: 'handleRequestAcceptance',
+        value: function handleRequestAcceptance(requestID, userID, friendID) {
+            this.props.acceptFriendRequest(requestID, userID, friendID);
+            this.toggleFriendRequestModal();
+        }
+
+        //reject friend request and toggle modal
+
+    }, {
+        key: 'handleRequestRejection',
+        value: function handleRequestRejection(requestID, userID, friendID) {
+            this.props.rejectFriendRequest(requestID, userID, friendID);
+            this.toggleFriendRequestModal();
         }
     }, {
         key: 'render',
         value: function render() {
+            var _this3 = this;
+
             var searchRender = _react2.default.createElement(
                 'div',
                 null,
@@ -43537,19 +43587,51 @@ var Friends = function (_Component) {
                 );
             }
 
-            var friendsCountRender = _react2.default.createElement(
-                'span',
-                { className: 'friends-header-right-item' },
-                '0 friends'
-            );
-            if (this.props.friends.length != 0) {
-                friendsCountRender = _react2.default.createElement(
+            var requestsRender = _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement(
                     'span',
-                    { className: 'friends-header-right-item' },
-                    this.props.friends.length,
-                    ' friends'
-                );
+                    null,
+                    'You have no friend requests'
+                )
+            );
+            if (this.props.requests.length != 0) {
+                //handle no unanswered requests
+                requestsRender = this.props.requests.map(function (request, index) {
+                    if (request.answered !== true) {
+                        return _react2.default.createElement(
+                            'div',
+                            { className: 'col-item row-container request-list-container', key: index },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'request-list-item row-item' },
+                                '@',
+                                request.senderUsername
+                            ),
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'request-list-item row-item btn btn-success', onClick: function onClick() {
+                                        return _this3.handleRequestAcceptance(request.id, request.recipient, request.sender);
+                                    } },
+                                'Accept Streak'
+                            ),
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'request-list-item row-item btn btn-danger', onClick: function onClick() {
+                                        return _this3.handleRequestRejection(request.id, request.recipient, request.sender);
+                                    } },
+                                'Reject Streak'
+                            )
+                        );
+                    }
+                });
             }
+
+            // let friendsCountRender = <span className='friends-header-right-item'>0 friends</span>;
+            // if (this.props.friends.length != 0) {
+            //     friendsCountRender = <span className='friends-header-right-item'>{this.props.friends.length} friends</span>;
+            // }
 
             var friendsRender = _react2.default.createElement(
                 'div',
@@ -43584,7 +43666,7 @@ var Friends = function (_Component) {
                                 _react2.default.createElement('span', { onClick: this.toggleAddFriendModal, className: 'add-friend-btn glyphicon glyphicon-plus-sign' }),
                                 _react2.default.createElement(
                                     _reactBootstrap.Modal,
-                                    { show: this.state.isVisible, onHide: this.toggleAddFriendModal },
+                                    { show: this.state.isVisibleAdd, onHide: this.toggleAddFriendModal },
                                     _react2.default.createElement(
                                         _reactBootstrap.Modal.Header,
                                         null,
@@ -43642,7 +43724,42 @@ var Friends = function (_Component) {
                         _react2.default.createElement(
                             'div',
                             { className: 'header-right' },
-                            friendsCountRender
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'friends-header-right-item' },
+                                _react2.default.createElement('span', { onClick: this.toggleFriendRequestModal, className: 'add-friend-btn glyphicon glyphicon-bell' }),
+                                _react2.default.createElement(
+                                    _reactBootstrap.Modal,
+                                    { show: this.state.isVisibleRequests, onHide: this.toggleFriendRequestModal },
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Header,
+                                        null,
+                                        _react2.default.createElement(
+                                            _reactBootstrap.Modal.Title,
+                                            null,
+                                            'Friend Requests'
+                                        )
+                                    ),
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Body,
+                                        null,
+                                        _react2.default.createElement(
+                                            'div',
+                                            { className: 'col-container' },
+                                            requestsRender
+                                        )
+                                    ),
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Footer,
+                                        null,
+                                        _react2.default.createElement(
+                                            'span',
+                                            { onClick: this.toggleFriendRequestModal },
+                                            'Close'
+                                        )
+                                    )
+                                )
+                            )
                         )
                     ),
                     _react2.default.createElement(
@@ -55700,7 +55817,7 @@ var Streaks = function (_Component) {
                                         _react2.default.createElement(
                                             _reactBootstrap.Modal.Title,
                                             null,
-                                            'Requests'
+                                            'Streak Requests'
                                         )
                                     ),
                                     _react2.default.createElement(
@@ -65288,6 +65405,7 @@ var loginUser = function loginUser(email, password) {
         _this.getFriends(user.uid);
         _this.getStreaks(user.uid);
         _this.getStreakRequests(user.uid);
+        _this.checkForDailyAllowance(user.uid);
     }).catch(function (error) {
         var errorCode = error.code;
         var errorMessage = error.message;
@@ -65431,7 +65549,7 @@ exports.addNewUser = addNewUser;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.getNumberOfStreaks = exports.getNumberOfFriends = exports.calculateDailyAllowance = exports.checkForDailyAllowance = exports.calculateStreakPayout = exports.checkforStreakPayouts = exports.streakBoost = exports.streakPayout = exports.streakStoke = exports.calculateStokePrice = exports.updateStreakValue = exports.updateUserValue = exports.getUser = exports.getStreak = exports.calculateStreakTP = exports.streakTermination = undefined;
+exports.calculateDailyAllowance = exports.checkForDailyAllowance = exports.calculateStreakPayout = exports.checkforStreakPayouts = exports.streakBoost = exports.streakStoke = exports.calculateStokePrice = exports.updateStreakValue = exports.updateUserValue = exports.calculateStreakTP = exports.streakTermination = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -65469,20 +65587,6 @@ var calculateStreakTP = function calculateStreakTP(streakValue, terminatorID, be
     payments[0] = streakValue * .75;
     payments[1] = streakValue * .25;
     return payments;
-};
-
-//returns a promise containing the streak info 
-var getStreak = function getStreak(streakID) {
-    return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
-        return snapshot;
-    });
-};
-
-//returns a promise containing the user info 
-var getUser = function getUser(userID) {
-    return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
-        return snapshot;
-    });
 };
 
 //updates a users value based on currenctValue and the amount to change the currency by
@@ -65523,25 +65627,7 @@ var streakStoke = function streakStoke(streakID, userID) {
     var stokePrice = this.calculateStokePrice(streak);
 
     this.updateStreakValue(streakID, streak.value, stokePrice);
-    this.updateUserValue(userID, user.value, stokePrice);
-};
-
-//updates streak participants values based on streak payout 
-var streakPayout = function streakPayout(streakID) {
-    var _this = this;
-
-    var streak = null;
-    this.getStreak(streakID).then(function (result) {
-        streak = result;
-    });
-    var user = null;
-    this.getUser(userID).then(function (result) {
-        user = result;
-    });
-    var payout = this.calculateStreakPayout(streak);
-    Object.keys(streak.participants).map(function (participant) {
-        _this.updateUserValue(userID, user.value, payout);
-    });
+    this.updateUserValue(userID, user.value, -stokePrice);
 };
 
 //updates a streaks value and the users value for a streak boost
@@ -65555,13 +65641,28 @@ var streakBoost = function streakBoost(streakID, userID, currencyAmount) {
         user = result;
     });
     this.updateStreakValue(streakID, streak.value, currencyAmount);
-    this.updateUserValue(userID, user.value, currencyAmount);
+    this.updateUserValue(userID, user.value, -currencyAmount);
 };
 
+//checks a streak for past payouts and updates the streak participants value
 var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
     var streak = null;
     this.getStreak(streakID).then(function (result) {
         streak = result;
+    });
+
+    var user1 = streak.participants[0];
+    var user2 = streak.participants[1];
+
+    var user1Info = null;
+    var user2Info = null;
+
+    this.getUser(streak.participants[0]).then(function (result) {
+        user1Info = result;
+    });
+
+    this.getUser(streak.participants[1]).then(function (result) {
+        user2Info = result;
     });
 
     var lastChecked = null;
@@ -65579,7 +65680,9 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
 
     var payment = this.calculateStreakPayout(streak);
     var payments = payment * numberOfPayments;
-    this.updateStreakValue(streakID, streak.value, payments);
+
+    this.updateUserValue(user1, user1Info.value, payments);
+    this.updateUserValue(user2, user2Info.value, payments);
 
     var date = new Date();
     var time = date.getTime();
@@ -65640,48 +65743,17 @@ var calculateDailyAllowance = function calculateDailyAllowance(user, userID) {
     return dailyAllowance;
 };
 
-var getNumberOfFriends = function getNumberOfFriends(userID) {
-    return this.db.ref('friends/' + userID).once('value').then(function (snapshot) {
-        if (snapshot.exists()) {
-            var friends = snapshot.val();
-            return friends.length;
-        } else {
-            throw 'No friends found for this user';
-        }
-    }).catch(function (reason) {
-        console.log(reason);
-    });
-};
-
-var getNumberOfStreaks = function getNumberOfStreaks(userID) {
-    return this.db.ref('streaks/' + userID).once('value').then(function (snapshot) {
-        if (snapshot.exists()) {
-            var streaks = snapshot.val();
-            return streaks.length;
-        } else {
-            throw 'No streaks found for this user';
-        }
-    }).catch(function (reason) {
-        console.log(reason);
-    });
-};
-
 exports.streakTermination = streakTermination;
 exports.calculateStreakTP = calculateStreakTP;
-exports.getStreak = getStreak;
-exports.getUser = getUser;
 exports.updateUserValue = updateUserValue;
 exports.updateStreakValue = updateStreakValue;
 exports.calculateStokePrice = calculateStokePrice;
 exports.streakStoke = streakStoke;
-exports.streakPayout = streakPayout;
 exports.streakBoost = streakBoost;
 exports.checkforStreakPayouts = checkforStreakPayouts;
 exports.calculateStreakPayout = calculateStreakPayout;
 exports.checkForDailyAllowance = checkForDailyAllowance;
 exports.calculateDailyAllowance = calculateDailyAllowance;
-exports.getNumberOfFriends = getNumberOfFriends;
-exports.getNumberOfStreaks = getNumberOfStreaks;
 
 /***/ }),
 /* 477 */
@@ -65693,7 +65765,7 @@ exports.getNumberOfStreaks = getNumberOfStreaks;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.addFriend = exports.friendToInfo = exports.getUsername = exports.getFriends = undefined;
+exports.addFriend = exports.friendToInfo = exports.getFriends = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -65729,19 +65801,6 @@ var getFriends = function getFriends(userID) {
     });
 };
 
-//Grab and returns just the username of a user by id
-var getUsername = function getUsername(userID) {
-    return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
-        if (snapshot.exists()) {
-            return snapshot.val().username;
-        } else {
-            throw 'Get Username: No user found';
-        }
-    }).catch(function (reason) {
-        console.log(reason);
-    });
-};
-
 //Grabs and returns user information by id
 var friendToInfo = function friendToInfo(userID) {
     return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
@@ -65759,19 +65818,9 @@ var friendToInfo = function friendToInfo(userID) {
 
 //adds a friend to a users friends list
 var addFriend = function addFriend(userID, friendID) {
-    var _this2 = this;
-
     if (userID !== friendID) {
-        var stringID = friendID.toString();
-        //add functionality to check that friend isn't already a friend
-        this.state.friends.map(function (friend, index) {
-            _this2.db.ref('friends/' + userID + '/' + stringID).set(true);
-        });
-        var friends = this.state.friends.slice();
-        friends.push(friendID);
-        this.setState({ //set state to reflect updated friends list
-            friends: friends
-        });
+        this.db.ref('friends/' + userID + '/' + friendID).set(true);
+        this.db.ref('friends/' + friendID + '/' + userID).set(true);
         this.getFriends(userID);
     } else {
         console.log('No friend added: You cannot add yourself as a friend.');
@@ -65779,7 +65828,6 @@ var addFriend = function addFriend(userID, friendID) {
 };
 
 exports.getFriends = getFriends;
-exports.getUsername = getUsername;
 exports.friendToInfo = friendToInfo;
 exports.addFriend = addFriend;
 
@@ -65793,7 +65841,7 @@ exports.addFriend = addFriend;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.searchUsers = exports.streakToOwner = exports.convertDateToTimeDifference = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.getDate = exports.convertTimestampToDays = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
+exports.searchUsers = exports.streakToOwner = exports.convertDateToTimeDifference = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -65877,6 +65925,11 @@ var getStreaks = function getStreaks(userID) {
                 streaksInfo: results
             });
         });
+        return streakList;
+    }).then(function (streakList) {
+        streakList.map(function (streakID) {
+            return _this2.checkforStreakPayouts(streakID);
+        });
     }).catch(function (reason) {
         console.log(reason);
     });
@@ -65910,19 +65963,6 @@ var streakToInfo = function streakToInfo(streakID, userID) {
     }).catch(function (reason) {
         console.log(reason);
     });
-};
-
-var convertTimestampToDays = function convertTimestampToDays(timestamp) {
-    var newDate = new Date();
-    var date = newDate.getTime();
-    var days = ((date - timestamp) / (3600000 * 24)).toFixed(0);
-    return days;
-};
-
-var getDate = function getDate() {
-    var newDate = new Date();
-    var date = newDate.getTime();
-    return date;
 };
 
 var getDate24HoursAhead = function getDate24HoursAhead() {
@@ -66080,8 +66120,6 @@ var searchUsers = function searchUsers(username, userID) {
 exports.startStreak = startStreak;
 exports.getStreaks = getStreaks;
 exports.streakToInfo = streakToInfo;
-exports.convertTimestampToDays = convertTimestampToDays;
-exports.getDate = getDate;
 exports.getDate24HoursAhead = getDate24HoursAhead;
 exports.getDate24HoursAheadOfGiven = getDate24HoursAheadOfGiven;
 exports.stokeStreak = stokeStreak;
@@ -66219,6 +66257,227 @@ exports.getStreakRequests = getStreakRequests;
 exports.streakRequestToInfo = streakRequestToInfo;
 exports.acceptStreakRequest = acceptStreakRequest;
 exports.rejectStreakRequest = rejectStreakRequest;
+
+/***/ }),
+/* 480 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.rejectFriendRequest = exports.acceptFriendRequest = exports.friendRequestsToInfo = exports.getFriendRequests = exports.friendRequestToRecipient = exports.friendRequestToSender = exports.sendFriendRequest = undefined;
+
+var _app = __webpack_require__(417);
+
+var _app2 = _interopRequireDefault(_app);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//adds a friend request to the db and calls functions to assign friend request to sender and recipient
+var sendFriendRequest = function sendFriendRequest(userID, recipientID) {
+    if (userID !== recipientID) {
+        var newRequestID = this.db.ref().child('friendRequests/').push().key;
+        this.friendRequestToSender(userID, newRequestID);
+        this.friendRequestToRecipient(recipientID, newRequestID);
+        this.db.ref('friendRequests/' + newRequestID).set({
+            id: newRequestID,
+            sender: userID,
+            recipient: recipientID,
+            answered: false,
+            accepted: false
+        });
+    } else {
+        console.log('No request sent: You cannot send a friend request to yourself.');
+    }
+};
+
+//sets the given friend request id to the sender of the request
+var friendRequestToSender = function friendRequestToSender(ownerID, friendRequestID) {
+    this.db.ref('friendRequestOwners/' + ownerID + '/sent/' + friendRequestID).set(true);
+};
+
+//sets the given friend request id to the recipient of the request
+var friendRequestToRecipient = function friendRequestToRecipient(recipientID, friendRequestID) {
+    this.db.ref('friendRequestOwners/' + recipientID + '/received/' + friendRequestID).set(true);
+};
+
+//grabs and sets friend information to state by user id
+var getFriendRequests = function getFriendRequests(userID) {
+    var _this = this;
+
+    this.db.ref('friendRequests/' + userID + '/received').once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var friendRequests = Object.keys(snapshot.val());
+            _this.setState({
+                friendRequests: friendRequests
+            });
+            return friendRequests;
+        } else {
+            throw 'No friend requests found for this user ID';
+        }
+    }).then(function (friendRequests) {
+        var funcs = friendRequests.map(function (request) {
+            return _this.friendRequestsToInfo(request);
+        });
+        Promise.all(funcs).then(function (results) {
+            results = results.filter(function (n) {
+                return n;
+            });
+            _this.setState({
+                friendRequestsInfo: results
+            });
+        });
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+//returns a promise containing the information of a friend request by friend request id
+var friendRequestsToInfo = function friendRequestsToInfo(friendRequestID) {
+    var _this2 = this;
+
+    var friendRequest = null;
+    return this.db.ref('friendRequests/' + friendRequestID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            friendRequest = snapshot.val();
+            if (friendRequest.answered === false) {
+                _this2.getUsername(friendRequest.sender).then(function (username) {
+                    friendRequest.senderUsername = username;
+                });
+                _this2.getUsername(friendRequest.recipient).then(function (username) {
+                    friendRequest.recipientUsername = username;
+                });
+            } else {
+                friendRequest = null;
+            }
+        }
+    }).then(function () {
+        return friendRequest;
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+//accept a friend request and set according information on friend request and start a friend with relevant information
+var acceptFriendRequest = function acceptFriendRequest(friendRequestID, userID, senderID) {
+    this.db.ref('friendRequests/' + friendRequestID).set({
+        answered: true,
+        accepted: true
+    });
+
+    this.addFriend(userID, senderID);
+};
+
+//reject a friend request and set according information on friend request 
+var rejectFriendRequest = function rejectFriendRequest(friendRequestID, userID, senderID) {
+    this.db.ref('friendRequests/' + friendRequestID).set({
+        answered: true,
+        accepted: false
+    });
+};
+
+exports.sendFriendRequest = sendFriendRequest;
+exports.friendRequestToSender = friendRequestToSender;
+exports.friendRequestToRecipient = friendRequestToRecipient;
+exports.getFriendRequests = getFriendRequests;
+exports.friendRequestsToInfo = friendRequestsToInfo;
+exports.acceptFriendRequest = acceptFriendRequest;
+exports.rejectFriendRequest = rejectFriendRequest;
+
+/***/ }),
+/* 481 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.getDate = exports.convertTimestampToDays = exports.getNumberOfStreaks = exports.getNumberOfFriends = exports.getUser = exports.getStreak = exports.getUsername = undefined;
+
+var _app = __webpack_require__(417);
+
+var _app2 = _interopRequireDefault(_app);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//Grab and returns just the username of a user by id
+var getUsername = function getUsername(userID) {
+    return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            return snapshot.val().username;
+        } else {
+            throw 'Get Username: No user found';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+//returns a promise containing the streak info 
+var getStreak = function getStreak(streakID) {
+    return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+        return snapshot;
+    });
+};
+
+//returns a promise containing the user info 
+var getUser = function getUser(userID) {
+    return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
+        return snapshot;
+    });
+};
+
+var getNumberOfFriends = function getNumberOfFriends(userID) {
+    return this.db.ref('friends/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var friends = snapshot.val();
+            return friends.length;
+        } else {
+            throw 'No friends found for this user';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+var getNumberOfStreaks = function getNumberOfStreaks(userID) {
+    return this.db.ref('streaks/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var streaks = snapshot.val();
+            return streaks.length;
+        } else {
+            throw 'No streaks found for this user';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+var convertTimestampToDays = function convertTimestampToDays(timestamp) {
+    var newDate = new Date();
+    var date = newDate.getTime();
+    var days = ((date - timestamp) / (3600000 * 24)).toFixed(0);
+    return days;
+};
+
+var getDate = function getDate() {
+    var newDate = new Date();
+    var date = newDate.getTime();
+    return date;
+};
+
+exports.getUsername = getUsername;
+exports.getStreak = getStreak;
+exports.getUser = getUser;
+exports.getNumberOfFriends = getNumberOfFriends;
+exports.getNumberOfStreaks = getNumberOfStreaks;
+exports.convertTimestampToDays = convertTimestampToDays;
+exports.getDate = getDate;
 
 /***/ })
 /******/ ]);

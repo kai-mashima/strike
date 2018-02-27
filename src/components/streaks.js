@@ -118,7 +118,7 @@ export default class Streaks extends Component {
                                 <span onClick={this.toggleRequestsModal} className='streak-request-btn glyphicon glyphicon-bell'></span>
                                 <Modal show={this.state.isVisibleRequests} onHide={this.toggleRequestsModal}>
                                     <Modal.Header>
-                                        <Modal.Title>Requests</Modal.Title>
+                                        <Modal.Title>Streak Requests</Modal.Title>
                                     </Modal.Header>
                                     <Modal.Body>
                                         <div className='col-container'>

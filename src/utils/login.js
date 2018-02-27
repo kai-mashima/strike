@@ -10,6 +10,7 @@ const loginUser = function(email, password) {
         this.getFriends(user.uid);
         this.getStreaks(user.uid);
         this.getStreakRequests(user.uid);
+        this.checkForDailyAllowance(user.uid);
     }).catch(error => {
         var errorCode = error.code;
         var errorMessage = error.message;

@@ -67,6 +67,9 @@ const getStreaks = function(userID) {
                 streaksInfo: results
             });
         });
+        return streakList;
+    }).then(streakList => {
+        streakList.map(streakID => this.checkforStreakPayouts(streakID));
     }).catch(reason => {
         console.log(reason);
     });
@@ -100,19 +103,6 @@ const streakToInfo = function(streakID, userID){
     }).catch(reason => {
         console.log(reason);
     });
-};
-
-const convertTimestampToDays = function(timestamp) {
-    const newDate = new Date();
-    const date = newDate.getTime();
-    let days = ((date - timestamp) / (3600000 * 24)).toFixed(0);
-    return days;
-};
-
-const getDate = function() {
-    const newDate = new Date();
-    const date = newDate.getTime();
-    return date;
 };
 
 const getDate24HoursAhead = function() {
@@ -276,8 +266,6 @@ export {
     startStreak,
     getStreaks,
     streakToInfo,
-    convertTimestampToDays,
-    getDate,
     getDate24HoursAhead,
     getDate24HoursAheadOfGiven,
     stokeStreak,

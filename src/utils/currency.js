@@ -32,24 +32,6 @@ const calculateStreakTP = function(streakValue, terminatorID, betrayedID) {
     return payments;
 };
 
-//returns a promise containing the streak info 
-const getStreak = function(streakID) {
-    return this.db.ref(`streaks/${streakID}`)
-    .once('value')
-    .then(snapshot => (
-        snapshot
-    ));
-};
-
-//returns a promise containing the user info 
-const getUser = function(userID) {
-    return this.db.ref(`users/${userID}`)
-    .once('value')
-    .then(snapshot => (
-        snapshot
-    ));
-};
-
 //updates a users value based on currenctValue and the amount to change the currency by
 const updateUserValue = function(userID, currentValue, currencyAmount) {
     let newValue = currentValue + currencyAmount;
@@ -90,23 +72,7 @@ const streakStoke = function(streakID, userID) {
     let stokePrice = this.calculateStokePrice(streak);
 
     this.updateStreakValue(streakID, streak.value, stokePrice);
-    this.updateUserValue(userID, user.value, stokePrice);
-};
-
-//updates streak participants values based on streak payout 
-const streakPayout = function(streakID) {
-    let streak = null;
-    this.getStreak(streakID).then(result => {
-        streak = result;
-    });
-    let user = null;
-    this.getUser(userID).then(result => {
-        user = result;
-    });
-    let payout = this.calculateStreakPayout(streak);
-    Object.keys(streak.participants).map(participant => {
-        this.updateUserValue(userID, user.value, payout);
-    });
+    this.updateUserValue(userID, user.value, -stokePrice);
 };
 
 //updates a streaks value and the users value for a streak boost
@@ -120,13 +86,28 @@ const streakBoost = function(streakID, userID, currencyAmount) {
         user = result;
     });
     this.updateStreakValue(streakID, streak.value, currencyAmount);
-    this.updateUserValue(userID, user.value, currencyAmount);
+    this.updateUserValue(userID, user.value, -currencyAmount);
 };
 
+//checks a streak for past payouts and updates the streak participants value
 const checkforStreakPayouts = function(streakID) {
     let streak = null;
     this.getStreak(streakID).then(result => {
         streak = result
+    });
+
+    const user1 = streak.participants[0];
+    const user2 = streak.participants[1];
+
+    let user1Info = null;
+    let user2Info = null;
+
+    this.getUser(streak.participants[0]).then(result => {
+        user1Info = result;
+    });
+
+    this.getUser(streak.participants[1]).then(result => {
+        user2Info = result;
     });
 
     let lastChecked = null;
@@ -139,12 +120,14 @@ const checkforStreakPayouts = function(streakID) {
     }
 
     start = streak.timestamp;
-    let difference = start - lastChecked;
-    let numberOfPayments = this.convertTimestampToDays(difference);
+    const difference = start - lastChecked;
+    const numberOfPayments = this.convertTimestampToDays(difference);
     
-    let payment = this.calculateStreakPayout(streak);
-    let payments = payment * numberOfPayments;
-    this.updateStreakValue(streakID, streak.value, payments);
+    const payment = this.calculateStreakPayout(streak);
+    const payments = payment * numberOfPayments;
+
+    this.updateUserValue(user1, user1Info.value, payments);
+    this.updateUserValue(user2, user2Info.value, payments);
 
     const date = new Date();
     const time = date.getTime();
@@ -205,51 +188,16 @@ const calculateDailyAllowance = function(user, userID) {
     return dailyAllowance;
 };
 
-const getNumberOfFriends = function(userID) {
-    return this.db.ref(`friends/${userID}`)
-    .once('value')
-    .then(snapshot => {
-        if (snapshot.exists()) {
-            let friends = snapshot.val();
-            return friends.length;
-        } else {
-            throw 'No friends found for this user';
-        }
-    }).catch(reason => {
-        console.log(reason);
-    });
-};
-
-const getNumberOfStreaks = function(userID) {
-    return this.db.ref(`streaks/${userID}`)
-    .once('value')
-    .then(snapshot => {
-        if (snapshot.exists()) {
-            let streaks = snapshot.val();
-            return streaks.length;
-        } else {
-            throw 'No streaks found for this user';
-        }
-    }).catch(reason => {
-        console.log(reason);
-    });
-};
-
 export {
     streakTermination,
     calculateStreakTP,
-    getStreak,
-    getUser,
     updateUserValue,
     updateStreakValue,
     calculateStokePrice,
     streakStoke,
-    streakPayout,
     streakBoost,
     checkforStreakPayouts,
     calculateStreakPayout,
     checkForDailyAllowance,
     calculateDailyAllowance,
-    getNumberOfFriends,
-    getNumberOfStreaks,
 };
