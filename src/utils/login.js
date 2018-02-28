@@ -75,7 +75,7 @@ const signOut = function() {
 };
 
 //creates a new firebase auth for a user and initials relevant functions to grab user info and set states
-const signupUser = function(email, password, username = '', first = '', last = '', value = 0, allowance = 5, imgAvailable = false, totalStreaks = 0, totalDays = 0, lastChecked = null) {
+const signupUser = function(email, password, username = '', first = '', last = '', value = 0, allowance = 5, imgAvailable = false, totalStreaks = 0, totalDays = 0, lastChecked = undefined) {
     firebase.auth().createUserWithEmailAndPassword(email, password)
     .then(user => {
         this.confirmLogin();
@@ -94,7 +94,7 @@ const signupUser = function(email, password, username = '', first = '', last = '
 };
 
 //adds a new user to the db
-const addNewUser = function(username = '', userID, first = '', last = '', email = '', value = 0, allowance = 5, totalStreaks = 0, totalDays = 0, lastChecked = null) {
+const addNewUser = function(username = '', userID, first = '', last = '', email = '', value = 0, allowance = 5, totalStreaks = 0, totalDays = 0, lastChecked = undefined) {
     const date = new Date();
     const time = date.getTime();
     this.db.ref(`users/${userID}`).set({

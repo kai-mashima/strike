@@ -20,7 +20,7 @@ const getStreak = function(streakID) {
     return this.db.ref(`streaks/${streakID}`)
     .once('value')
     .then(snapshot => (
-        snapshot
+        snapshot.val()
     ));
 };
 
@@ -29,7 +29,7 @@ const getUser = function(userID) {
     return this.db.ref(`users/${userID}`)
     .once('value')
     .then(snapshot => (
-        snapshot
+        snapshot.val()
     ));
 };
 
@@ -49,7 +49,7 @@ const getNumberOfFriends = function(userID) {
 };
 
 const getNumberOfStreaks = function(userID) {
-    return this.db.ref(`streaks/${userID}`)
+    return this.db.ref(`streakOwners/${userID}`)
     .once('value')
     .then(snapshot => {
         if (snapshot.exists()) {

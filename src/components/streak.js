@@ -42,8 +42,16 @@ export default class Streak extends Component {
                     <Modal.Title>Streak Info</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className='col-container'>
-                        <p>Streak Info</p>
+                    <div className='row-container'>
+                        <div className='row-item'>
+                            <span>Streak Value: ${this.props.streak.value}</span>
+                        </div>
+                        <div className='row-item'>
+                            <span>Streak Days: ${this.props.streak.days}</span>
+                        </div>
+                        <div className='row-item'>
+                            <span>Time Until Expiration: ${this.props.streak.currentExpirationTime}</span>
+                        </div>
                     </div>
                 </Modal.Body>
                 <Modal.Footer>

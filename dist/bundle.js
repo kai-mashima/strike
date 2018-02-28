@@ -55965,11 +55965,36 @@ var Streak = function (_Component) {
                     null,
                     _react2.default.createElement(
                         'div',
-                        { className: 'col-container' },
+                        { className: 'row-container' },
                         _react2.default.createElement(
-                            'p',
-                            null,
-                            'Streak Info'
+                            'div',
+                            { className: 'row-item' },
+                            _react2.default.createElement(
+                                'span',
+                                null,
+                                'Streak Value: $',
+                                this.props.streak.value
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row-item' },
+                            _react2.default.createElement(
+                                'span',
+                                null,
+                                'Streak Days: $',
+                                this.props.streak.days
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row-item' },
+                            _react2.default.createElement(
+                                'span',
+                                null,
+                                'Time Until Expiration: $',
+                                this.props.streak.currentExpirationTime
+                            )
                         )
                     )
                 ),
@@ -65491,7 +65516,7 @@ var signupUser = function signupUser(email, password) {
     var _this5 = this;
 
     var totalDays = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : 0;
-    var lastChecked = arguments.length > 10 && arguments[10] !== undefined ? arguments[10] : null;
+    var lastChecked = arguments.length > 10 && arguments[10] !== undefined ? arguments[10] : undefined;
 
     _app2.default.auth().createUserWithEmailAndPassword(email, password).then(function (user) {
         _this5.confirmLogin();
@@ -65520,7 +65545,7 @@ var addNewUser = function addNewUser() {
     var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
     var totalStreaks = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 0;
     var totalDays = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
-    var lastChecked = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : null;
+    var lastChecked = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : undefined;
 
     var date = new Date();
     var time = date.getTime();
@@ -65626,82 +65651,87 @@ var calculateStokePrice = function calculateStokePrice(streak) {
 
 //updates both the streak value and user value for a streak that has been stoked
 var streakStoke = function streakStoke(streakID, userID) {
-    var streak = null;
+    var _this = this;
+
     this.getStreak(streakID).then(function (result) {
-        streak = result;
+        var streak = result;
+        var stokePrice = _this.calculateStokePrice(streak);
+        _this.updateStreakValue(streakID, streak.value, stokePrice);
+        return stokePrice;
+    }).then(function (stokePrice) {
+        _this.getUser(userID).then(function (result) {
+            var user = result;
+            _this.updateUserValue(userID, user.value, -stokePrice);
+        });
     });
-
-    var user = null;
-    this.getUser(userID).then(function (result) {
-        user = result;
-    });
-
-    var stokePrice = this.calculateStokePrice(streak);
-
-    this.updateStreakValue(streakID, streak.value, stokePrice);
-    this.updateUserValue(userID, user.value, -stokePrice);
 };
 
 //updates a streaks value and the users value for a streak boost
 var streakBoost = function streakBoost(streakID, userID, currencyAmount) {
-    var streak = null;
+    var _this2 = this;
+
     this.getStreak(streakID).then(function (result) {
-        streak = result;
+        var streak = result;
+        _this2.updateStreakValue(streakID, streak.value, currencyAmount);
     });
 
-    var user = null;
     this.getUser(userID).then(function (result) {
-        user = result;
+        var user = result;
+        _this2.updateUserValue(userID, user.value, -currencyAmount);
     });
-
-    this.updateStreakValue(streakID, streak.value, currencyAmount);
-    this.updateUserValue(userID, user.value, -currencyAmount);
 };
 
 //checks a streak for past payouts and updates the streak participants value
 var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
-    var streak = null;
+    var _this3 = this;
+
     this.getStreak(streakID).then(function (result) {
-        streak = result;
-    });
+        var streak = result;
+        return streak;
+    }).then(function (streak) {
+        var lastChecked = void 0;
 
-    var user1 = streak.participants[0];
-    var user2 = streak.participants[1];
+        if (streak.lastChecked) {
+            lastChecked = streak.lastChecked;
+        } else {
+            lastChecked = 0;
+        }
 
-    var user1Info = null;
-    var user2Info = null;
+        var start = streak.timestamp;
+        var difference = start - lastChecked;
+        var numberOfPayments = _this3.convertTimestampToDays(difference);
+        var payment = _this3.calculateStreakPayout(streak);
+        var paymentAmount = payment * numberOfPayments;
 
-    this.getUser(streak.participants[0]).then(function (result) {
-        user1Info = result;
-    });
+        var info = [];
+        info.push(streak);
+        info.push(paymentAmount);
 
-    this.getUser(streak.participants[1]).then(function (result) {
-        user2Info = result;
-    });
+        return info;
+    }).then(function (info) {
+        var streak = info[0];
+        var funcs = streak.participants.map(function (participant) {
+            return _this3.getUser(participant);
+        });
+        var userInfo = Promise.all(funcs).then(function (results) {
+            return results;
+        });
+        info.push(userInfo);
+        return info;
+    }).then(function (info) {
+        var streak = info[0];
+        var paymentAmount = info[1];
+        var users = info[2];
 
-    var lastChecked = null;
-    var start = null;
+        streak.participants.map(function (participant, index) {
+            return _this3.updateUserValue(participant, users[index].value, paymentAmount);
+        });
 
-    if (streak.lastChecked) {
-        lastChecked = streak.lastChecked;
-    } else {
-        lastChecked = 0;
-    }
-
-    start = streak.timestamp;
-    var difference = start - lastChecked;
-    var numberOfPayments = this.convertTimestampToDays(difference);
-
-    var payment = this.calculateStreakPayout(streak);
-    var payments = payment * numberOfPayments;
-
-    this.updateUserValue(user1, user1Info.value, payments);
-    this.updateUserValue(user2, user2Info.value, payments);
-
-    var date = new Date();
-    var time = date.getTime();
-    this.db.ref('streaks/' + streakID).update({
-        lastChecked: time
+        var date = new Date();
+        var time = date.getTime();
+        _this3.db.ref('streaks/' + streakID).update({
+            lastChecked: time
+        });
     });
 };
 
@@ -65819,10 +65849,22 @@ var getFriends = function getFriends(userID) {
 
 //Grabs and returns user information by id
 var friendToInfo = function friendToInfo(userID) {
+    var _this2 = this;
+
     return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             var info = snapshot.val();
             info.uid = userID;
+
+            _this2.getNumberOfStreaks(userID).then(function (result) {
+                console.log('Streaks:' + result);
+                info.totalStreaks = result;
+            });
+            _this2.getNumberOfFriends(userID).then(function (result) {
+                console.log('Friends:' + result);
+                info.totalFriends = result;
+            });
+
             return info;
         } else {
             throw 'Friend to Info: No user found';
@@ -66438,14 +66480,14 @@ var getUsername = function getUsername(userID) {
 //returns a promise containing the streak info 
 var getStreak = function getStreak(streakID) {
     return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
-        return snapshot;
+        return snapshot.val();
     });
 };
 
 //returns a promise containing the user info 
 var getUser = function getUser(userID) {
     return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
-        return snapshot;
+        return snapshot.val();
     });
 };
 
@@ -66463,7 +66505,7 @@ var getNumberOfFriends = function getNumberOfFriends(userID) {
 };
 
 var getNumberOfStreaks = function getNumberOfStreaks(userID) {
-    return this.db.ref('streaks/' + userID).once('value').then(function (snapshot) {
+    return this.db.ref('streakOwners/' + userID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             var streaks = snapshot.val();
             return streaks.length;

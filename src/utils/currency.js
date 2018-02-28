@@ -62,82 +62,77 @@ const calculateStokePrice = function(streak) {
 
 //updates both the streak value and user value for a streak that has been stoked
 const streakStoke = function(streakID, userID) {
-    let streak = null;
     this.getStreak(streakID).then(result => {
-        streak = result;
-    });
-
-    let user = null;
-    this.getUser(userID).then(result => {
-        user = result;
-    });
-
-    let stokePrice = this.calculateStokePrice(streak);
-
-    this.updateStreakValue(streakID, streak.value, stokePrice);
-    this.updateUserValue(userID, user.value, -stokePrice);
+        let streak = result;
+        let stokePrice = this.calculateStokePrice(streak);
+        this.updateStreakValue(streakID, streak.value, stokePrice);
+        return stokePrice;
+    }).then(stokePrice => {
+        this.getUser(userID).then(result => {
+            let user = result;
+            this.updateUserValue(userID, user.value, -stokePrice);
+        });
+    })
 };
 
 //updates a streaks value and the users value for a streak boost
 const streakBoost = function(streakID, userID, currencyAmount) {
-    let streak = null;
     this.getStreak(streakID).then(result => {
-        streak = result;
+        let streak = result;
+        this.updateStreakValue(streakID, streak.value, currencyAmount);
     });
 
-    let user = null;
     this.getUser(userID).then(result => {
-        user = result;
+        let user = result;
+        this.updateUserValue(userID, user.value, -currencyAmount);
     });
-
-    this.updateStreakValue(streakID, streak.value, currencyAmount);
-    this.updateUserValue(userID, user.value, -currencyAmount);
 };
 
 //checks a streak for past payouts and updates the streak participants value
 const checkforStreakPayouts = function(streakID) {
-    let streak = null;
     this.getStreak(streakID).then(result => {
-        streak = result
-    });
+        let streak = result;
+        return streak;
+    }).then(streak => {
+        let lastChecked;
 
-    const user1 = streak.participants[0];
-    const user2 = streak.participants[1];
+        if (streak.lastChecked) {
+            lastChecked = streak.lastChecked;
+        } else {
+            lastChecked = 0;
+        }
 
-    let user1Info = null;
-    let user2Info = null;
+        const start = streak.timestamp;
+        const difference = start - lastChecked;
+        const numberOfPayments = this.convertTimestampToDays(difference);
+        const payment = this.calculateStreakPayout(streak);
+        const paymentAmount = payment * numberOfPayments;
 
-    this.getUser(streak.participants[0]).then(result => {
-        user1Info = result;
-    });
+        let info = [];
+        info.push(streak);
+        info.push(paymentAmount);
 
-    this.getUser(streak.participants[1]).then(result => {
-        user2Info = result;
-    });
+        return info;
+    }).then(info => {
+        let streak = info[0];
+        const funcs = streak.participants.map(participant => this.getUser(participant));
+        let userInfo = Promise.all(funcs).then(results => results);
+        info.push(userInfo);
+        return info;
+    }).then(info => {
+        let streak = info[0];
+        let paymentAmount = info[1];
+        let users = info[2];
 
-    let lastChecked = null;
-    let start = null;
+        streak.participants.map((participant, index) => 
+            this.updateUserValue(participant, users[index].value, paymentAmount)
+        );
 
-    if (streak.lastChecked) {
-        lastChecked = streak.lastChecked;
-    } else {
-        lastChecked = 0;
-    }
-
-    start = streak.timestamp;
-    const difference = start - lastChecked;
-    const numberOfPayments = this.convertTimestampToDays(difference);
-    
-    const payment = this.calculateStreakPayout(streak);
-    const payments = payment * numberOfPayments;
-
-    this.updateUserValue(user1, user1Info.value, payments);
-    this.updateUserValue(user2, user2Info.value, payments);
-
-    const date = new Date();
-    const time = date.getTime();
-    this.db.ref(`streaks/${streakID}`).update({
-        lastChecked: time
+        const date = new Date();
+        const time = date.getTime();
+        this.db.ref(`streaks/${streakID}`).update({
+            lastChecked: time
+        });
     });
 };
 

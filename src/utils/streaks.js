@@ -57,9 +57,7 @@ const getStreaks = function(userID) {
         }
     }).then(streakList => {
         const streakFuncs = streakList.map(streakID => this.checkForExpiredStreaks(streakID));
-        return Promise.all(streakFuncs).then(results => {
-            return results;
-        });
+        return Promise.all(streakFuncs).then(results => results);
     }).then(streakList => {
         const infoFuncs = streakList.map(streakID => this.streakToInfo(streakID, userID));
         Promise.all(infoFuncs).then(results => {
