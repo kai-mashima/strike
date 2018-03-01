@@ -43468,6 +43468,7 @@ var Friends = function (_Component) {
         _this.toggleFriendRequestModal = _this.toggleFriendRequestModal.bind(_this);
         _this.handleRequestAcceptance = _this.handleRequestAcceptance.bind(_this);
         _this.handleRequestRejection = _this.handleRequestRejection.bind(_this);
+        _this.clearSearchResults = _this.clearSearchResults.bind(_this);
 
         //STATE
         _this.state = {
@@ -43503,6 +43504,13 @@ var Friends = function (_Component) {
                 });
             });
         }
+    }, {
+        key: 'clearSearchResults',
+        value: function clearSearchResults() {
+            this.setState({
+                searchInput: null
+            });
+        }
 
         //toggle state for adding a friend modal
 
@@ -43521,6 +43529,7 @@ var Friends = function (_Component) {
         value: function handleSendFriendRequest() {
             this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid);
             this.toggleAddFriendModal();
+            this.clearSearchResults();
         }
     }, {
         key: 'toggleFriendRequestModal',
@@ -55982,7 +55991,7 @@ var Streak = function (_Component) {
                             _react2.default.createElement(
                                 'span',
                                 null,
-                                'Streak Days: $',
+                                'Streak Days: ',
                                 this.props.streak.days
                             )
                         ),
@@ -55992,7 +56001,7 @@ var Streak = function (_Component) {
                             _react2.default.createElement(
                                 'span',
                                 null,
-                                'Time Until Expiration: $',
+                                'Time Until Expiration: ',
                                 this.props.streak.currentExpirationTime
                             )
                         )
@@ -65486,7 +65495,6 @@ var signOut = function signOut() {
     var _this4 = this;
 
     _app2.default.auth().signOut().then(function () {
-        console.log('Signed Out');
         _this4.setState({
             loggedIn: false,
             userID: '',
@@ -65498,6 +65506,7 @@ var signOut = function signOut() {
             streakRequests: [],
             streakRequestsInfo: []
         });
+        console.log('Signed Out');
     }).catch(function (error) {
         console.log('Error Signing Out:' + error);
     });
@@ -65510,23 +65519,21 @@ var signupUser = function signupUser(email, password) {
     var last = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
     var value = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
     var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
-    var imgAvailable = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : false;
-    var totalStreaks = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
+    var totalStreaks = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 0;
 
     var _this5 = this;
 
-    var totalDays = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : 0;
-    var lastChecked = arguments.length > 10 && arguments[10] !== undefined ? arguments[10] : undefined;
+    var totalDays = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
+    var lastChecked = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : false;
 
     _app2.default.auth().createUserWithEmailAndPassword(email, password).then(function (user) {
-        _this5.confirmLogin();
+        _this5.addNewUser(username, user.uid, first, last, email, value, allowance, totalStreaks, totalDays, lastChecked);
         return user;
     }).then(function (user) {
         _this5.getUserInfo(user.uid);
         _this5.getFriends(user.uid);
         _this5.getStreaks(user.uid);
         _this5.getStreakRequests(user.uid);
-        _this5.addNewUser(username, user.uid, first, last, email, value, allowance, totalStreaks, totalDays, lastChecked);
     }).catch(function (error) {
         var errorCode = error.code;
         var errorMessage = error.message;
@@ -65545,7 +65552,7 @@ var addNewUser = function addNewUser() {
     var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
     var totalStreaks = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 0;
     var totalDays = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
-    var lastChecked = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : undefined;
+    var lastChecked = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : false;
 
     var date = new Date();
     var time = date.getTime();
@@ -65562,6 +65569,8 @@ var addNewUser = function addNewUser() {
         lastChecked: lastChecked
     });
     this.setState({
+        loggedIn: true,
+        email: email,
         userID: userID
     });
 };
@@ -65710,20 +65719,19 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
         return info;
     }).then(function (info) {
         var streak = info[0];
-        var funcs = streak.participants.map(function (participant) {
+        var funcs = Object.keys(streak.participants).map(function (participant) {
             return _this3.getUser(participant);
         });
-        var userInfo = Promise.all(funcs).then(function (results) {
-            return results;
+        return Promise.all(funcs).then(function (results) {
+            info.push(results);
+            return info;
         });
-        info.push(userInfo);
-        return info;
     }).then(function (info) {
         var streak = info[0];
         var paymentAmount = info[1];
         var users = info[2];
-
-        streak.participants.map(function (participant, index) {
+        console.log(info);
+        Object.keys(streak.participants).map(function (participant, index) {
             return _this3.updateUserValue(participant, users[index].value, paymentAmount);
         });
 
@@ -65742,33 +65750,35 @@ var calculateStreakPayout = function calculateStreakPayout(streak) {
 };
 
 var checkForDailyAllowance = function checkForDailyAllowance(userID) {
-    var user = null;
+    var _this4 = this;
+
     this.getUser(userID).then(function (result) {
-        user = result;
-    });
+        var user = result;
+        return user;
+    }).then(function (user) {
+        var lastChecked = null;
+        var start = null;
 
-    var lastChecked = null;
-    var start = null;
+        if (user.lastChecked) {
+            lastChecked = user.lastChecked;
+        } else {
+            lastChecked = 0;
+        }
 
-    if (user.lastChecked) {
-        lastChecked = user.lastChecked;
-    } else {
-        lastChecked = 0;
-    }
+        start = user.created;
+        var difference = start - lastChecked;
+        var numberOfPayments = _this4.convertTimestampToDays(difference);
 
-    start = user.created;
-    var difference = start - lastChecked;
-    var numberOfPayments = this.convertTimestampToDays(difference);
+        //fix to check for each allowance every 24 hours 
+        var payment = _this4.calculateDailyAllowance(user, userID);
+        var payments = payment * numberOfPayments;
+        _this4.updateUserValue(userID, user.value, payments);
 
-    //fix to check for each allowance every 24 hours 
-    var payment = this.calculateDailyAllowance(user, userID);
-    var payments = payment * numberOfPayments;
-    this.updateUserValue(userID, user.value, payments);
-
-    var date = new Date();
-    var time = date.getTime();
-    this.db.ref('users/' + userID).update({
-        lastChecked: time
+        var date = new Date();
+        var time = date.getTime();
+        _this4.db.ref('users/' + userID).update({
+            lastChecked: time
+        });
     });
 };
 
@@ -65857,14 +65867,12 @@ var friendToInfo = function friendToInfo(userID) {
             info.uid = userID;
 
             _this2.getNumberOfStreaks(userID).then(function (result) {
-                console.log('Streaks:' + result);
                 info.totalStreaks = result;
             });
+
             _this2.getNumberOfFriends(userID).then(function (result) {
-                console.log('Friends:' + result);
                 info.totalFriends = result;
             });
-
             return info;
         } else {
             throw 'Friend to Info: No user found';
@@ -66480,14 +66488,26 @@ var getUsername = function getUsername(userID) {
 //returns a promise containing the streak info 
 var getStreak = function getStreak(streakID) {
     return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
-        return snapshot.val();
+        if (snapshot.exists()) {
+            return snapshot.val();
+        } else {
+            throw 'Get Streak: No streak found for this streak ID';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
     });
 };
 
 //returns a promise containing the user info 
 var getUser = function getUser(userID) {
     return this.db.ref('users/' + userID).once('value').then(function (snapshot) {
-        return snapshot.val();
+        if (snapshot.exists()) {
+            return snapshot.val();
+        } else {
+            throw 'Get Streak: No streak found for this streak ID';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
     });
 };
 
@@ -66495,7 +66515,8 @@ var getNumberOfFriends = function getNumberOfFriends(userID) {
     return this.db.ref('friends/' + userID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             var friends = snapshot.val();
-            return friends.length;
+            var numberFriends = Object.keys(friends).length;
+            return numberFriends;
         } else {
             throw 'No friends found for this user';
         }
@@ -66508,7 +66529,8 @@ var getNumberOfStreaks = function getNumberOfStreaks(userID) {
     return this.db.ref('streakOwners/' + userID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             var streaks = snapshot.val();
-            return streaks.length;
+            var numberStreaks = Object.keys(streaks).length;
+            return numberStreaks;
         } else {
             throw 'No streaks found for this user';
         }

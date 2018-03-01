@@ -16,6 +16,7 @@ export default class Friends extends Component {
         this.toggleFriendRequestModal = this.toggleFriendRequestModal.bind(this);
         this.handleRequestAcceptance = this.handleRequestAcceptance.bind(this);
         this.handleRequestRejection = this.handleRequestRejection.bind(this);
+        this.clearSearchResults = this.clearSearchResults.bind(this);
 
         //STATE
         this.state = {
@@ -43,6 +44,12 @@ export default class Friends extends Component {
         });
     }
 
+    clearSearchResults() {
+        this.setState({
+            searchInput: null,
+        });
+    }
+
     //toggle state for adding a friend modal
     toggleAddFriendModal(){
         this.setState({
@@ -54,6 +61,7 @@ export default class Friends extends Component {
     handleSendFriendRequest(){
         this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid);
         this.toggleAddFriendModal();
+        this.clearSearchResults();
     }
 
     toggleFriendRequestModal(){

@@ -114,17 +114,18 @@ const checkforStreakPayouts = function(streakID) {
 
         return info;
     }).then(info => {
-        let streak = info[0];
-        const funcs = streak.participants.map(participant => this.getUser(participant));
-        let userInfo = Promise.all(funcs).then(results => results);
-        info.push(userInfo);
-        return info;
+        const streak = info[0];
+        const funcs = Object.keys(streak.participants).map(participant => this.getUser(participant));
+        return Promise.all(funcs).then(results => {
+            info.push(results)
+            return info;
+        });
     }).then(info => {
-        let streak = info[0];
-        let paymentAmount = info[1];
-        let users = info[2];
-
-        streak.participants.map((participant, index) => 
+        const streak = info[0];
+        const paymentAmount = info[1];
+        const users = info[2];
+        console.log(info);
+        Object.keys(streak.participants).map((participant, index) => 
             this.updateUserValue(participant, users[index].value, paymentAmount)
         );
 
@@ -143,33 +144,33 @@ const calculateStreakPayout = function(streak) {
 };
 
 const checkForDailyAllowance = function(userID) {
-    let user = null;
     this.getUser(userID).then(result => {
-        user = result;
-    });
+        let user = result;
+        return user;
+    }).then(user => {
+        let lastChecked = null;
+        let start = null;
 
-    let lastChecked = null;
-    let start = null;
+        if (user.lastChecked) {
+            lastChecked = user.lastChecked;
+        } else {
+            lastChecked = 0;
+        }
 
-    if (user.lastChecked) {
-        lastChecked = user.lastChecked;
-    } else {
-        lastChecked = 0;
-    }
+        start = user.created;
+        const difference = start - lastChecked;
+        const numberOfPayments = this.convertTimestampToDays(difference);
 
-    start = user.created;
-    let difference = start - lastChecked;
-    let numberOfPayments = this.convertTimestampToDays(difference);
+        //fix to check for each allowance every 24 hours 
+        const payment = this.calculateDailyAllowance(user, userID);
+        const payments = payment * numberOfPayments;
+        this.updateUserValue(userID, user.value, payments);
 
-    //fix to check for each allowance every 24 hours 
-    let payment = this.calculateDailyAllowance(user, userID);
-    let payments = payment * numberOfPayments;
-    this.updateUserValue(userID, user.value, payments);
-
-    const date = new Date();
-    const time = date.getTime();
-    this.db.ref(`users/${userID}`).update({
-        lastChecked: time
+        const date = new Date();
+        const time = date.getTime();
+        this.db.ref(`users/${userID}`).update({
+            lastChecked: time
+        });
     });
 };
 

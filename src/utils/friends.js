@@ -36,14 +36,12 @@ const friendToInfo = function(userID) {
             info.uid = userID;
 
             this.getNumberOfStreaks(userID).then(result => {
-                console.log('Streaks:' + result);
                 info.totalStreaks = result;
             });
+
             this.getNumberOfFriends(userID).then(result => {
-                console.log('Friends:' + result)
                 info.totalFriends = result;
             });
-
             return info;
         } else {
             throw 'Friend to Info: No user found';

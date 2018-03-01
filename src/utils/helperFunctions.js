@@ -19,18 +19,30 @@ const getUsername = function(userID) {
 const getStreak = function(streakID) {
     return this.db.ref(`streaks/${streakID}`)
     .once('value')
-    .then(snapshot => (
-        snapshot.val()
-    ));
+    .then(snapshot => {
+        if (snapshot.exists()) {
+            return snapshot.val()
+        } else {
+            throw 'Get Streak: No streak found for this streak ID';
+        }
+    }).catch(reason => {
+        console.log(reason);
+    });
 };
 
 //returns a promise containing the user info 
 const getUser = function(userID) {
     return this.db.ref(`users/${userID}`)
     .once('value')
-    .then(snapshot => (
-        snapshot.val()
-    ));
+    .then(snapshot => {
+        if (snapshot.exists()) {
+            return snapshot.val()
+        } else {
+            throw 'Get Streak: No streak found for this streak ID';
+        }
+    }).catch(reason => {
+        console.log(reason);
+    });
 };
 
 const getNumberOfFriends = function(userID) {
@@ -38,8 +50,9 @@ const getNumberOfFriends = function(userID) {
     .once('value')
     .then(snapshot => {
         if (snapshot.exists()) {
-            let friends = snapshot.val();
-            return friends.length;
+            const friends = snapshot.val();
+            const numberFriends = Object.keys(friends).length;
+            return numberFriends;
         } else {
             throw 'No friends found for this user';
         }
@@ -53,8 +66,9 @@ const getNumberOfStreaks = function(userID) {
     .once('value')
     .then(snapshot => {
         if (snapshot.exists()) {
-            let streaks = snapshot.val();
-            return streaks.length;
+            const streaks = snapshot.val();
+            const numberStreaks = Object.keys(streaks).length;
+            return numberStreaks;
         } else {
             throw 'No streaks found for this user';
         }

@@ -57,7 +57,6 @@ const confirmLogin = function() {
 const signOut = function() {
     firebase.auth().signOut()
     .then(() => {
-        console.log('Signed Out');
         this.setState({
             loggedIn: false,
             userID: '',
@@ -69,23 +68,23 @@ const signOut = function() {
             streakRequests: [],
             streakRequestsInfo: [],
         });
+        console.log('Signed Out');
     }).catch(error => {
         console.log('Error Signing Out:' + error);
     });
 };
 
 //creates a new firebase auth for a user and initials relevant functions to grab user info and set states
-const signupUser = function(email, password, username = '', first = '', last = '', value = 0, allowance = 5, imgAvailable = false, totalStreaks = 0, totalDays = 0, lastChecked = undefined) {
+const signupUser = function(email, password, username = '', first = '', last = '', value = 0, allowance = 5, totalStreaks = 0, totalDays = 0, lastChecked = false) {
     firebase.auth().createUserWithEmailAndPassword(email, password)
     .then(user => {
-        this.confirmLogin();
+        this.addNewUser(username, user.uid, first, last, email, value, allowance, totalStreaks, totalDays, lastChecked);
         return user;
-    }).then((user) => {
+    }).then(user => {
         this.getUserInfo(user.uid);
         this.getFriends(user.uid);
         this.getStreaks(user.uid);
         this.getStreakRequests(user.uid);
-        this.addNewUser(username, user.uid, first, last, email, value, allowance, totalStreaks, totalDays, lastChecked);
     }).catch(error => {
         var errorCode = error.code;
         var errorMessage = error.message;
@@ -94,7 +93,7 @@ const signupUser = function(email, password, username = '', first = '', last = '
 };
 
 //adds a new user to the db
-const addNewUser = function(username = '', userID, first = '', last = '', email = '', value = 0, allowance = 5, totalStreaks = 0, totalDays = 0, lastChecked = undefined) {
+const addNewUser = function(username = '', userID, first = '', last = '', email = '', value = 0, allowance = 5, totalStreaks = 0, totalDays = 0, lastChecked = false) {
     const date = new Date();
     const time = date.getTime();
     this.db.ref(`users/${userID}`).set({
@@ -110,8 +109,10 @@ const addNewUser = function(username = '', userID, first = '', last = '', email 
         lastChecked: lastChecked,
     });
     this.setState({
+        loggedIn: true,
+        email: email,
         userID: userID,
-    });
+    }); 
 };
 
 export {
