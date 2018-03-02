@@ -98,29 +98,31 @@ const streakStoke = function(streakID, userID) {
     this.getStreak(streakID).then(streak => {
         let stokePrice = this.calculateStokePrice(streak);
 
-        this.updateStreakValue(streakID, streak.value, stokePrice);
-
-        return stokePrice;
-    }).then(stokePrice => {
         this.getUser(userID).then(user => {
             console.log(`Streak Stoke: User value decreased by $${stokePrice}`);
-
-            this.decreaseUserValue(userID, user.value, stokePrice);
+            if (user.value > stokePrice) {
+                console.log(`Streak Stoked for $${stokePrice}`);
+                this.decreaseUserValue(userID, user.value, stokePrice); 
+                this.updateStreakValue(streakID, streak.value, stokePrice);
+            } else {
+                console.log('Streak Stoke: User has insufficient value to complete this action');
+            }
         });
-        console.log(`Streak Stoked for $${stokePrice}`);
     });
 };
 
 //updates a streaks value and the users value for a streak boost
 const streakBoost = function(streakID, userID, currencyAmount) {
-    this.getStreak(streakID).then(streak => {
-        this.updateStreakValue(streakID, streak.value, currencyAmount);
-    });
-
     this.getUser(userID).then(user => {
-        console.log(`Streak Boost: User value decreased by $${currencyAmount}`);
-
-        this.decreaseUserValue(userID, user.value, currencyAmount);
+        if (user.value > stokePrice) {
+            console.log(`Streak Boost: User value decreased by $${currencyAmount}`);
+            this.decreaseUserValue(userID, user.value, currencyAmount);
+            this.getStreak(streakID).then(streak => {
+                this.updateStreakValue(streakID, streak.value, currencyAmount);
+            });
+        } else {
+            console.log('Streak Stoke: User has insufficient value to complete this action');
+        }
     });
 };
 
@@ -136,8 +138,8 @@ const checkforStreakPayouts = function(streakID) {
         }
 
         const start = streak.timestamp;
-        const difference = start - lastChecked;
-        const numberOfPayments = this.convertTimestampToDays(difference);
+        const difference = lastChecked - start;
+        const numberOfPayments = this.convertTimeDifferenceToDays(difference);
         const payment = this.calculateStreakPayout(streak);
         const paymentAmount = payment * numberOfPayments;
 
@@ -194,16 +196,17 @@ const checkForDailyAllowance = function(userID) {
         }
 
         const start = user.created;
-        const difference = start - lastChecked;
-        const numberOfPayments = this.convertTimestampToDays(difference);
+        const difference = lastChecked - start;
+        const numberOfPayments = this.convertTimeDifferenceToDays(difference);
 
         //fix to check for each allowance every 24 hours 
-        const payment = this.calculateDailyAllowance(user, userID);
-        const payments = payment * numberOfPayments;
+        this.calculateDailyAllowance(user, userID).then(payment => {
+            const payments = payment * numberOfPayments;
 
-        console.log(`Daily Allowance: User value increased by $${payments}`);
+            console.log(`Daily Allowance: User value increased by $${payments}`);
 
-        this.increaseUserValue(userID, user.value, payments);
+            this.increaseUserValue(userID, user.value, payments);
+        });
 
         const date = new Date();
         const time = date.getTime();
@@ -215,8 +218,8 @@ const checkForDailyAllowance = function(userID) {
 
 //determines how much a users daily allowance is
 const calculateDailyAllowance = function(user, userID) {
-    this.getNumberOfFriends(userID).then(numberOfFriends => {
-        this.getNumberOfStreaks(userID).then(numberOfStreaks => {
+    return this.getNumberOfFriends(userID).then(numberOfFriends => {
+        return this.getNumberOfStreaks(userID).then(numberOfStreaks => {
             let dailyAllowance = (numberOfStreaks / numberOfFriends) * (numberOfFriends * 5);
 
             if (dailyAllowance < 10) {

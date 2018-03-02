@@ -20,13 +20,13 @@ import 'firebase/database';
 import 'firebase/auth';
 import {
     streakTermination,
-    calculateStreakTP,
+    calculateStreakTerminatorTerminationPrice,
+    calculateStreakBetrayedTerminationPrice,
     increaseUserValue,
     decreaseUserValue,
     updateStreakValue,
     calculateStokePrice,
     streakStoke,
-    streakPayout,
     streakBoost,
     checkforStreakPayouts,
     calculateStreakPayout,
@@ -84,6 +84,7 @@ import {
     getNumberOfFriends,
     getNumberOfStreaks,
     convertTimestampToDays,
+    convertTimeDifferenceToDays,
     getDate,
 } from './utils/helperFunctions.js';
 
@@ -99,6 +100,7 @@ export default class App extends Component {
         //helperFunctions
         this.getUsername = getUsername.bind(this);
         this.convertTimestampToDays = convertTimestampToDays.bind(this);
+        this.convertTimeDifferenceToDays = convertTimeDifferenceToDays.bind(this);
         this.getDate = getDate.bind(this);
         this.getStreak = getStreak.bind(this);
         this.getUser = getUser.bind(this);
@@ -151,7 +153,8 @@ export default class App extends Component {
 
         //currency
         this.streakTermination = streakTermination.bind(this);
-        this.calculateStreakTP = calculateStreakTP.bind(this);
+        this.calculateStreakTerminatorTerminationPrice = calculateStreakBetrayedTerminationPrice.bind(this);
+        this.calculateStreakBetrayedTerminationPrice = calculateStreakBetrayedTerminationPrice.bind(this);
         this.increaseUserValue = increaseUserValue.bind(this);
         this.decreaseUserValue = decreaseUserValue.bind(this);
         this.updateStreakValue = updateStreakValue.bind(this);

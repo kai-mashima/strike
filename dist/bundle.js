@@ -40019,6 +40019,7 @@ var App = function (_Component) {
         //helperFunctions
         _this.getUsername = _helperFunctions.getUsername.bind(_this);
         _this.convertTimestampToDays = _helperFunctions.convertTimestampToDays.bind(_this);
+        _this.convertTimeDifferenceToDays = _helperFunctions.convertTimeDifferenceToDays.bind(_this);
         _this.getDate = _helperFunctions.getDate.bind(_this);
         _this.getStreak = _helperFunctions.getStreak.bind(_this);
         _this.getUser = _helperFunctions.getUser.bind(_this);
@@ -40071,7 +40072,8 @@ var App = function (_Component) {
 
         //currency
         _this.streakTermination = _currency.streakTermination.bind(_this);
-        _this.calculateStreakTP = _currency.calculateStreakTP.bind(_this);
+        _this.calculateStreakTerminatorTerminationPrice = _currency.calculateStreakBetrayedTerminationPrice.bind(_this);
+        _this.calculateStreakBetrayedTerminationPrice = _currency.calculateStreakBetrayedTerminationPrice.bind(_this);
         _this.increaseUserValue = _currency.increaseUserValue.bind(_this);
         _this.decreaseUserValue = _currency.decreaseUserValue.bind(_this);
         _this.updateStreakValue = _currency.updateStreakValue.bind(_this);
@@ -55951,7 +55953,8 @@ var Streak = function (_Component) {
             var stokeBtnRender = !this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID ? _react2.default.createElement(
                 'span',
                 { onClick: this.handleStreakStoke, className: 'btn btn-success' },
-                'Stoke'
+                'Stoke for $',
+                this.props.streak.stokePrice
             ) : _react2.default.createElement(
                 'span',
                 { className: 'btn btn-default disabled' },
@@ -65519,16 +65522,15 @@ var signupUser = function signupUser(email, password) {
     var first = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
     var last = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
     var value = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
-    var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
-    var totalStreaks = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 0;
+    var totalStreaks = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 0;
 
     var _this5 = this;
 
-    var totalDays = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
-    var lastChecked = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : false;
+    var totalDays = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 0;
+    var lastChecked = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : false;
 
     _app2.default.auth().createUserWithEmailAndPassword(email, password).then(function (user) {
-        _this5.addNewUser(username, user.uid, first, last, email, value, allowance, totalStreaks, totalDays, lastChecked);
+        _this5.addNewUser(username, user.uid, first, last, email, value, totalStreaks, totalDays, lastChecked);
         return user;
     }).then(function (user) {
         _this5.getUserInfo(user.uid);
@@ -65550,10 +65552,9 @@ var addNewUser = function addNewUser() {
     var last = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
     var email = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
     var value = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
-    var allowance = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 5;
-    var totalStreaks = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 0;
-    var totalDays = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : 0;
-    var lastChecked = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : false;
+    var totalStreaks = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 0;
+    var totalDays = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 0;
+    var lastChecked = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : false;
 
     var date = new Date();
     var time = date.getTime();
@@ -65562,7 +65563,6 @@ var addNewUser = function addNewUser() {
         last: last,
         email: email,
         value: value,
-        allowance: allowance,
         username: username,
         created: time,
         totalStreaks: totalStreaks,
@@ -65703,16 +65703,16 @@ var streakStoke = function streakStoke(streakID, userID) {
     this.getStreak(streakID).then(function (streak) {
         var stokePrice = _this2.calculateStokePrice(streak);
 
-        _this2.updateStreakValue(streakID, streak.value, stokePrice);
-
-        return stokePrice;
-    }).then(function (stokePrice) {
         _this2.getUser(userID).then(function (user) {
             console.log('Streak Stoke: User value decreased by $' + stokePrice);
-
-            _this2.decreaseUserValue(userID, user.value, stokePrice);
+            if (user.value > stokePrice) {
+                console.log('Streak Stoked for $' + stokePrice);
+                _this2.decreaseUserValue(userID, user.value, stokePrice);
+                _this2.updateStreakValue(streakID, streak.value, stokePrice);
+            } else {
+                console.log('Streak Stoke: User has insufficient value to complete this action');
+            }
         });
-        console.log('Streak Stoked for $' + stokePrice);
     });
 };
 
@@ -65720,14 +65720,16 @@ var streakStoke = function streakStoke(streakID, userID) {
 var streakBoost = function streakBoost(streakID, userID, currencyAmount) {
     var _this3 = this;
 
-    this.getStreak(streakID).then(function (streak) {
-        _this3.updateStreakValue(streakID, streak.value, currencyAmount);
-    });
-
     this.getUser(userID).then(function (user) {
-        console.log('Streak Boost: User value decreased by $' + currencyAmount);
-
-        _this3.decreaseUserValue(userID, user.value, currencyAmount);
+        if (user.value > stokePrice) {
+            console.log('Streak Boost: User value decreased by $' + currencyAmount);
+            _this3.decreaseUserValue(userID, user.value, currencyAmount);
+            _this3.getStreak(streakID).then(function (streak) {
+                _this3.updateStreakValue(streakID, streak.value, currencyAmount);
+            });
+        } else {
+            console.log('Streak Stoke: User has insufficient value to complete this action');
+        }
     });
 };
 
@@ -65745,8 +65747,8 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
         }
 
         var start = streak.timestamp;
-        var difference = start - lastChecked;
-        var numberOfPayments = _this4.convertTimestampToDays(difference);
+        var difference = lastChecked - start;
+        var numberOfPayments = _this4.convertTimeDifferenceToDays(difference);
         var payment = _this4.calculateStreakPayout(streak);
         var paymentAmount = payment * numberOfPayments;
 
@@ -65807,16 +65809,17 @@ var checkForDailyAllowance = function checkForDailyAllowance(userID) {
         }
 
         var start = user.created;
-        var difference = start - lastChecked;
-        var numberOfPayments = _this5.convertTimestampToDays(difference);
+        var difference = lastChecked - start;
+        var numberOfPayments = _this5.convertTimeDifferenceToDays(difference);
 
         //fix to check for each allowance every 24 hours 
-        var payment = _this5.calculateDailyAllowance(user, userID);
-        var payments = payment * numberOfPayments;
+        _this5.calculateDailyAllowance(user, userID).then(function (payment) {
+            var payments = payment * numberOfPayments;
 
-        console.log('Daily Allowance: User value increased by $' + payments);
+            console.log('Daily Allowance: User value increased by $' + payments);
 
-        _this5.increaseUserValue(userID, user.value, payments);
+            _this5.increaseUserValue(userID, user.value, payments);
+        });
 
         var date = new Date();
         var time = date.getTime();
@@ -65830,8 +65833,8 @@ var checkForDailyAllowance = function checkForDailyAllowance(userID) {
 var calculateDailyAllowance = function calculateDailyAllowance(user, userID) {
     var _this6 = this;
 
-    this.getNumberOfFriends(userID).then(function (numberOfFriends) {
-        _this6.getNumberOfStreaks(userID).then(function (numberOfStreaks) {
+    return this.getNumberOfFriends(userID).then(function (numberOfFriends) {
+        return _this6.getNumberOfStreaks(userID).then(function (numberOfStreaks) {
             var dailyAllowance = numberOfStreaks / numberOfFriends * (numberOfFriends * 5);
 
             if (dailyAllowance < 10) {
@@ -66030,14 +66033,17 @@ var getStreaks = function getStreaks(userID) {
         var infoFuncs = streakList.map(function (streakID) {
             return _this2.streakToInfo(streakID, userID);
         });
-        Promise.all(infoFuncs).then(function (results) {
-            results = results.filter(function (n) {
+
+        Promise.all(infoFuncs).then(function (streaks) {
+            streaks = streaks.filter(function (n) {
                 return n;
             });
+
             _this2.setState({
-                streaksInfo: results
+                streaksInfo: streaks
             });
         });
+
         return streakList;
     }).then(function (streakList) {
         streakList.map(function (streakID) {
@@ -66057,6 +66063,7 @@ var streakToInfo = function streakToInfo(streakID, userID) {
             var streak = snapshot.val();
             streak.id = streakID;
             streak.days = _this3.convertTimestampToDays(streak.timestamp);
+            streak.stokePrice = _this3.calculateStokePrice(streak);
 
             var funcs = Object.keys(streak.participants).map(function (participant) {
                 if (participant === userID) {
@@ -66077,8 +66084,6 @@ var streakToInfo = function streakToInfo(streakID, userID) {
 
             return streak;
         }
-    }).then(function (streak) {
-        return streak;
     }).catch(function (reason) {
         console.log(reason);
     });
@@ -66516,7 +66521,7 @@ exports.rejectFriendRequest = rejectFriendRequest;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.getDate = exports.convertTimestampToDays = exports.getNumberOfStreaks = exports.getNumberOfFriends = exports.getUser = exports.getStreak = exports.getUsername = undefined;
+exports.getDate = exports.convertTimeDifferenceToDays = exports.convertTimestampToDays = exports.getNumberOfStreaks = exports.getNumberOfFriends = exports.getUser = exports.getStreak = exports.getUsername = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66598,6 +66603,11 @@ var convertTimestampToDays = function convertTimestampToDays(timestamp) {
     return days;
 };
 
+var convertTimeDifferenceToDays = function convertTimeDifferenceToDays(timestamp) {
+    var days = (timestamp / (3600000 * 24)).toFixed(0);
+    return days;
+};
+
 var getDate = function getDate() {
     var newDate = new Date();
     var date = newDate.getTime();
@@ -66610,6 +66620,7 @@ exports.getUser = getUser;
 exports.getNumberOfFriends = getNumberOfFriends;
 exports.getNumberOfStreaks = getNumberOfStreaks;
 exports.convertTimestampToDays = convertTimestampToDays;
+exports.convertTimeDifferenceToDays = convertTimeDifferenceToDays;
 exports.getDate = getDate;
 
 /***/ })

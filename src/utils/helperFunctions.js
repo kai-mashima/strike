@@ -84,6 +84,11 @@ const convertTimestampToDays = function(timestamp) {
     return days;
 };
 
+const convertTimeDifferenceToDays = function(timestamp) {
+    let days = (timestamp / (3600000 * 24)).toFixed(0);
+    return days;
+};
+
 const getDate = function() {
     const newDate = new Date();
     const date = newDate.getTime();
@@ -97,5 +102,6 @@ export {
     getNumberOfFriends,
     getNumberOfStreaks,
     convertTimestampToDays,
+    convertTimeDifferenceToDays,
     getDate,
 }

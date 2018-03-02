@@ -60,12 +60,15 @@ const getStreaks = function(userID) {
         return Promise.all(streakFuncs).then(results => results);
     }).then(streakList => {
         const infoFuncs = streakList.map(streakID => this.streakToInfo(streakID, userID));
-        Promise.all(infoFuncs).then(results => {
-            results = results.filter(n => n);
+
+        Promise.all(infoFuncs).then(streaks => {
+            streaks = streaks.filter(n => n);
+
             this.setState({
-                streaksInfo: results
+                streaksInfo: streaks
             });
         });
+
         return streakList;
     }).then(streakList => {
         streakList.map(streakID => this.checkforStreakPayouts(streakID));
@@ -83,6 +86,7 @@ const streakToInfo = function(streakID, userID){
             let streak = snapshot.val();
             streak.id = streakID;
             streak.days = this.convertTimestampToDays(streak.timestamp);
+            streak.stokePrice = this.calculateStokePrice(streak);
 
             const funcs = Object.keys(streak.participants).map(participant => {
                 if (participant === userID) {
@@ -105,8 +109,6 @@ const streakToInfo = function(streakID, userID){
 
             return streak
         }
-    }).then(streak => {
-        return streak;
     }).catch(reason => {
         console.log(reason);
     });

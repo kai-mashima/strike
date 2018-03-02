@@ -31,7 +31,7 @@ export default class Streak extends Component {
         let userRender = <span className='streak-user-glyph glyphicon glyphicon-user'></span>;
 
         let stokeBtnRender = (!this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID) ? (
-            <span onClick={this.handleStreakStoke} className='btn btn-success'>Stoke</span>
+            <span onClick={this.handleStreakStoke} className='btn btn-success'>Stoke for ${this.props.streak.stokePrice}</span>
         ) : (
             <span className='btn btn-default disabled'>Stoke</span>
         );
