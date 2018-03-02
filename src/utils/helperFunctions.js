@@ -61,6 +61,42 @@ const getNumberOfFriends = function(userID) {
     });
 };
 
+const getNumberOfTotalStreakDays = function(userID) {
+    return this.db.ref(`streakOwners/${userID}`)
+    .once('value')
+    .then(snapshot => {
+        if (snapshot.exists()) {
+            let total = 0;
+            const streaks = snapshot.val();
+            const funcs = Object.keys(streaks).map(streakID => {
+                return this.db.ref(`streaks/${streakID}`)
+                .once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        let streak = snapshot.val();
+                        if (streak.days) {
+                            return streak.days;
+                        } else {
+                            return 0;
+                        }
+                    } else {
+                        return 0;
+                    }
+                });
+            });
+
+            return Promise.all(funcs).then(results => {
+                total = results.reduce((a, b) => Number(a) + Number(b), 0);
+                return total;
+            });
+        } else {
+            return 0;
+        }
+    }).catch(reason => {
+        console.log(reason);
+    });
+};
+
 const getNumberOfStreaks = function(userID) {
     return this.db.ref(`streakOwners/${userID}`)
     .once('value')
@@ -100,6 +136,7 @@ export {
     getStreak,
     getUser,
     getNumberOfFriends,
+    getNumberOfTotalStreakDays,
     getNumberOfStreaks,
     convertTimestampToDays,
     convertTimeDifferenceToDays,

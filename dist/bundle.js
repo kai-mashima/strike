@@ -40019,6 +40019,7 @@ var App = function (_Component) {
         //helperFunctions
         _this.getUsername = _helperFunctions.getUsername.bind(_this);
         _this.convertTimestampToDays = _helperFunctions.convertTimestampToDays.bind(_this);
+        _this.getNumberOfTotalStreakDays = _helperFunctions.getNumberOfTotalStreakDays.bind(_this);
         _this.convertTimeDifferenceToDays = _helperFunctions.convertTimeDifferenceToDays.bind(_this);
         _this.getDate = _helperFunctions.getDate.bind(_this);
         _this.getStreak = _helperFunctions.getStreak.bind(_this);
@@ -65463,8 +65464,19 @@ var getUserInfo = function getUserInfo(userID) {
     var _this2 = this;
 
     this.db.ref('users/' + userID).once('value').then(function (snapshot) {
+        var user = snapshot.val();
+        var streaks = _this2.getNumberOfStreaks(userID);
+        var friends = _this2.getNumberOfFriends(userID);
+        var days = _this2.getNumberOfTotalStreakDays(userID);
+
+        Promise.all([streaks, friends, days]).then(function (results) {
+            user.totalStreaks = results[0];
+            user.totalFriends = results[1];
+            user.totalDays = results[2];
+        });
+
         _this2.setState({
-            user: snapshot.val()
+            user: user
         });
     });
 };
@@ -66082,6 +66094,11 @@ var streakToInfo = function streakToInfo(streakID, userID) {
                 return results;
             });
 
+            _this3.db.ref('streaks/' + streakID).update({
+                id: streak.id,
+                days: streak.days
+            });
+
             return streak;
         }
     }).catch(function (reason) {
@@ -66521,7 +66538,7 @@ exports.rejectFriendRequest = rejectFriendRequest;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.getDate = exports.convertTimeDifferenceToDays = exports.convertTimestampToDays = exports.getNumberOfStreaks = exports.getNumberOfFriends = exports.getUser = exports.getStreak = exports.getUsername = undefined;
+exports.getDate = exports.convertTimeDifferenceToDays = exports.convertTimestampToDays = exports.getNumberOfStreaks = exports.getNumberOfTotalStreakDays = exports.getNumberOfFriends = exports.getUser = exports.getStreak = exports.getUsername = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66582,6 +66599,42 @@ var getNumberOfFriends = function getNumberOfFriends(userID) {
     });
 };
 
+var getNumberOfTotalStreakDays = function getNumberOfTotalStreakDays(userID) {
+    var _this = this;
+
+    return this.db.ref('streakOwners/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var total = 0;
+            var streaks = snapshot.val();
+            var funcs = Object.keys(streaks).map(function (streakID) {
+                return _this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+                    if (snapshot.exists()) {
+                        var streak = snapshot.val();
+                        if (streak.days) {
+                            return streak.days;
+                        } else {
+                            return 0;
+                        }
+                    } else {
+                        return 0;
+                    }
+                });
+            });
+
+            return Promise.all(funcs).then(function (results) {
+                total = results.reduce(function (a, b) {
+                    return Number(a) + Number(b);
+                }, 0);
+                return total;
+            });
+        } else {
+            return 0;
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
 var getNumberOfStreaks = function getNumberOfStreaks(userID) {
     return this.db.ref('streakOwners/' + userID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
@@ -66618,6 +66671,7 @@ exports.getUsername = getUsername;
 exports.getStreak = getStreak;
 exports.getUser = getUser;
 exports.getNumberOfFriends = getNumberOfFriends;
+exports.getNumberOfTotalStreakDays = getNumberOfTotalStreakDays;
 exports.getNumberOfStreaks = getNumberOfStreaks;
 exports.convertTimestampToDays = convertTimestampToDays;
 exports.convertTimeDifferenceToDays = convertTimeDifferenceToDays;

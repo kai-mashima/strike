@@ -24,8 +24,19 @@ const getUserInfo = function(userID) {
     this.db.ref(`users/${userID}`)
     .once('value')
     .then(snapshot => {
+        let user = snapshot.val();
+        const streaks = this.getNumberOfStreaks(userID);
+        const friends = this.getNumberOfFriends(userID);
+        const days = this.getNumberOfTotalStreakDays(userID)
+        
+        Promise.all([streaks, friends, days]).then(results => {
+            user.totalStreaks = results[0];
+            user.totalFriends = results[1];
+            user.totalDays = results[2];
+        });
+
         this.setState({
-            user: snapshot.val()
+            user: user
         });
     }); 
 };

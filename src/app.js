@@ -82,6 +82,7 @@ import {
     getStreak,
     getUser,
     getNumberOfFriends,
+    getNumberOfTotalStreakDays,
     getNumberOfStreaks,
     convertTimestampToDays,
     convertTimeDifferenceToDays,
@@ -100,6 +101,7 @@ export default class App extends Component {
         //helperFunctions
         this.getUsername = getUsername.bind(this);
         this.convertTimestampToDays = convertTimestampToDays.bind(this);
+        this.getNumberOfTotalStreakDays = getNumberOfTotalStreakDays.bind(this);
         this.convertTimeDifferenceToDays = convertTimeDifferenceToDays.bind(this);
         this.getDate = getDate.bind(this);
         this.getStreak = getStreak.bind(this);

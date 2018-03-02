@@ -107,6 +107,11 @@ const streakToInfo = function(streakID, userID){
 
             Promise.all(funcs).then(results => results);
 
+            this.db.ref(`streaks/${streakID}`).update({
+                id: streak.id,
+                days: streak.days,
+            });
+
             return streak
         }
     }).catch(reason => {
