@@ -54,7 +54,7 @@ const getNumberOfFriends = function(userID) {
             const numberFriends = Object.keys(friends).length;
             return numberFriends;
         } else {
-            throw 'No friends found for this user';
+            return 0;
         }
     }).catch(reason => {
         console.log(reason);
@@ -70,7 +70,7 @@ const getNumberOfStreaks = function(userID) {
             const numberStreaks = Object.keys(streaks).length;
             return numberStreaks;
         } else {
-            throw 'No streaks found for this user';
+            return 0;
         }
     }).catch(reason => {
         console.log(reason);

@@ -76,28 +76,36 @@ const getStreaks = function(userID) {
 
 //returns a promise containing the information of a streak by streak id
 const streakToInfo = function(streakID, userID){
-    let streak = null;
     return this.db.ref(`streaks/${streakID}`)
     .once('value')
     .then(snapshot => { 
         if (snapshot.exists()) {
-            streak = snapshot.val();
+            let streak = snapshot.val();
             streak.id = streakID;
             streak.days = this.convertTimestampToDays(streak.timestamp);
-            Object.keys(streak.participants).map(participant => {
+
+            const funcs = Object.keys(streak.participants).map(participant => {
                 if (participant === userID) {
-                    this.getUsername(participant).then(username => {
-                        streak.user = username;
-                    });
+                    return (
+                        this.getUsername(participant).then(username => {
+                            streak.user = username;
+                        })
+                    );
                 } else {
-                    this.getUsername(participant).then(username => {
-                        streak.friend = username;
-                        streak.friendTurn = streak.participants[participant];
-                    });
+                    return (
+                        this.getUsername(participant).then(username => {
+                            streak.friend = username;
+                            streak.friendTurn = participant;
+                        })
+                    );
                 } 
             });
+
+            Promise.all(funcs).then(results => results);
+
+            return streak
         }
-    }).then(() => {
+    }).then(streak => {
         return streak;
     }).catch(reason => {
         console.log(reason);

@@ -21,7 +21,8 @@ import 'firebase/auth';
 import {
     streakTermination,
     calculateStreakTP,
-    updateUserValue,
+    increaseUserValue,
+    decreaseUserValue,
     updateStreakValue,
     calculateStokePrice,
     streakStoke,
@@ -151,7 +152,8 @@ export default class App extends Component {
         //currency
         this.streakTermination = streakTermination.bind(this);
         this.calculateStreakTP = calculateStreakTP.bind(this);
-        this.updateUserValue = updateUserValue.bind(this);
+        this.increaseUserValue = increaseUserValue.bind(this);
+        this.decreaseUserValue = decreaseUserValue.bind(this);
         this.updateStreakValue = updateStreakValue.bind(this);
         this.calculateStokePrice = calculateStokePrice.bind(this);
         this.streakStoke = streakStoke.bind(this);

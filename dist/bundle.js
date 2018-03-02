@@ -40072,7 +40072,8 @@ var App = function (_Component) {
         //currency
         _this.streakTermination = _currency.streakTermination.bind(_this);
         _this.calculateStreakTP = _currency.calculateStreakTP.bind(_this);
-        _this.updateUserValue = _currency.updateUserValue.bind(_this);
+        _this.increaseUserValue = _currency.increaseUserValue.bind(_this);
+        _this.decreaseUserValue = _currency.decreaseUserValue.bind(_this);
         _this.updateStreakValue = _currency.updateStreakValue.bind(_this);
         _this.calculateStokePrice = _currency.calculateStokePrice.bind(_this);
         _this.streakStoke = _currency.streakStoke.bind(_this);
@@ -65592,7 +65593,7 @@ exports.addNewUser = addNewUser;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.calculateDailyAllowance = exports.checkForDailyAllowance = exports.calculateStreakPayout = exports.checkforStreakPayouts = exports.streakBoost = exports.streakStoke = exports.calculateStokePrice = exports.updateStreakValue = exports.updateUserValue = exports.calculateStreakTP = exports.streakTermination = undefined;
+exports.calculateDailyAllowance = exports.checkForDailyAllowance = exports.calculateStreakPayout = exports.checkforStreakPayouts = exports.streakBoost = exports.streakStoke = exports.calculateStokePrice = exports.updateStreakValue = exports.decreaseUserValue = exports.increaseUserValue = exports.calculateStreakBetrayedTerminationPrice = exports.calculateStreakTerminatorTerminationPrice = exports.streakTermination = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -65602,42 +65603,74 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //if a streak is terminated, this function should be called to handle currency related termination penalties
 var streakTermination = function streakTermination(streakID) {
+    var _this = this;
+
     var streak = null;
     this.getStreak(streakID).then(function (result) {
         streak = result;
     });
 
-    var payments = this.calculateStreakTP(streak.value, streak.terminator, streak.betrayed);
-    var terminatorPayment = payments[0];
-    var betrayedPayment = payments[1];
+    var terminatorPayment = this.calculateStreakTerminatorTerminationPrice(streak.value);
+    var betrayedPayment = this.calculateStreakBetrayedTerminationPrice(streak.value);
 
     var terminator = null;
-    this.getUser(userID).then(function (result) {
+    this.getUser(streak.currentOwner).then(function (result) {
         terminator = result;
-    });
-    var betrayed = null;
-    this.getUser(userID).then(function (result) {
-        betrayed = result;
+        _this.decreaseUserValue(streak.terminator, terminator.value, terminatorPayment);
     });
 
-    this.updateUserValue(streak.terminator, terminator.value, -terminatorPayment);
-    this.updateUserValue(streak.betrayed, betrayed.value, -betrayedPayment);
+    var betrayed = null;
+    this.getUser(streak.nextOwner).then(function (result) {
+        betrayed = result;
+        _this.decreaseUserValue(streak.betrayed, betrayed.value, betrayedPayment);
+    });
+
+    if (this.state.userID === streak.currentOwner) {
+        console.log('Streak Termination: User value decreased by $' + terminatorPayment);
+    } else {
+        console.log('Streak Termination: User value decreased by $' + betrayedPayment);
+    }
 };
 
 //returns an array of payments for the terminator and betrayed from a terminated streak
-var calculateStreakTP = function calculateStreakTP(streakValue, terminatorID, betrayedID) {
-    var payments = [];
-    payments[0] = streakValue * .75;
-    payments[1] = streakValue * .25;
-    return payments;
+var calculateStreakTerminatorTerminationPrice = function calculateStreakTerminatorTerminationPrice(streakValue) {
+    var payment = streakValue * .75;
+
+    if (payment < 5) {
+        payment = 5;
+    }
+
+    return payment;
 };
 
-//updates a users value based on currenctValue and the amount to change the currency by
-var updateUserValue = function updateUserValue(userID, currentValue, currencyAmount) {
+//returns an array of payments for the terminator and betrayed from a terminated streak
+var calculateStreakBetrayedTerminationPrice = function calculateStreakBetrayedTerminationPrice(streakValue) {
+    var payment = streakValue * .25;
+
+    if (payment < 5) {
+        payment = 5;
+    }
+
+    return payment;
+};
+
+//updates a users value based on currenctValue and the amount to increase the currency by
+var increaseUserValue = function increaseUserValue(userID, currentValue, currencyAmount) {
     var newValue = currentValue + currencyAmount;
+
+    this.db.ref('users/' + userID).update({
+        value: newValue
+    });
+};
+
+//updates a users value based on currenctValue and the amount to decrease the currency by
+var decreaseUserValue = function decreaseUserValue(userID, currentValue, currencyAmount) {
+    var newValue = currentValue - currencyAmount;
+
     if (newValue < 0) {
         newValue = 0;
     }
+
     this.db.ref('users/' + userID).update({
         value: newValue
     });
@@ -65646,58 +65679,63 @@ var updateUserValue = function updateUserValue(userID, currentValue, currencyAmo
 //updates a streaks value based on currenctValue and the amount to change the currency by
 var updateStreakValue = function updateStreakValue(streakID, currentValue, currencyAmount) {
     var newValue = currentValue + currencyAmount;
-    this.db.ref('streaks/' + userID).update({
+
+    this.db.ref('streaks/' + streakID).update({
         value: newValue
     });
 };
 
 //calculate the price of stoking a streak based on streak info
 var calculateStokePrice = function calculateStokePrice(streak) {
-    var stokePrice = 0;
-    stokePrice = streak.value * .25;
+    var stokePrice = streak.value * .25;
+
+    if (stokePrice < 5) {
+        stokePrice = 5;
+    }
+
     return stokePrice;
 };
 
 //updates both the streak value and user value for a streak that has been stoked
 var streakStoke = function streakStoke(streakID, userID) {
-    var _this = this;
+    var _this2 = this;
 
-    this.getStreak(streakID).then(function (result) {
-        var streak = result;
-        var stokePrice = _this.calculateStokePrice(streak);
-        _this.updateStreakValue(streakID, streak.value, stokePrice);
+    this.getStreak(streakID).then(function (streak) {
+        var stokePrice = _this2.calculateStokePrice(streak);
+
+        _this2.updateStreakValue(streakID, streak.value, stokePrice);
+
         return stokePrice;
     }).then(function (stokePrice) {
-        _this.getUser(userID).then(function (result) {
-            var user = result;
-            _this.updateUserValue(userID, user.value, -stokePrice);
+        _this2.getUser(userID).then(function (user) {
+            console.log('Streak Stoke: User value decreased by $' + stokePrice);
+
+            _this2.decreaseUserValue(userID, user.value, stokePrice);
         });
+        console.log('Streak Stoked for $' + stokePrice);
     });
 };
 
 //updates a streaks value and the users value for a streak boost
 var streakBoost = function streakBoost(streakID, userID, currencyAmount) {
-    var _this2 = this;
+    var _this3 = this;
 
-    this.getStreak(streakID).then(function (result) {
-        var streak = result;
-        _this2.updateStreakValue(streakID, streak.value, currencyAmount);
+    this.getStreak(streakID).then(function (streak) {
+        _this3.updateStreakValue(streakID, streak.value, currencyAmount);
     });
 
-    this.getUser(userID).then(function (result) {
-        var user = result;
-        _this2.updateUserValue(userID, user.value, -currencyAmount);
+    this.getUser(userID).then(function (user) {
+        console.log('Streak Boost: User value decreased by $' + currencyAmount);
+
+        _this3.decreaseUserValue(userID, user.value, currencyAmount);
     });
 };
 
 //checks a streak for past payouts and updates the streak participants value
 var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
-    var _this3 = this;
+    var _this4 = this;
 
-    this.getStreak(streakID).then(function (result) {
-        var streak = result;
-        return streak;
-    }).then(function (streak) {
+    this.getStreak(streakID).then(function (streak) {
         var lastChecked = void 0;
 
         if (streak.lastChecked) {
@@ -65708,8 +65746,8 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
 
         var start = streak.timestamp;
         var difference = start - lastChecked;
-        var numberOfPayments = _this3.convertTimestampToDays(difference);
-        var payment = _this3.calculateStreakPayout(streak);
+        var numberOfPayments = _this4.convertTimestampToDays(difference);
+        var payment = _this4.calculateStreakPayout(streak);
         var paymentAmount = payment * numberOfPayments;
 
         var info = [];
@@ -65720,8 +65758,9 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
     }).then(function (info) {
         var streak = info[0];
         var funcs = Object.keys(streak.participants).map(function (participant) {
-            return _this3.getUser(participant);
+            return _this4.getUser(participant);
         });
+
         return Promise.all(funcs).then(function (results) {
             info.push(results);
             return info;
@@ -65730,34 +65769,36 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
         var streak = info[0];
         var paymentAmount = info[1];
         var users = info[2];
-        console.log(info);
+
+        console.log('Streak Payout: User value increased by $' + paymentAmount);
+
         Object.keys(streak.participants).map(function (participant, index) {
-            return _this3.updateUserValue(participant, users[index].value, paymentAmount);
+            return _this4.increaseUserValue(participant, users[index].value, paymentAmount);
         });
 
         var date = new Date();
         var time = date.getTime();
-        _this3.db.ref('streaks/' + streakID).update({
+        _this4.db.ref('streaks/' + streakID).update({
             lastChecked: time
         });
     });
 };
 
 var calculateStreakPayout = function calculateStreakPayout(streak) {
-    var payout = 0;
-    payout = .1 * (streak.days * streak.value);
+    var payout = .1 * (streak.days * streak.value);
+
+    if (payout < 5) {
+        payout = 5;
+    }
+
     return payout;
 };
 
 var checkForDailyAllowance = function checkForDailyAllowance(userID) {
-    var _this4 = this;
+    var _this5 = this;
 
-    this.getUser(userID).then(function (result) {
-        var user = result;
-        return user;
-    }).then(function (user) {
+    this.getUser(userID).then(function (user) {
         var lastChecked = null;
-        var start = null;
 
         if (user.lastChecked) {
             lastChecked = user.lastChecked;
@@ -65765,18 +65806,21 @@ var checkForDailyAllowance = function checkForDailyAllowance(userID) {
             lastChecked = 0;
         }
 
-        start = user.created;
+        var start = user.created;
         var difference = start - lastChecked;
-        var numberOfPayments = _this4.convertTimestampToDays(difference);
+        var numberOfPayments = _this5.convertTimestampToDays(difference);
 
         //fix to check for each allowance every 24 hours 
-        var payment = _this4.calculateDailyAllowance(user, userID);
+        var payment = _this5.calculateDailyAllowance(user, userID);
         var payments = payment * numberOfPayments;
-        _this4.updateUserValue(userID, user.value, payments);
+
+        console.log('Daily Allowance: User value increased by $' + payments);
+
+        _this5.increaseUserValue(userID, user.value, payments);
 
         var date = new Date();
         var time = date.getTime();
-        _this4.db.ref('users/' + userID).update({
+        _this5.db.ref('users/' + userID).update({
             lastChecked: time
         });
     });
@@ -65784,24 +65828,26 @@ var checkForDailyAllowance = function checkForDailyAllowance(userID) {
 
 //determines how much a users daily allowance is
 var calculateDailyAllowance = function calculateDailyAllowance(user, userID) {
-    var dailyAllowance = 0;
-    var friends = 0;
-    var streaks = 0;
+    var _this6 = this;
 
-    this.getNumberOfFriends(userID).then(function (result) {
-        friends = result;
-    });
-    this.getNumberOfStreaks(userID).then(function (result) {
-        streaks = result;
-    });
+    this.getNumberOfFriends(userID).then(function (numberOfFriends) {
+        _this6.getNumberOfStreaks(userID).then(function (numberOfStreaks) {
+            var dailyAllowance = numberOfStreaks / numberOfFriends * (numberOfFriends * 5);
 
-    dailyAllowance = streaks / friends * (friends * 5);
-    return dailyAllowance;
+            if (dailyAllowance < 10) {
+                dailyAllowance = 10;
+            }
+
+            return dailyAllowance;
+        });
+    });
 };
 
 exports.streakTermination = streakTermination;
-exports.calculateStreakTP = calculateStreakTP;
-exports.updateUserValue = updateUserValue;
+exports.calculateStreakTerminatorTerminationPrice = calculateStreakTerminatorTerminationPrice;
+exports.calculateStreakBetrayedTerminationPrice = calculateStreakBetrayedTerminationPrice;
+exports.increaseUserValue = increaseUserValue;
+exports.decreaseUserValue = decreaseUserValue;
 exports.updateStreakValue = updateStreakValue;
 exports.calculateStokePrice = calculateStokePrice;
 exports.streakStoke = streakStoke;
@@ -66006,26 +66052,32 @@ var getStreaks = function getStreaks(userID) {
 var streakToInfo = function streakToInfo(streakID, userID) {
     var _this3 = this;
 
-    var streak = null;
     return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
-            streak = snapshot.val();
+            var streak = snapshot.val();
             streak.id = streakID;
             streak.days = _this3.convertTimestampToDays(streak.timestamp);
-            Object.keys(streak.participants).map(function (participant) {
+
+            var funcs = Object.keys(streak.participants).map(function (participant) {
                 if (participant === userID) {
-                    _this3.getUsername(participant).then(function (username) {
+                    return _this3.getUsername(participant).then(function (username) {
                         streak.user = username;
                     });
                 } else {
-                    _this3.getUsername(participant).then(function (username) {
+                    return _this3.getUsername(participant).then(function (username) {
                         streak.friend = username;
-                        streak.friendTurn = streak.participants[participant];
+                        streak.friendTurn = participant;
                     });
                 }
             });
+
+            Promise.all(funcs).then(function (results) {
+                return results;
+            });
+
+            return streak;
         }
-    }).then(function () {
+    }).then(function (streak) {
         return streak;
     }).catch(function (reason) {
         console.log(reason);
@@ -66518,7 +66570,7 @@ var getNumberOfFriends = function getNumberOfFriends(userID) {
             var numberFriends = Object.keys(friends).length;
             return numberFriends;
         } else {
-            throw 'No friends found for this user';
+            return 0;
         }
     }).catch(function (reason) {
         console.log(reason);
@@ -66532,7 +66584,7 @@ var getNumberOfStreaks = function getNumberOfStreaks(userID) {
             var numberStreaks = Object.keys(streaks).length;
             return numberStreaks;
         } else {
-            throw 'No streaks found for this user';
+            return 0;
         }
     }).catch(function (reason) {
         console.log(reason);
