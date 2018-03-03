@@ -65751,15 +65751,16 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
 
     this.getStreak(streakID).then(function (streak) {
         var lastChecked = void 0;
+        var date = new Date();
+        var now = date.getTime();
 
         if (streak.lastChecked) {
             lastChecked = streak.lastChecked;
         } else {
-            lastChecked = 0;
+            lastChecked = now;
         }
 
-        var start = streak.timestamp;
-        var difference = lastChecked - start;
+        var difference = now - lastChecked;
         var numberOfPayments = _this4.convertTimeDifferenceToDays(difference);
         var payment = _this4.calculateStreakPayout(streak);
         var paymentAmount = payment * numberOfPayments;
@@ -65767,6 +65768,7 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
         var info = [];
         info.push(streak);
         info.push(paymentAmount);
+        info.push(now);
 
         return info;
     }).then(function (info) {
@@ -65782,7 +65784,8 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
     }).then(function (info) {
         var streak = info[0];
         var paymentAmount = info[1];
-        var users = info[2];
+        var now = info[2];
+        var users = info[3];
 
         console.log('Streak Payout: User value increased by $' + paymentAmount);
 
@@ -65790,10 +65793,8 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
             return _this4.increaseUserValue(participant, users[index].value, paymentAmount);
         });
 
-        var date = new Date();
-        var time = date.getTime();
         _this4.db.ref('streaks/' + streakID).update({
-            lastChecked: time
+            lastChecked: now
         });
     });
 };
@@ -65812,16 +65813,17 @@ var checkForDailyAllowance = function checkForDailyAllowance(userID) {
     var _this5 = this;
 
     this.getUser(userID).then(function (user) {
-        var lastChecked = null;
+        var lastChecked = void 0;
+        var date = new Date();
+        var now = date.getTime();
 
         if (user.lastChecked) {
             lastChecked = user.lastChecked;
         } else {
-            lastChecked = 0;
+            lastChecked = now;
         }
 
-        var start = user.created;
-        var difference = lastChecked - start;
+        var difference = now - lastChecked;
         var numberOfPayments = _this5.convertTimeDifferenceToDays(difference);
 
         //fix to check for each allowance every 24 hours 
@@ -65833,10 +65835,8 @@ var checkForDailyAllowance = function checkForDailyAllowance(userID) {
             _this5.increaseUserValue(userID, user.value, payments);
         });
 
-        var date = new Date();
-        var time = date.getTime();
         _this5.db.ref('users/' + userID).update({
-            lastChecked: time
+            lastChecked: now
         });
     });
 };
