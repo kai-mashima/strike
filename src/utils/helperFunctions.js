@@ -113,11 +113,18 @@ const getNumberOfStreaks = function(userID) {
     });
 };
 
-const convertTimestampToDays = function(timestamp) {
-    const newDate = new Date();
-    const date = newDate.getTime();
-    let days = ((date - timestamp) / (3600000 * 24)).toFixed(0);
+const convertPastTimestampToDays = function(timestamp) {
+    const date = new Date();
+    const now = date.getTime();
+    let days = ((now - timestamp) / (3600000 * 24)).toFixed(0);
     return days;
+};
+
+const convertFutureTimestampToHours = function(timestamp) {
+    const date = new Date();
+    const now = date.getTime();
+    let hours = ((timestamp - now) / (3600000)).toFixed(0);
+    return hours;
 };
 
 const convertTimeDifferenceToDays = function(timestamp) {
@@ -138,7 +145,8 @@ export {
     getNumberOfFriends,
     getNumberOfTotalStreakDays,
     getNumberOfStreaks,
-    convertTimestampToDays,
+    convertPastTimestampToDays,
+    convertFutureTimestampToHours,
     convertTimeDifferenceToDays,
     getDate,
 }

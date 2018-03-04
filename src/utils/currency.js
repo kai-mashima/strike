@@ -2,31 +2,29 @@ import firebase from 'firebase/app';
 
 //if a streak is terminated, this function should be called to handle currency related termination penalties
 const streakTermination = function(streakID) { 
-    let streak = null;
     this.getStreak(streakID).then(result => {
-        streak = result;
+        let streak = result;
+        const terminatorPayment = this.calculateStreakTerminatorTerminationPrice(streak.value);
+        const betrayedPayment = this.calculateStreakBetrayedTerminationPrice(streak.value);
+
+        let terminator = null;
+        this.getUser(streak.currentOwner).then(result => {
+            terminator = result;
+            this.decreaseUserValue(streak.terminator, terminator.value, terminatorPayment);
+        });
+
+        let betrayed = null;
+        this.getUser(streak.nextOwner).then(result => {
+            betrayed = result;
+            this.decreaseUserValue(streak.betrayed, betrayed.value, betrayedPayment);   
+        });
+
+        if (this.state.userID === streak.currentOwner) {
+            console.log(`Streak Termination: User value decreased by $${terminatorPayment}`);
+        } else {
+            console.log(`Streak Termination: User value decreased by $${betrayedPayment}`);
+        }
     });
-
-    const terminatorPayment = this.calculateStreakTerminatorTerminationPrice(streak.value);
-    const betrayedPayment = this.calculateStreakBetrayedTerminationPrice(streak.value);
-
-    let terminator = null;
-    this.getUser(streak.currentOwner).then(result => {
-        terminator = result;
-        this.decreaseUserValue(streak.terminator, terminator.value, terminatorPayment);
-    });
-
-    let betrayed = null;
-    this.getUser(streak.nextOwner).then(result => {
-        betrayed = result;
-        this.decreaseUserValue(streak.betrayed, betrayed.value, betrayedPayment);   
-    });
-
-    if (this.state.userID === streak.currentOwner) {
-        console.log(`Streak Termination: User value decreased by $${terminatorPayment}`);
-    } else {
-        console.log(`Streak Termination: User value decreased by $${betrayedPayment}`);
-    }
 };
 
 //returns an array of payments for the terminator and betrayed from a terminated streak
@@ -139,8 +137,7 @@ const checkforStreakPayouts = function(streakID) {
             lastChecked = now;
         }
 
-        const difference = now - lastChecked;
-        const numberOfPayments = this.convertTimeDifferenceToDays(difference);
+        const numberOfPayments = this.convertTimestampToDays(lastChecked);
         const payment = this.calculateStreakPayout(streak);
         const paymentAmount = payment * numberOfPayments;
 
@@ -198,8 +195,7 @@ const checkForDailyAllowance = function(userID) {
             lastChecked = now;
         }
 
-        const difference = now - lastChecked;
-        const numberOfPayments = this.convertTimeDifferenceToDays(difference);
+        const numberOfPayments = this.convertTimestampToDays(lastChecked);
 
         //fix to check for each allowance every 24 hours 
         this.calculateDailyAllowance(user, userID).then(payment => {

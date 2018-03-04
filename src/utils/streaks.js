@@ -5,7 +5,7 @@ const startStreak = function(userID, friendID) {
     if (userID !== friendID) {
         let time = this.getDate();
         let expirationDate = this.getDate24HoursAhead();
-        let expirationTime = this.convertDateToTimeDifference(expirationDate);
+        let expirationTime = this.convertFutureTimestampToHours(expirationDate);
         const newStreakID = this.db.ref().child('streaks').push().key;
         this.db.ref(`streaks/${newStreakID}`)
         .set({
@@ -57,12 +57,14 @@ const getStreaks = function(userID) {
         }
     }).then(streakList => {
         const streakFuncs = streakList.map(streakID => this.checkForExpiredStreaks(streakID));
-        return Promise.all(streakFuncs).then(results => results);
+        Promise.all(streakFuncs).then(results => results);
+
+        return streakList;
     }).then(streakList => {
         const infoFuncs = streakList.map(streakID => this.streakToInfo(streakID, userID));
 
         Promise.all(infoFuncs).then(streaks => {
-            streaks = streaks.filter(n => n);
+            streaks = streaks.filter(streak => !streak.terminated);
 
             this.setState({
                 streaksInfo: streaks
@@ -85,7 +87,7 @@ const streakToInfo = function(streakID, userID){
         if (snapshot.exists()) {
             let streak = snapshot.val();
             streak.id = streakID;
-            streak.days = this.convertTimestampToDays(streak.timestamp);
+            streak.days = this.convertPastTimestampToDays(streak.timestamp);
             streak.stokePrice = this.calculateStokePrice(streak);
 
             const funcs = Object.keys(streak.participants).map(participant => {
@@ -120,9 +122,9 @@ const streakToInfo = function(streakID, userID){
 };
 
 const getDate24HoursAhead = function() {
-    const newdate = new Date();
-    const date = newdate.getTime();
-    let newDate = date + (24 * 3600000);
+    const date = new Date();
+    const now = date.getTime();
+    let newDate = now + (24 * 3600000);
     return newDate;
 };
 
@@ -139,12 +141,14 @@ const stokeStreak = function(streakID, userID) {
         if (snapshot.exists()) {
             let streak = snapshot.val();
             let nextExpirationDate = this.getDate24HoursAheadOfGiven(streak.currentExpirationDate);
-            let nextExpirationTime = this.convertDateToTimeDifference(nextExpirationDate);
+            let nextExpirationTime = this.convertFutureTimestampToHours(nextExpirationDate);
+
             this.db.ref(`streaks/${streakID}`).update({
                 nextExpirationDate: nextExpirationDate,
                 nextExpirationTime: nextExpirationTime,
                 nextExpired: false,
             });
+
             this.streakStoke(streakID, userID);
         } else {
             throw 'No streak found for this streakID';
@@ -157,51 +161,57 @@ const stokeStreak = function(streakID, userID) {
 };
 
 //returns a boolean depending on the input value
-const checkForExpiredTime = function(val){
-    return (val === '0:0') ? (
-        true
-    ) : (
-        false
-    )
+const checkForExpiredTime = function(time){
+    return (time <= 0) ? true : false
 };
 
 //checks a streak by id and check the termination time on it and sets the expired key on the streak
 const checkForExpiredStreaks = function(streakID) {
-    return this.db.ref(`streaks/${streakID}`)
+    this.db.ref(`streaks/${streakID}`)
     .once('value')
     .then(snapshot => {
         if (snapshot.exists()) {
             let streak = snapshot.val();
-
-            let currentExpirationTime = this.convertDateToTimeDifference(streak.currentExpirationDate);
+            let currentExpirationTime = this.convertFutureTimestampToHours(streak.currentExpirationDate);
             let currentExpired = this.checkForExpiredTime(currentExpirationTime);
-            this.db.ref(`streaks/${streakID}/currentExpirationTime`).set(currentExpirationTime);
-            this.db.ref(`streaks/${streakID}/currentExpired`).set(currentExpired);
+
+            this.db.ref(`streaks/${streakID}`).update({
+                currentExpirationTime: currentExpirationTime,
+                currentExpired: currentExpired,
+            });
 
             let nextExpirationTime = streak.nextExpirationTime;
             let nextExpired = streak.nextExpired;
+
             if (!streak.nextExpired) {
-                nextExpirationTime = this.convertDateToTimeDifference(streak.nextExpirationDate);
+                nextExpirationTime = this.convertFutureTimestampToHours(streak.nextExpirationDate);
                 nextExpired = this.checkForExpiredTime(nextExpirationTime);
-                this.db.ref(`streaks/${streakID}/nextExpirationTime`).set(nextExpirationTime);
-                this.db.ref(`streaks/${streakID}/nextExpired`).set(nextExpired);
+
+                this.db.ref(`streaks/${streakID}`).update({
+                    nextExpirationTime: nextExpirationTime,
+                    nextExpired: nextExpired,
+                });
             }
 
             if (!currentExpired && !nextExpired) { //streak active | stoked | neutral
-                this.db.ref(`streaks/${streakID}/neutral`).set(true);
-                return streakID;
+                this.db.ref(`streaks/${streakID}`).update({
+                    neutral: true,
+                });
+
             } else if (!currentExpired && nextExpired) { //streak active | unstoked
-                return streakID;
-            } else if (currentExpired && nextExpired) { //streak terminated
-                this.db.ref(`streaks/${streakID}`).set({
+                
+            } else if (currentExpired && nextExpired && !streak.terminated) { //streak terminated
+                this.db.ref(`streaks/${streakID}`).update({
                     terminated: true,
-                    terminator: streak.owner,
+                    terminator: streak.currentOwner,
                     betrayed: streak.nextOwner,
                 });
+
                 this.streakTermination(streakID);
             } else if (currentExpired && !nextExpired) { //streak transition
                 let currentExpirationDate = this.getDate24HoursAhead();
-                let currentExpirationTime = this.convertDateToTimeDifference(currentExpirationDate)
+                let currentExpirationTime = this.convertFutureTimestampToHours(currentExpirationDate)
+
                 this.db.ref(`streaks/${streakID}`).update({
                     neutral: false,
                     currentOwner: streak.nextOwner,
@@ -213,7 +223,6 @@ const checkForExpiredStreaks = function(streakID) {
                     nextExpired: true,
                     nextOwner: streak.currentOwner,
                 });
-                return streakID;
             }
         } else {
             throw 'Check for Expired: No streak found for this streakID';
@@ -222,24 +231,6 @@ const checkForExpiredStreaks = function(streakID) {
         console.log(reason);
     });
     //send streak termination info to history db
-};
-
-//returns the time difference between the current time and a provided time 
-const convertDateToTimeDifference = function(expirationDate) {
-    const date = new Date();
-    const currentTime = date.getTime();
-    let timeDifference = expirationDate - currentTime;
-    let totalMinutes = (timeDifference / (1000 * 60)).toFixed(0);
-    let hours = Math.floor(totalMinutes / 60);
-    let minutes = totalMinutes % 60;
-    let timeDiffString;
-    if (hours < 0 && minutes < 0) {
-        timeDiffString = '0:0';
-        return timeDiffString;
-    } else {
-        timeDiffString = `${hours}:${minutes}`;
-        return timeDiffString;
-    }
 };
 
 //sets a streak id to a users streaklist
@@ -285,7 +276,6 @@ export {
     stokeStreak,
     checkForExpiredTime,
     checkForExpiredStreaks,
-    convertDateToTimeDifference,
     streakToOwner,
     searchUsers,
 };

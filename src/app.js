@@ -84,7 +84,8 @@ import {
     getNumberOfFriends,
     getNumberOfTotalStreakDays,
     getNumberOfStreaks,
-    convertTimestampToDays,
+    convertPastTimestampToDays,
+    convertFutureTimestampToHours,
     convertTimeDifferenceToDays,
     getDate,
 } from './utils/helperFunctions.js';
@@ -100,7 +101,8 @@ export default class App extends Component {
         //BINDINGS
         //helperFunctions
         this.getUsername = getUsername.bind(this);
-        this.convertTimestampToDays = convertTimestampToDays.bind(this);
+        this.convertPastTimestampToDays = convertPastTimestampToDays.bind(this);
+        this.convertFutureTimestampToHours = convertFutureTimestampToHours.bind(this);
         this.getNumberOfTotalStreakDays = getNumberOfTotalStreakDays.bind(this);
         this.convertTimeDifferenceToDays = convertTimeDifferenceToDays.bind(this);
         this.getDate = getDate.bind(this);
@@ -149,7 +151,6 @@ export default class App extends Component {
         this.stokeStreak = stokeStreak.bind(this);
         this.checkForExpiredTime = checkForExpiredTime.bind(this);
         this.checkForExpiredStreaks = checkForExpiredStreaks.bind(this);
-        this.convertDateToTimeDifference = convertDateToTimeDifference.bind(this);
         this.streakToOwner = streakToOwner.bind(this);
         this.searchUsers = searchUsers.bind(this);
 

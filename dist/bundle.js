@@ -40018,7 +40018,8 @@ var App = function (_Component) {
         //BINDINGS
         //helperFunctions
         _this.getUsername = _helperFunctions.getUsername.bind(_this);
-        _this.convertTimestampToDays = _helperFunctions.convertTimestampToDays.bind(_this);
+        _this.convertPastTimestampToDays = _helperFunctions.convertPastTimestampToDays.bind(_this);
+        _this.convertFutureTimestampToHours = _helperFunctions.convertFutureTimestampToHours.bind(_this);
         _this.getNumberOfTotalStreakDays = _helperFunctions.getNumberOfTotalStreakDays.bind(_this);
         _this.convertTimeDifferenceToDays = _helperFunctions.convertTimeDifferenceToDays.bind(_this);
         _this.getDate = _helperFunctions.getDate.bind(_this);
@@ -40067,7 +40068,6 @@ var App = function (_Component) {
         _this.stokeStreak = _streaks3.stokeStreak.bind(_this);
         _this.checkForExpiredTime = _streaks3.checkForExpiredTime.bind(_this);
         _this.checkForExpiredStreaks = _streaks3.checkForExpiredStreaks.bind(_this);
-        _this.convertDateToTimeDifference = _streaks3.convertDateToTimeDifference.bind(_this);
         _this.streakToOwner = _streaks3.streakToOwner.bind(_this);
         _this.searchUsers = _streaks3.searchUsers.bind(_this);
 
@@ -55455,6 +55455,16 @@ var Profile = function (_Component) {
                             _react2.default.createElement(
                                 'p',
                                 null,
+                                this.props.user.totalFriends,
+                                ' Friends'
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'profile-item' },
+                            _react2.default.createElement(
+                                'p',
+                                null,
                                 this.props.user.totalStreaks,
                                 ' Streaks'
                             )
@@ -65617,31 +65627,29 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var streakTermination = function streakTermination(streakID) {
     var _this = this;
 
-    var streak = null;
     this.getStreak(streakID).then(function (result) {
-        streak = result;
+        var streak = result;
+        var terminatorPayment = _this.calculateStreakTerminatorTerminationPrice(streak.value);
+        var betrayedPayment = _this.calculateStreakBetrayedTerminationPrice(streak.value);
+
+        var terminator = null;
+        _this.getUser(streak.currentOwner).then(function (result) {
+            terminator = result;
+            _this.decreaseUserValue(streak.terminator, terminator.value, terminatorPayment);
+        });
+
+        var betrayed = null;
+        _this.getUser(streak.nextOwner).then(function (result) {
+            betrayed = result;
+            _this.decreaseUserValue(streak.betrayed, betrayed.value, betrayedPayment);
+        });
+
+        if (_this.state.userID === streak.currentOwner) {
+            console.log('Streak Termination: User value decreased by $' + terminatorPayment);
+        } else {
+            console.log('Streak Termination: User value decreased by $' + betrayedPayment);
+        }
     });
-
-    var terminatorPayment = this.calculateStreakTerminatorTerminationPrice(streak.value);
-    var betrayedPayment = this.calculateStreakBetrayedTerminationPrice(streak.value);
-
-    var terminator = null;
-    this.getUser(streak.currentOwner).then(function (result) {
-        terminator = result;
-        _this.decreaseUserValue(streak.terminator, terminator.value, terminatorPayment);
-    });
-
-    var betrayed = null;
-    this.getUser(streak.nextOwner).then(function (result) {
-        betrayed = result;
-        _this.decreaseUserValue(streak.betrayed, betrayed.value, betrayedPayment);
-    });
-
-    if (this.state.userID === streak.currentOwner) {
-        console.log('Streak Termination: User value decreased by $' + terminatorPayment);
-    } else {
-        console.log('Streak Termination: User value decreased by $' + betrayedPayment);
-    }
 };
 
 //returns an array of payments for the terminator and betrayed from a terminated streak
@@ -65760,8 +65768,7 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
             lastChecked = now;
         }
 
-        var difference = now - lastChecked;
-        var numberOfPayments = _this4.convertTimeDifferenceToDays(difference);
+        var numberOfPayments = _this4.convertTimestampToDays(lastChecked);
         var payment = _this4.calculateStreakPayout(streak);
         var paymentAmount = payment * numberOfPayments;
 
@@ -65823,8 +65830,7 @@ var checkForDailyAllowance = function checkForDailyAllowance(userID) {
             lastChecked = now;
         }
 
-        var difference = now - lastChecked;
-        var numberOfPayments = _this5.convertTimeDifferenceToDays(difference);
+        var numberOfPayments = _this5.convertTimestampToDays(lastChecked);
 
         //fix to check for each allowance every 24 hours 
         _this5.calculateDailyAllowance(user, userID).then(function (payment) {
@@ -65968,7 +65974,7 @@ exports.addFriend = addFriend;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.searchUsers = exports.streakToOwner = exports.convertDateToTimeDifference = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
+exports.searchUsers = exports.streakToOwner = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -65987,7 +65993,7 @@ var startStreak = function startStreak(userID, friendID) {
 
         var time = this.getDate();
         var expirationDate = this.getDate24HoursAhead();
-        var expirationTime = this.convertDateToTimeDifference(expirationDate);
+        var expirationTime = this.convertFutureTimestampToHours(expirationDate);
         var newStreakID = this.db.ref().child('streaks').push().key;
         this.db.ref('streaks/' + newStreakID).set({
             participants: (_participants = {}, _defineProperty(_participants, userID, true), _defineProperty(_participants, friendID, true), _participants),
@@ -66038,17 +66044,19 @@ var getStreaks = function getStreaks(userID) {
         var streakFuncs = streakList.map(function (streakID) {
             return _this2.checkForExpiredStreaks(streakID);
         });
-        return Promise.all(streakFuncs).then(function (results) {
+        Promise.all(streakFuncs).then(function (results) {
             return results;
         });
+
+        return streakList;
     }).then(function (streakList) {
         var infoFuncs = streakList.map(function (streakID) {
             return _this2.streakToInfo(streakID, userID);
         });
 
         Promise.all(infoFuncs).then(function (streaks) {
-            streaks = streaks.filter(function (n) {
-                return n;
+            streaks = streaks.filter(function (streak) {
+                return !streak.terminated;
             });
 
             _this2.setState({
@@ -66074,7 +66082,7 @@ var streakToInfo = function streakToInfo(streakID, userID) {
         if (snapshot.exists()) {
             var streak = snapshot.val();
             streak.id = streakID;
-            streak.days = _this3.convertTimestampToDays(streak.timestamp);
+            streak.days = _this3.convertPastTimestampToDays(streak.timestamp);
             streak.stokePrice = _this3.calculateStokePrice(streak);
 
             var funcs = Object.keys(streak.participants).map(function (participant) {
@@ -66107,9 +66115,9 @@ var streakToInfo = function streakToInfo(streakID, userID) {
 };
 
 var getDate24HoursAhead = function getDate24HoursAhead() {
-    var newdate = new Date();
-    var date = newdate.getTime();
-    var newDate = date + 24 * 3600000;
+    var date = new Date();
+    var now = date.getTime();
+    var newDate = now + 24 * 3600000;
     return newDate;
 };
 
@@ -66126,12 +66134,14 @@ var stokeStreak = function stokeStreak(streakID, userID) {
         if (snapshot.exists()) {
             var streak = snapshot.val();
             var nextExpirationDate = _this4.getDate24HoursAheadOfGiven(streak.currentExpirationDate);
-            var nextExpirationTime = _this4.convertDateToTimeDifference(nextExpirationDate);
+            var nextExpirationTime = _this4.convertFutureTimestampToHours(nextExpirationDate);
+
             _this4.db.ref('streaks/' + streakID).update({
                 nextExpirationDate: nextExpirationDate,
                 nextExpirationTime: nextExpirationTime,
                 nextExpired: false
             });
+
             _this4.streakStoke(streakID, userID);
         } else {
             throw 'No streak found for this streakID';
@@ -66144,51 +66154,59 @@ var stokeStreak = function stokeStreak(streakID, userID) {
 };
 
 //returns a boolean depending on the input value
-var checkForExpiredTime = function checkForExpiredTime(val) {
-    return val === '0:0' ? true : false;
+var checkForExpiredTime = function checkForExpiredTime(time) {
+    return time <= 0 ? true : false;
 };
 
 //checks a streak by id and check the termination time on it and sets the expired key on the streak
 var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
     var _this5 = this;
 
-    return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+    this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             var streak = snapshot.val();
-
-            var currentExpirationTime = _this5.convertDateToTimeDifference(streak.currentExpirationDate);
+            var currentExpirationTime = _this5.convertFutureTimestampToHours(streak.currentExpirationDate);
             var currentExpired = _this5.checkForExpiredTime(currentExpirationTime);
-            _this5.db.ref('streaks/' + streakID + '/currentExpirationTime').set(currentExpirationTime);
-            _this5.db.ref('streaks/' + streakID + '/currentExpired').set(currentExpired);
+
+            _this5.db.ref('streaks/' + streakID).update({
+                currentExpirationTime: currentExpirationTime,
+                currentExpired: currentExpired
+            });
 
             var nextExpirationTime = streak.nextExpirationTime;
             var nextExpired = streak.nextExpired;
+
             if (!streak.nextExpired) {
-                nextExpirationTime = _this5.convertDateToTimeDifference(streak.nextExpirationDate);
+                nextExpirationTime = _this5.convertFutureTimestampToHours(streak.nextExpirationDate);
                 nextExpired = _this5.checkForExpiredTime(nextExpirationTime);
-                _this5.db.ref('streaks/' + streakID + '/nextExpirationTime').set(nextExpirationTime);
-                _this5.db.ref('streaks/' + streakID + '/nextExpired').set(nextExpired);
+
+                _this5.db.ref('streaks/' + streakID).update({
+                    nextExpirationTime: nextExpirationTime,
+                    nextExpired: nextExpired
+                });
             }
 
             if (!currentExpired && !nextExpired) {
                 //streak active | stoked | neutral
-                _this5.db.ref('streaks/' + streakID + '/neutral').set(true);
-                return streakID;
-            } else if (!currentExpired && nextExpired) {
-                //streak active | unstoked
-                return streakID;
-            } else if (currentExpired && nextExpired) {
+                _this5.db.ref('streaks/' + streakID).update({
+                    neutral: true
+                });
+            } else if (!currentExpired && nextExpired) {//streak active | unstoked
+
+            } else if (currentExpired && nextExpired && !streak.terminated) {
                 //streak terminated
-                _this5.db.ref('streaks/' + streakID).set({
+                _this5.db.ref('streaks/' + streakID).update({
                     terminated: true,
-                    terminator: streak.owner,
+                    terminator: streak.currentOwner,
                     betrayed: streak.nextOwner
                 });
+
                 _this5.streakTermination(streakID);
             } else if (currentExpired && !nextExpired) {
                 //streak transition
                 var currentExpirationDate = _this5.getDate24HoursAhead();
-                var _currentExpirationTime = _this5.convertDateToTimeDifference(currentExpirationDate);
+                var _currentExpirationTime = _this5.convertFutureTimestampToHours(currentExpirationDate);
+
                 _this5.db.ref('streaks/' + streakID).update({
                     neutral: false,
                     currentOwner: streak.nextOwner,
@@ -66200,7 +66218,6 @@ var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
                     nextExpired: true,
                     nextOwner: streak.currentOwner
                 });
-                return streakID;
             }
         } else {
             throw 'Check for Expired: No streak found for this streakID';
@@ -66209,24 +66226,6 @@ var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
         console.log(reason);
     });
     //send streak termination info to history db
-};
-
-//returns the time difference between the current time and a provided time 
-var convertDateToTimeDifference = function convertDateToTimeDifference(expirationDate) {
-    var date = new Date();
-    var currentTime = date.getTime();
-    var timeDifference = expirationDate - currentTime;
-    var totalMinutes = (timeDifference / (1000 * 60)).toFixed(0);
-    var hours = Math.floor(totalMinutes / 60);
-    var minutes = totalMinutes % 60;
-    var timeDiffString = void 0;
-    if (hours < 0 && minutes < 0) {
-        timeDiffString = '0:0';
-        return timeDiffString;
-    } else {
-        timeDiffString = hours + ':' + minutes;
-        return timeDiffString;
-    }
 };
 
 //sets a streak id to a users streaklist
@@ -66266,7 +66265,6 @@ exports.getDate24HoursAheadOfGiven = getDate24HoursAheadOfGiven;
 exports.stokeStreak = stokeStreak;
 exports.checkForExpiredTime = checkForExpiredTime;
 exports.checkForExpiredStreaks = checkForExpiredStreaks;
-exports.convertDateToTimeDifference = convertDateToTimeDifference;
 exports.streakToOwner = streakToOwner;
 exports.searchUsers = searchUsers;
 
@@ -66538,7 +66536,7 @@ exports.rejectFriendRequest = rejectFriendRequest;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.getDate = exports.convertTimeDifferenceToDays = exports.convertTimestampToDays = exports.getNumberOfStreaks = exports.getNumberOfTotalStreakDays = exports.getNumberOfFriends = exports.getUser = exports.getStreak = exports.getUsername = undefined;
+exports.getDate = exports.convertTimeDifferenceToDays = exports.convertFutureTimestampToHours = exports.convertPastTimestampToDays = exports.getNumberOfStreaks = exports.getNumberOfTotalStreakDays = exports.getNumberOfFriends = exports.getUser = exports.getStreak = exports.getUsername = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66649,11 +66647,18 @@ var getNumberOfStreaks = function getNumberOfStreaks(userID) {
     });
 };
 
-var convertTimestampToDays = function convertTimestampToDays(timestamp) {
-    var newDate = new Date();
-    var date = newDate.getTime();
-    var days = ((date - timestamp) / (3600000 * 24)).toFixed(0);
+var convertPastTimestampToDays = function convertPastTimestampToDays(timestamp) {
+    var date = new Date();
+    var now = date.getTime();
+    var days = ((now - timestamp) / (3600000 * 24)).toFixed(0);
     return days;
+};
+
+var convertFutureTimestampToHours = function convertFutureTimestampToHours(timestamp) {
+    var date = new Date();
+    var now = date.getTime();
+    var hours = ((timestamp - now) / 3600000).toFixed(0);
+    return hours;
 };
 
 var convertTimeDifferenceToDays = function convertTimeDifferenceToDays(timestamp) {
@@ -66673,7 +66678,8 @@ exports.getUser = getUser;
 exports.getNumberOfFriends = getNumberOfFriends;
 exports.getNumberOfTotalStreakDays = getNumberOfTotalStreakDays;
 exports.getNumberOfStreaks = getNumberOfStreaks;
-exports.convertTimestampToDays = convertTimestampToDays;
+exports.convertPastTimestampToDays = convertPastTimestampToDays;
+exports.convertFutureTimestampToHours = convertFutureTimestampToHours;
 exports.convertTimeDifferenceToDays = convertTimeDifferenceToDays;
 exports.getDate = getDate;
 

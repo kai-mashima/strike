@@ -43,6 +43,9 @@ export default class Profile extends Component {
                             <p>${this.props.user.value}</p>
                         </div>
                         <div className='profile-item'>
+                            <p>{this.props.user.totalFriends} Friends</p>
+                        </div>
+                        <div className='profile-item'>
                             <p>{this.props.user.totalStreaks} Streaks</p>
                         </div>
                         <div className='profile-item'>
