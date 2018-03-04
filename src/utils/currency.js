@@ -137,7 +137,7 @@ const checkforStreakPayouts = function(streakID) {
             lastChecked = now;
         }
 
-        const numberOfPayments = this.convertTimestampToDays(lastChecked);
+        const numberOfPayments = this.convertPastTimestampToDays(lastChecked);
         const payment = this.calculateStreakPayout(streak);
         const paymentAmount = payment * numberOfPayments;
 
@@ -195,7 +195,7 @@ const checkForDailyAllowance = function(userID) {
             lastChecked = now;
         }
 
-        const numberOfPayments = this.convertTimestampToDays(lastChecked);
+        const numberOfPayments = this.convertPastTimestampToDays(lastChecked);
 
         //fix to check for each allowance every 24 hours 
         this.calculateDailyAllowance(user, userID).then(payment => {

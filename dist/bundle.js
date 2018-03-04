@@ -65768,7 +65768,7 @@ var checkforStreakPayouts = function checkforStreakPayouts(streakID) {
             lastChecked = now;
         }
 
-        var numberOfPayments = _this4.convertTimestampToDays(lastChecked);
+        var numberOfPayments = _this4.convertPastTimestampToDays(lastChecked);
         var payment = _this4.calculateStreakPayout(streak);
         var paymentAmount = payment * numberOfPayments;
 
@@ -65830,7 +65830,7 @@ var checkForDailyAllowance = function checkForDailyAllowance(userID) {
             lastChecked = now;
         }
 
-        var numberOfPayments = _this5.convertTimestampToDays(lastChecked);
+        var numberOfPayments = _this5.convertPastTimestampToDays(lastChecked);
 
         //fix to check for each allowance every 24 hours 
         _this5.calculateDailyAllowance(user, userID).then(function (payment) {
