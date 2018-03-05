@@ -3,17 +3,53 @@ import firebase from 'firebase/app';
 //adds a streak request to the db and calls functions to assign streak request to sender and recipient
 const sendStreakRequest = function(userID, recipientID) {
     if (userID !== recipientID) {
-        const newRequestID = this.db.ref().child(`streakRequests/`).push().key;
-        this.streakRequestToSender(userID, newRequestID);
-        this.streakRequestToRecipient(recipientID, newRequestID);
-        this.db.ref(`streakRequests/${newRequestID}`)
-        .set({
-            id: newRequestID,
-            sender: userID,
-            recipient: recipientID,
-            answered: false,
-            accepted: false,
+        this.db.ref(`streakOwners/${userID}`)
+        .once('value')
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                const userStreaks = Object.keys(snapshot.val());
+
+                this.db.ref(`streakOwners/${recipientID}`)
+                .once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const recipientStreaks = Object.keys(snapshot.val());
+                        const userSet = new Set(userStreaks);
+                        const recipientSet = new Set(recipientStreaks);
+                        let intersection = new Set(
+                            [...userSet].filter(x => recipientSet.has(x))
+                        );
+
+                        if (intersection.size === 0) {
+                            const newRequestID = this.db.ref().child(`streakRequests/`).push().key;
+                            this.streakRequestToSender(userID, newRequestID);
+                            this.streakRequestToRecipient(recipientID, newRequestID);
+                            this.db.ref(`streakRequests/${newRequestID}`)
+                            .set({
+                                id: newRequestID,
+                                sender: userID,
+                                recipient: recipientID,
+                                answered: false,
+                                accepted: false,
+                            });
+                        } else {
+                            console.log('You cannot have more than one streak with a friend');
+                        }
+
+                    } else {
+                        throw 'Send Streak Request: Streaks cannot be found my user ID'; 
+                    }
+                }).catch(reason => {
+                    console.log(reason);
+                });
+
+            } else {
+                throw 'Send Streak Request: Streaks cannot be found my user ID'; 
+            }
+        }).catch(reason => {
+            console.log(reason);
         });
+
     } else {
         console.log('No request sent: You cannot send a streak request to yourself.');
     }

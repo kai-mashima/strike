@@ -66286,18 +66286,51 @@ var _app2 = _interopRequireDefault(_app);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 //adds a streak request to the db and calls functions to assign streak request to sender and recipient
 var sendStreakRequest = function sendStreakRequest(userID, recipientID) {
+    var _this = this;
+
     if (userID !== recipientID) {
-        var newRequestID = this.db.ref().child('streakRequests/').push().key;
-        this.streakRequestToSender(userID, newRequestID);
-        this.streakRequestToRecipient(recipientID, newRequestID);
-        this.db.ref('streakRequests/' + newRequestID).set({
-            id: newRequestID,
-            sender: userID,
-            recipient: recipientID,
-            answered: false,
-            accepted: false
+        this.db.ref('streakOwners/' + userID).once('value').then(function (snapshot) {
+            if (snapshot.exists()) {
+                var userStreaks = Object.keys(snapshot.val());
+
+                _this.db.ref('streakOwners/' + recipientID).once('value').then(function (snapshot) {
+                    if (snapshot.exists()) {
+                        var recipientStreaks = Object.keys(snapshot.val());
+                        var userSet = new Set(userStreaks);
+                        var recipientSet = new Set(recipientStreaks);
+                        var intersection = new Set([].concat(_toConsumableArray(userSet)).filter(function (x) {
+                            return recipientSet.has(x);
+                        }));
+
+                        if (intersection.size === 0) {
+                            var newRequestID = _this.db.ref().child('streakRequests/').push().key;
+                            _this.streakRequestToSender(userID, newRequestID);
+                            _this.streakRequestToRecipient(recipientID, newRequestID);
+                            _this.db.ref('streakRequests/' + newRequestID).set({
+                                id: newRequestID,
+                                sender: userID,
+                                recipient: recipientID,
+                                answered: false,
+                                accepted: false
+                            });
+                        } else {
+                            console.log('You cannot have more than one streak with a friend');
+                        }
+                    } else {
+                        throw 'Send Streak Request: Streaks cannot be found my user ID';
+                    }
+                }).catch(function (reason) {
+                    console.log(reason);
+                });
+            } else {
+                throw 'Send Streak Request: Streaks cannot be found my user ID';
+            }
+        }).catch(function (reason) {
+            console.log(reason);
         });
     } else {
         console.log('No request sent: You cannot send a streak request to yourself.');
@@ -66316,12 +66349,12 @@ var streakRequestToRecipient = function streakRequestToRecipient(recipientID, st
 
 //grabs and sets streak information to state by user id
 var getStreakRequests = function getStreakRequests(userID) {
-    var _this = this;
+    var _this2 = this;
 
     this.db.ref('streakRequestOwners/' + userID + '/received').once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             var streakRequests = Object.keys(snapshot.val());
-            _this.setState({
+            _this2.setState({
                 streakRequests: streakRequests
             });
             return streakRequests;
@@ -66330,13 +66363,13 @@ var getStreakRequests = function getStreakRequests(userID) {
         }
     }).then(function (streakRequests) {
         var funcs = streakRequests.map(function (request) {
-            return _this.streakRequestToInfo(request);
+            return _this2.streakRequestToInfo(request);
         });
         Promise.all(funcs).then(function (results) {
             results = results.filter(function (n) {
                 return n;
             });
-            _this.setState({
+            _this2.setState({
                 streakRequestsInfo: results
             });
         });
@@ -66347,17 +66380,17 @@ var getStreakRequests = function getStreakRequests(userID) {
 
 //returns a promise containing the information of a streak request by streak request id
 var streakRequestToInfo = function streakRequestToInfo(streakRequestID) {
-    var _this2 = this;
+    var _this3 = this;
 
     var streakRequest = null;
     return this.db.ref('streakRequests/' + streakRequestID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             streakRequest = snapshot.val();
             if (streakRequest.answered === false) {
-                _this2.getUsername(streakRequest.sender).then(function (username) {
+                _this3.getUsername(streakRequest.sender).then(function (username) {
                     streakRequest.senderUsername = username;
                 });
-                _this2.getUsername(streakRequest.recipient).then(function (username) {
+                _this3.getUsername(streakRequest.recipient).then(function (username) {
                     streakRequest.recipientUsername = username;
                 });
             } else {
