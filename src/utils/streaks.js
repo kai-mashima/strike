@@ -201,11 +201,13 @@ const checkForExpiredStreaks = function(streakID) {
             } else if (!currentExpired && nextExpired) { //streak active | unstoked
                 
             } else if (currentExpired && nextExpired && !streak.terminated) { //streak terminated
-                this.db.ref(`streaks/${streakID}`).update({
-                    terminated: true,
-                    terminator: streak.currentOwner,
-                    betrayed: streak.nextOwner,
-                });
+                streak.terminated = true;
+                streak.terminator = streak.currentOwner;
+                streak.betrayed = streak.nextOwner;
+
+                this.db.ref(`terminatedStreaks/${streakID}`).set(streak);
+
+                this.db.ref(`streaks/${streakID}`).remove();
 
                 this.streakTermination(streakID);
             } else if (currentExpired && !nextExpired) { //streak transition

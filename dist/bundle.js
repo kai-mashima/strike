@@ -40024,6 +40024,7 @@ var App = function (_Component) {
         _this.convertTimeDifferenceToDays = _helperFunctions.convertTimeDifferenceToDays.bind(_this);
         _this.getDate = _helperFunctions.getDate.bind(_this);
         _this.getStreak = _helperFunctions.getStreak.bind(_this);
+        _this.getTerminatedStreak = _helperFunctions.getTerminatedStreak.bind(_this);
         _this.getUser = _helperFunctions.getUser.bind(_this);
         _this.getNumberOfFriends = _helperFunctions.getNumberOfFriends.bind(_this);
         _this.getNumberOfStreaks = _helperFunctions.getNumberOfStreaks.bind(_this);
@@ -65632,15 +65633,13 @@ var streakTermination = function streakTermination(streakID) {
         var terminatorPayment = _this.calculateStreakTerminatorTerminationPrice(streak.value);
         var betrayedPayment = _this.calculateStreakBetrayedTerminationPrice(streak.value);
 
-        var terminator = null;
         _this.getUser(streak.currentOwner).then(function (result) {
-            terminator = result;
+            var terminator = result;
             _this.decreaseUserValue(streak.terminator, terminator.value, terminatorPayment);
         });
 
-        var betrayed = null;
         _this.getUser(streak.nextOwner).then(function (result) {
-            betrayed = result;
+            var betrayed = result;
             _this.decreaseUserValue(streak.betrayed, betrayed.value, betrayedPayment);
         });
 
@@ -66195,11 +66194,13 @@ var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
 
             } else if (currentExpired && nextExpired && !streak.terminated) {
                 //streak terminated
-                _this5.db.ref('streaks/' + streakID).update({
-                    terminated: true,
-                    terminator: streak.currentOwner,
-                    betrayed: streak.nextOwner
-                });
+                streak.terminated = true;
+                streak.terminator = streak.currentOwner;
+                streak.betrayed = streak.nextOwner;
+
+                _this5.db.ref('terminatedStreaks/' + streakID).set(streak);
+
+                _this5.db.ref('streaks/' + streakID).remove();
 
                 _this5.streakTermination(streakID);
             } else if (currentExpired && !nextExpired) {
@@ -66569,7 +66570,7 @@ exports.rejectFriendRequest = rejectFriendRequest;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.getDate = exports.convertTimeDifferenceToDays = exports.convertFutureTimestampToHours = exports.convertPastTimestampToDays = exports.getNumberOfStreaks = exports.getNumberOfTotalStreakDays = exports.getNumberOfFriends = exports.getUser = exports.getStreak = exports.getUsername = undefined;
+exports.getDate = exports.convertTimeDifferenceToDays = exports.convertFutureTimestampToHours = exports.convertPastTimestampToDays = exports.getNumberOfStreaks = exports.getNumberOfTotalStreakDays = exports.getNumberOfFriends = exports.getUser = exports.getTerminatedStreak = exports.getStreak = exports.getUsername = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66593,6 +66594,18 @@ var getUsername = function getUsername(userID) {
 //returns a promise containing the streak info 
 var getStreak = function getStreak(streakID) {
     return this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            return snapshot.val();
+        } else {
+            throw 'Get Streak: No streak found for this streak ID';
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+var getTerminatedStreak = function getTerminatedStreak(streakID) {
+    return this.db.ref('terminatedStreaks/' + streakID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             return snapshot.val();
         } else {
@@ -66707,6 +66720,7 @@ var getDate = function getDate() {
 
 exports.getUsername = getUsername;
 exports.getStreak = getStreak;
+exports.getTerminatedStreak = getTerminatedStreak;
 exports.getUser = getUser;
 exports.getNumberOfFriends = getNumberOfFriends;
 exports.getNumberOfTotalStreakDays = getNumberOfTotalStreakDays;

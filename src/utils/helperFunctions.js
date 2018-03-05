@@ -30,6 +30,20 @@ const getStreak = function(streakID) {
     });
 };
 
+const getTerminatedStreak = function(streakID) {
+    return this.db.ref(`terminatedStreaks/${streakID}`)
+    .once('value')
+    .then(snapshot => {
+        if (snapshot.exists()) {
+            return snapshot.val()
+        } else {
+            throw 'Get Streak: No streak found for this streak ID';
+        }
+    }).catch(reason => {
+        console.log(reason);
+    });
+};
+
 //returns a promise containing the user info 
 const getUser = function(userID) {
     return this.db.ref(`users/${userID}`)
@@ -141,6 +155,7 @@ const getDate = function() {
 export {
     getUsername,
     getStreak,
+    getTerminatedStreak,
     getUser,
     getNumberOfFriends,
     getNumberOfTotalStreakDays,

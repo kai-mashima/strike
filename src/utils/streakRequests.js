@@ -16,9 +16,7 @@ const sendStreakRequest = function(userID, recipientID) {
                         const recipientStreaks = Object.keys(snapshot.val());
                         const userSet = new Set(userStreaks);
                         const recipientSet = new Set(recipientStreaks);
-                        let intersection = new Set(
-                            [...userSet].filter(x => recipientSet.has(x))
-                        );
+                        const intersection = new Set([...userSet].filter(x => recipientSet.has(x)));
 
                         if (intersection.size === 0) {
                             const newRequestID = this.db.ref().child(`streakRequests/`).push().key;

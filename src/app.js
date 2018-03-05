@@ -80,6 +80,7 @@ import {
 import {
     getUsername,
     getStreak,
+    getTerminatedStreak,
     getUser,
     getNumberOfFriends,
     getNumberOfTotalStreakDays,
@@ -107,6 +108,7 @@ export default class App extends Component {
         this.convertTimeDifferenceToDays = convertTimeDifferenceToDays.bind(this);
         this.getDate = getDate.bind(this);
         this.getStreak = getStreak.bind(this);
+        this.getTerminatedStreak = getTerminatedStreak.bind(this);
         this.getUser = getUser.bind(this);
         this.getNumberOfFriends = getNumberOfFriends.bind(this);
         this.getNumberOfStreaks = getNumberOfStreaks.bind(this);
