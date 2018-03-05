@@ -62,6 +62,7 @@ import {
 } from './utils/streaks.js';
 import {
     sendStreakRequest,
+    streakRequestAction,
     streakRequestToSender,
     streakRequestToRecipient,
     getStreakRequests,
@@ -137,6 +138,7 @@ export default class App extends Component {
 
         //streakRequests
         this.sendStreakRequest = sendStreakRequest.bind(this);
+        this.streakRequestAction = streakRequestAction.bind(this);
         this.streakRequestToSender = streakRequestToSender.bind(this);
         this.streakRequestToRecipient = streakRequestToRecipient.bind(this);
         this.getStreakRequests = getStreakRequests.bind(this);

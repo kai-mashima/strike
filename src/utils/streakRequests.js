@@ -19,31 +19,22 @@ const sendStreakRequest = function(userID, recipientID) {
                         const intersection = new Set([...userSet].filter(x => recipientSet.has(x)));
 
                         if (intersection.size === 0) {
-                            const newRequestID = this.db.ref().child(`streakRequests/`).push().key;
-                            this.streakRequestToSender(userID, newRequestID);
-                            this.streakRequestToRecipient(recipientID, newRequestID);
-                            this.db.ref(`streakRequests/${newRequestID}`)
-                            .set({
-                                id: newRequestID,
-                                sender: userID,
-                                recipient: recipientID,
-                                answered: false,
-                                accepted: false,
-                            });
+                            this.streakRequestAction(userID, recipientID);
                         } else {
                             console.log('You cannot have more than one streak with a friend');
                         }
 
                     } else {
-                        throw 'Send Streak Request: Streaks cannot be found my user ID'; 
+                        this.streakRequestAction(userID, recipientID);
                     }
                 }).catch(reason => {
                     console.log(reason);
                 });
 
             } else {
-                throw 'Send Streak Request: Streaks cannot be found my user ID'; 
+                this.streakRequestAction(userID, recipientID);
             }
+            
         }).catch(reason => {
             console.log(reason);
         });
@@ -51,6 +42,20 @@ const sendStreakRequest = function(userID, recipientID) {
     } else {
         console.log('No request sent: You cannot send a streak request to yourself.');
     }
+};
+
+const streakRequestAction = function(userID, recipientID) {
+    const newRequestID = this.db.ref().child(`streakRequests/`).push().key;
+    this.streakRequestToSender(userID, newRequestID);
+    this.streakRequestToRecipient(recipientID, newRequestID);
+    this.db.ref(`streakRequests/${newRequestID}`)
+    .set({
+        id: newRequestID,
+        sender: userID,
+        recipient: recipientID,
+        answered: false,
+        accepted: false,
+    });
 };
 
 //sets the given streak request id to the sender of the request
@@ -138,6 +143,7 @@ const rejectStreakRequest = function(streakRequestID, userID, senderID) {
 
 export {
     sendStreakRequest,
+    streakRequestAction,
     streakRequestToSender,
     streakRequestToRecipient,
     getStreakRequests,

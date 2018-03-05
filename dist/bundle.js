@@ -40053,6 +40053,7 @@ var App = function (_Component) {
 
         //streakRequests
         _this.sendStreakRequest = _streakRequests.sendStreakRequest.bind(_this);
+        _this.streakRequestAction = _streakRequests.streakRequestAction.bind(_this);
         _this.streakRequestToSender = _streakRequests.streakRequestToSender.bind(_this);
         _this.streakRequestToRecipient = _streakRequests.streakRequestToRecipient.bind(_this);
         _this.getStreakRequests = _streakRequests.getStreakRequests.bind(_this);
@@ -66327,7 +66328,7 @@ exports.searchUsers = searchUsers;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.rejectStreakRequest = exports.acceptStreakRequest = exports.streakRequestToInfo = exports.getStreakRequests = exports.streakRequestToRecipient = exports.streakRequestToSender = exports.sendStreakRequest = undefined;
+exports.rejectStreakRequest = exports.acceptStreakRequest = exports.streakRequestToInfo = exports.getStreakRequests = exports.streakRequestToRecipient = exports.streakRequestToSender = exports.streakRequestAction = exports.sendStreakRequest = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66356,27 +66357,18 @@ var sendStreakRequest = function sendStreakRequest(userID, recipientID) {
                         }));
 
                         if (intersection.size === 0) {
-                            var newRequestID = _this.db.ref().child('streakRequests/').push().key;
-                            _this.streakRequestToSender(userID, newRequestID);
-                            _this.streakRequestToRecipient(recipientID, newRequestID);
-                            _this.db.ref('streakRequests/' + newRequestID).set({
-                                id: newRequestID,
-                                sender: userID,
-                                recipient: recipientID,
-                                answered: false,
-                                accepted: false
-                            });
+                            _this.streakRequestAction(userID, recipientID);
                         } else {
                             console.log('You cannot have more than one streak with a friend');
                         }
                     } else {
-                        throw 'Send Streak Request: Streaks cannot be found my user ID';
+                        _this.streakRequestAction(userID, recipientID);
                     }
                 }).catch(function (reason) {
                     console.log(reason);
                 });
             } else {
-                throw 'Send Streak Request: Streaks cannot be found my user ID';
+                _this.streakRequestAction(userID, recipientID);
             }
         }).catch(function (reason) {
             console.log(reason);
@@ -66384,6 +66376,19 @@ var sendStreakRequest = function sendStreakRequest(userID, recipientID) {
     } else {
         console.log('No request sent: You cannot send a streak request to yourself.');
     }
+};
+
+var streakRequestAction = function streakRequestAction(userID, recipientID) {
+    var newRequestID = this.db.ref().child('streakRequests/').push().key;
+    this.streakRequestToSender(userID, newRequestID);
+    this.streakRequestToRecipient(recipientID, newRequestID);
+    this.db.ref('streakRequests/' + newRequestID).set({
+        id: newRequestID,
+        sender: userID,
+        recipient: recipientID,
+        answered: false,
+        accepted: false
+    });
 };
 
 //sets the given streak request id to the sender of the request
@@ -66472,6 +66477,7 @@ var rejectStreakRequest = function rejectStreakRequest(streakRequestID, userID, 
 };
 
 exports.sendStreakRequest = sendStreakRequest;
+exports.streakRequestAction = streakRequestAction;
 exports.streakRequestToSender = streakRequestToSender;
 exports.streakRequestToRecipient = streakRequestToRecipient;
 exports.getStreakRequests = getStreakRequests;
