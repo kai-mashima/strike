@@ -56151,12 +56151,14 @@ var Login = function (_Component) {
 
         _this.handleEmail = _this.handleEmail.bind(_this);
         _this.handlePassword = _this.handlePassword.bind(_this);
+        _this.failedLoginModalToggle = _this.failedLoginModalToggle.bind(_this);
         _this.handleSubmit = _this.handleSubmit.bind(_this);
 
         //STATE
         _this.state = {
-            email: null,
-            password: null
+            email: '',
+            password: '',
+            isVisible: false
         };
         return _this;
     }
@@ -56176,9 +56178,24 @@ var Login = function (_Component) {
             });
         }
     }, {
+        key: 'failedLoginModalToggle',
+        value: function failedLoginModalToggle() {
+            this.setState({
+                isVisible: !this.state.isVisible,
+                email: '',
+                password: ''
+            });
+        }
+    }, {
         key: 'handleSubmit',
         value: function handleSubmit() {
-            this.props.loginUser(this.state.email, this.state.password);
+            var _this2 = this;
+
+            this.props.loginUser(this.state.email, this.state.password).then(function (result) {
+                if (result === false) {
+                    _this2.failedLoginModalToggle();
+                }
+            });
         }
     }, {
         key: 'render',
@@ -56197,9 +56214,40 @@ var Login = function (_Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'login-block' },
-                        _react2.default.createElement('input', { className: 'login-input login-item', type: 'email', onChange: this.handleEmail, placeholder: 'E-Mail' }),
-                        _react2.default.createElement('input', { className: 'login-input login-item', type: 'password', onChange: this.handlePassword, placeholder: 'Password' }),
-                        _react2.default.createElement('input', { className: 'btn login-item', type: 'submit', value: 'Login', onClick: this.handleSubmit })
+                        _react2.default.createElement('input', { className: 'login-input login-item', type: 'email', value: this.state.email, onChange: this.handleEmail, placeholder: 'E-Mail' }),
+                        _react2.default.createElement('input', { className: 'login-input login-item', type: 'password', value: this.state.password, onChange: this.handlePassword, placeholder: 'Password' }),
+                        _react2.default.createElement('input', { className: 'btn login-item', type: 'submit', value: 'Login', onClick: this.handleSubmit }),
+                        _react2.default.createElement(
+                            _reactBootstrap.Modal,
+                            { show: this.state.isVisible, onHide: this.failedLoginModalToggle },
+                            _react2.default.createElement(
+                                _reactBootstrap.Modal.Header,
+                                null,
+                                _react2.default.createElement(
+                                    _reactBootstrap.Modal.Title,
+                                    null,
+                                    'Forgot Password?'
+                                )
+                            ),
+                            _react2.default.createElement(
+                                _reactBootstrap.Modal.Body,
+                                null,
+                                _react2.default.createElement(
+                                    'span',
+                                    null,
+                                    'The login information you entered was incorrect.'
+                                )
+                            ),
+                            _react2.default.createElement(
+                                _reactBootstrap.Modal.Footer,
+                                null,
+                                _react2.default.createElement(
+                                    'span',
+                                    { className: 'btn btn-success', onClick: this.failedLoginModalToggle },
+                                    'Try Again'
+                                )
+                            )
+                        )
                     )
                 )
             );
@@ -65453,7 +65501,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var loginUser = function loginUser(email, password) {
     var _this = this;
 
-    _app2.default.auth().signInWithEmailAndPassword(email, password).then(function (user) {
+    return _app2.default.auth().signInWithEmailAndPassword(email, password).then(function (user) {
         _this.confirmLogin();
         return user;
     }).then(function (user) {
@@ -65463,10 +65511,10 @@ var loginUser = function loginUser(email, password) {
         _this.getStreakRequests(user.uid);
         _this.getStreaks(user.uid);
         _this.checkForDailyAllowance(user.uid);
+        return true;
     }).catch(function (error) {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        console.log('User Login Error: ' + errorCode + ': ' + errorMessage);
+        console.log('User Login Error: ' + error.code + ': ' + error.message);
+        return false;
     });
 };
 

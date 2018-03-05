@@ -1,21 +1,21 @@
 import firebase from 'firebase/app';
 
 const loginUser = function(email, password) {
-    firebase.auth().signInWithEmailAndPassword(email, password)
+    return firebase.auth().signInWithEmailAndPassword(email, password)
     .then(user => {
         this.confirmLogin();
         return user;
-    }).then((user) => {
+    }).then(user => {
         this.getUserInfo(user.uid);
         this.getFriendRequests(user.uid);
         this.getFriends(user.uid);
         this.getStreakRequests(user.uid);
         this.getStreaks(user.uid);
         this.checkForDailyAllowance(user.uid);
+        return true;
     }).catch(error => {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        console.log(`User Login Error: ${errorCode}: ${errorMessage}`);
+        console.log(`User Login Error: ${error.code}: ${error.message}`);
+        return false;
     });
 };
 
