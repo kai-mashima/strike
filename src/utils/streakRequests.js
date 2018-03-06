@@ -3,13 +3,13 @@ import firebase from 'firebase/app';
 //adds a streak request to the db and calls functions to assign streak request to sender and recipient
 const sendStreakRequest = function(userID, recipientID) {
     if (userID !== recipientID) {
-        this.db.ref(`streakOwners/${userID}`)
+        return this.db.ref(`streakOwners/${userID}`)
         .once('value')
         .then(snapshot => {
             if (snapshot.exists()) {
                 const userStreaks = Object.keys(snapshot.val());
 
-                this.db.ref(`streakOwners/${recipientID}`)
+                return this.db.ref(`streakOwners/${recipientID}`)
                 .once('value')
                 .then(snapshot => {
                     if (snapshot.exists()) {
@@ -20,27 +20,34 @@ const sendStreakRequest = function(userID, recipientID) {
 
                         if (intersection.size === 0) {
                             this.streakRequestAction(userID, recipientID);
+                            return true;
                         } else {
                             console.log('You cannot have more than one streak with a friend');
+                            return false;
                         }
 
                     } else {
                         this.streakRequestAction(userID, recipientID);
+                        return true;
                     }
                 }).catch(reason => {
                     console.log(reason);
+                    return false;
                 });
 
             } else {
                 this.streakRequestAction(userID, recipientID);
+                return true;
             }
-            
+
         }).catch(reason => {
             console.log(reason);
+            return false;
         });
 
     } else {
         console.log('No request sent: You cannot send a streak request to yourself.');
+        return false
     }
 };
 

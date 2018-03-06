@@ -22,6 +22,7 @@ export default class Friends extends Component {
         this.state = {
             isVisibleAdd: false,
             isVisibleRequests: false,
+            isVisibleConfirmation: false,
             searchResults: [],
             searchInput: null,
         }
@@ -57,11 +58,27 @@ export default class Friends extends Component {
         });
     }
 
+    //toggle state for adding a friend modal
+    toggleConfirmationModal(){
+        this.setState({
+            isVisibleConfirmation: true
+        });
+
+        setTimeout(() => {
+            this.setState({
+                isVisibleConfirmation: false
+            });
+        }, 3000);
+    }
+
     //add a friend with search results info
     handleSendFriendRequest(){
-        this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid);
+        let confirmation = this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid);
         this.toggleAddFriendModal();
         this.clearSearchResults();
+        if (confirmation) {
+            this.toggleConfirmationModal();
+        }
     }
 
     toggleFriendRequestModal(){
@@ -155,6 +172,14 @@ export default class Friends extends Component {
                                     <Modal.Footer>
                                         <span onClick={this.toggleAddFriendModal}>Close</span>
                                     </Modal.Footer>
+                                </Modal>
+                                <Modal show={this.state.isVisibleConfirmation}>
+                                    <Modal.Header>
+                                        <Modal.Title>Friend Requests Confirmation</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <span>Your friend request has been sent.</span>
+                                    </Modal.Body>
                                 </Modal>
                             </div>
                         </div>

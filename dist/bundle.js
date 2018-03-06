@@ -43480,6 +43480,7 @@ var Friends = function (_Component) {
         _this.state = {
             isVisibleAdd: false,
             isVisibleRequests: false,
+            isVisibleConfirmation: false,
             searchResults: [],
             searchInput: null
         };
@@ -43528,14 +43529,35 @@ var Friends = function (_Component) {
             });
         }
 
+        //toggle state for adding a friend modal
+
+    }, {
+        key: 'toggleConfirmationModal',
+        value: function toggleConfirmationModal() {
+            var _this3 = this;
+
+            this.setState({
+                isVisibleConfirmation: true
+            });
+
+            setTimeout(function () {
+                _this3.setState({
+                    isVisibleConfirmation: false
+                });
+            }, 3000);
+        }
+
         //add a friend with search results info
 
     }, {
         key: 'handleSendFriendRequest',
         value: function handleSendFriendRequest() {
-            this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid);
+            var confirmation = this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid);
             this.toggleAddFriendModal();
             this.clearSearchResults();
+            if (confirmation) {
+                this.toggleConfirmationModal();
+            }
         }
     }, {
         key: 'toggleFriendRequestModal',
@@ -43565,7 +43587,7 @@ var Friends = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var searchRender = _react2.default.createElement(
                 'div',
@@ -43628,14 +43650,14 @@ var Friends = function (_Component) {
                             _react2.default.createElement(
                                 'span',
                                 { className: 'request-list-item row-item btn btn-success', onClick: function onClick() {
-                                        return _this3.handleRequestAcceptance(request.id, request.recipient, request.sender);
+                                        return _this4.handleRequestAcceptance(request.id, request.recipient, request.sender);
                                     } },
                                 'Accept Friend Request'
                             ),
                             _react2.default.createElement(
                                 'span',
                                 { className: 'request-list-item row-item btn btn-danger', onClick: function onClick() {
-                                        return _this3.handleRequestRejection(request.id, request.recipient, request.sender);
+                                        return _this4.handleRequestRejection(request.id, request.recipient, request.sender);
                                     } },
                                 'Reject Friend Request'
                             )
@@ -43727,6 +43749,28 @@ var Friends = function (_Component) {
                                             'span',
                                             { onClick: this.toggleAddFriendModal },
                                             'Close'
+                                        )
+                                    )
+                                ),
+                                _react2.default.createElement(
+                                    _reactBootstrap.Modal,
+                                    { show: this.state.isVisibleConfirmation },
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Header,
+                                        null,
+                                        _react2.default.createElement(
+                                            _reactBootstrap.Modal.Title,
+                                            null,
+                                            'Friend Requests Confirmation'
+                                        )
+                                    ),
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Body,
+                                        null,
+                                        _react2.default.createElement(
+                                            'span',
+                                            null,
+                                            'Your friend request has been sent.'
                                         )
                                     )
                                 )
@@ -55631,11 +55675,13 @@ var Streaks = function (_Component) {
         _this.handleStreakStart = _this.handleStreakStart.bind(_this);
         _this.handleRequestAcceptance = _this.handleRequestAcceptance.bind(_this);
         _this.handleRequestRejection = _this.handleRequestRejection.bind(_this);
+        _this.toggleConfirmationModal = _this.toggleConfirmationModal.bind(_this);
 
         //STATE
         _this.state = {
             isVisibleStreak: false,
-            isVisibleRequests: false
+            isVisibleRequests: false,
+            isVisibleConfirmation: false
         };
         return _this;
     }
@@ -55660,14 +55706,35 @@ var Streaks = function (_Component) {
                 isVisibleStreak: !this.state.isVisibleStreak
             });
         }
+    }, {
+        key: 'toggleConfirmationModal',
+        value: function toggleConfirmationModal() {
+            var _this2 = this;
+
+            this.setState({
+                isVisibleConfirmation: true
+            });
+
+            setTimeout(function () {
+                _this2.setState({
+                    isVisibleConfirmation: false
+                });
+            }, 3000);
+        }
 
         //initiate streak request process and toggle modal
 
     }, {
         key: 'handleStreakStart',
         value: function handleStreakStart(userID, friendID) {
-            this.props.sendStreakRequest(userID, friendID);
-            this.toggleNewStreakModal();
+            var _this3 = this;
+
+            this.props.sendStreakRequest(userID, friendID).then(function (confirmation) {
+                _this3.toggleNewStreakModal();
+                if (confirmation) {
+                    _this3.toggleConfirmationModal();
+                }
+            });
         }
 
         //accept streak request and toggle modal
@@ -55690,7 +55757,7 @@ var Streaks = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this2 = this;
+            var _this4 = this;
 
             var friendsRender = _react2.default.createElement(
                 'div',
@@ -55715,7 +55782,7 @@ var Streaks = function (_Component) {
                         _react2.default.createElement(
                             'span',
                             { className: 'friend-list-item row-item btn btn-success', onClick: function onClick() {
-                                    return _this2.handleStreakStart(_this2.props.userID, friend.uid);
+                                    return _this4.handleStreakStart(_this4.props.userID, friend.uid);
                                 } },
                             ' Start Streak'
                         )
@@ -55748,14 +55815,14 @@ var Streaks = function (_Component) {
                             _react2.default.createElement(
                                 'span',
                                 { className: 'request-list-item row-item btn btn-success', onClick: function onClick() {
-                                        return _this2.handleRequestAcceptance(request.id, request.recipient, request.sender);
+                                        return _this4.handleRequestAcceptance(request.id, request.recipient, request.sender);
                                     } },
                                 'Accept Streak'
                             ),
                             _react2.default.createElement(
                                 'span',
                                 { className: 'request-list-item row-item btn btn-danger', onClick: function onClick() {
-                                        return _this2.handleRequestRejection(request.id, request.recipient, request.sender);
+                                        return _this4.handleRequestRejection(request.id, request.recipient, request.sender);
                                     } },
                                 'Reject Streak'
                             )
@@ -55775,7 +55842,7 @@ var Streaks = function (_Component) {
             );
             if (this.props.streaks.length != 0) {
                 streaksRender = this.props.streaks.map(function (streak, index) {
-                    return _react2.default.createElement(_streak2.default, { key: index, streak: streak, stokeStreak: _this2.props.stokeStreak, userID: _this2.props.userID });
+                    return _react2.default.createElement(_streak2.default, { key: index, streak: streak, stokeStreak: _this4.props.stokeStreak, userID: _this4.props.userID });
                 });
             }
 
@@ -55823,6 +55890,28 @@ var Streaks = function (_Component) {
                                             'span',
                                             { onClick: this.toggleNewStreakModal },
                                             'Close'
+                                        )
+                                    )
+                                ),
+                                _react2.default.createElement(
+                                    _reactBootstrap.Modal,
+                                    { show: this.state.isVisibleConfirmation },
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Header,
+                                        null,
+                                        _react2.default.createElement(
+                                            _reactBootstrap.Modal.Title,
+                                            null,
+                                            'Streak Requests Confirmation'
+                                        )
+                                    ),
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Body,
+                                        null,
+                                        _react2.default.createElement(
+                                            'span',
+                                            null,
+                                            'Your streak request has been sent.'
                                         )
                                     )
                                 )
@@ -66343,11 +66432,11 @@ var sendStreakRequest = function sendStreakRequest(userID, recipientID) {
     var _this = this;
 
     if (userID !== recipientID) {
-        this.db.ref('streakOwners/' + userID).once('value').then(function (snapshot) {
+        return this.db.ref('streakOwners/' + userID).once('value').then(function (snapshot) {
             if (snapshot.exists()) {
                 var userStreaks = Object.keys(snapshot.val());
 
-                _this.db.ref('streakOwners/' + recipientID).once('value').then(function (snapshot) {
+                return _this.db.ref('streakOwners/' + recipientID).once('value').then(function (snapshot) {
                     if (snapshot.exists()) {
                         var recipientStreaks = Object.keys(snapshot.val());
                         var userSet = new Set(userStreaks);
@@ -66358,23 +66447,30 @@ var sendStreakRequest = function sendStreakRequest(userID, recipientID) {
 
                         if (intersection.size === 0) {
                             _this.streakRequestAction(userID, recipientID);
+                            return true;
                         } else {
                             console.log('You cannot have more than one streak with a friend');
+                            return false;
                         }
                     } else {
                         _this.streakRequestAction(userID, recipientID);
+                        return true;
                     }
                 }).catch(function (reason) {
                     console.log(reason);
+                    return false;
                 });
             } else {
                 _this.streakRequestAction(userID, recipientID);
+                return true;
             }
         }).catch(function (reason) {
             console.log(reason);
+            return false;
         });
     } else {
         console.log('No request sent: You cannot send a streak request to yourself.');
+        return false;
     }
 };
 
@@ -66516,8 +66612,10 @@ var sendFriendRequest = function sendFriendRequest(userID, recipientID) {
             answered: false,
             accepted: false
         });
+        return true;
     } else {
         console.log('No request sent: You cannot send a friend request to yourself.');
+        return false;
     }
 };
 

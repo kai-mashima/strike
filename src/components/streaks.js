@@ -13,12 +13,14 @@ export default class Streaks extends Component {
         this.toggleRequestsModal = this.toggleRequestsModal.bind(this);
         this.handleStreakStart = this.handleStreakStart.bind(this);
         this.handleRequestAcceptance = this.handleRequestAcceptance.bind(this);
-        this.handleRequestRejection = this.handleRequestRejection.bind(this);        
+        this.handleRequestRejection = this.handleRequestRejection.bind(this);
+        this.toggleConfirmationModal = this.toggleConfirmationModal.bind(this);  
 
         //STATE
         this.state = {
             isVisibleStreak: false,
             isVisibleRequests: false,
+            isVisibleConfirmation: false,
         }
     }
 
@@ -36,10 +38,27 @@ export default class Streaks extends Component {
         });
     }
 
+    toggleConfirmationModal() {
+        this.setState({
+            isVisibleConfirmation: true
+        });
+
+        setTimeout(() => {
+            this.setState({
+                isVisibleConfirmation: false
+            });
+        }, 3000);
+    }
+
     //initiate streak request process and toggle modal
     handleStreakStart(userID, friendID) {
-        this.props.sendStreakRequest(userID, friendID);
-        this.toggleNewStreakModal();
+        this.props.sendStreakRequest(userID, friendID)
+        .then(confirmation => {
+            this.toggleNewStreakModal();
+            if (confirmation) {
+                this.toggleConfirmationModal();
+            }
+        });       
     }
 
     //accept streak request and toggle modal
@@ -107,6 +126,14 @@ export default class Streaks extends Component {
                                     <Modal.Footer>
                                         <span onClick={this.toggleNewStreakModal}>Close</span>
                                     </Modal.Footer>
+                                </Modal>
+                                <Modal show={this.state.isVisibleConfirmation}>
+                                    <Modal.Header>
+                                        <Modal.Title>Streak Requests Confirmation</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <span>Your streak request has been sent.</span>
+                                    </Modal.Body>
                                 </Modal>
                             </div>
                         </div>

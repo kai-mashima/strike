@@ -14,8 +14,10 @@ const sendFriendRequest = function(userID, recipientID) {
             answered: false,
             accepted: false,
         });
+        return true;
     } else {
         console.log('No request sent: You cannot send a friend request to yourself.');
+        return false;
     }
 };
 
