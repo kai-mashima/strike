@@ -23,7 +23,7 @@ export default class Signup extends Component {
             username: '',
             email: '',
             password: '',
-            isVisible: false,
+            isVisibleSignup: false,
         };
     }
 
@@ -59,7 +59,7 @@ export default class Signup extends Component {
 
     toggleSignup(){
         this.setState({
-            isVisible: !this.state.isVisible
+            isVisibleSignup: !this.state.isVisibleSignup
         });
     }
 
@@ -73,7 +73,7 @@ export default class Signup extends Component {
                 <div className='login-footer'>
                     <p className='login-footer-item'>Don't have an account?</p>
                     <p className='signup-text login-footer-item' onClick={this.toggleSignup}>Sign Up</p>
-                    <Modal show={this.state.isVisible} onHide={this.toggleSignup}>
+                    <Modal show={this.state.isVisibleSignup} onHide={this.toggleSignup}>
                         <Modal.Header>
                             <Modal.Title>Sign Up</Modal.Title>
                         </Modal.Header>

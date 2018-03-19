@@ -62,8 +62,20 @@ const addFriend = function(userID, friendID) {
     }
 };
 
+const removeFriend = function(friendID) {
+    return this.db.ref(`friends/${friendID}`)
+    .remove()
+    .then(() => {
+        return true;
+    }).catch(reason => {
+        console.log(reason);
+        return false;
+    });
+};
+
 export {
     getFriends,
     friendToInfo,
-    addFriend
+    addFriend,
+    removeFriend,
 };

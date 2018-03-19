@@ -39943,6 +39943,18 @@ var _reactRouter2 = _interopRequireDefault(_reactRouter);
 
 var _reactRouterDom = __webpack_require__(146);
 
+var _reactBootstrap = __webpack_require__(62);
+
+var _app = __webpack_require__(417);
+
+var _app2 = _interopRequireDefault(_app);
+
+__webpack_require__(437);
+
+__webpack_require__(472);
+
+var _config = __webpack_require__(416);
+
 var _history = __webpack_require__(261);
 
 var _history2 = _interopRequireDefault(_history);
@@ -39970,16 +39982,6 @@ var _login2 = _interopRequireDefault(_login);
 var _signup = __webpack_require__(415);
 
 var _signup2 = _interopRequireDefault(_signup);
-
-var _config = __webpack_require__(416);
-
-var _app = __webpack_require__(417);
-
-var _app2 = _interopRequireDefault(_app);
-
-__webpack_require__(437);
-
-__webpack_require__(472);
 
 var _currency = __webpack_require__(476);
 
@@ -40016,6 +40018,8 @@ var App = function (_Component) {
         _this.db = _this.app.database();
 
         //BINDINGS
+        _this.toggleSplash = _this.toggleSplash.bind(_this);
+
         //helperFunctions
         _this.getUsername = _helperFunctions.getUsername.bind(_this);
         _this.convertPastTimestampToDays = _helperFunctions.convertPastTimestampToDays.bind(_this);
@@ -40050,6 +40054,7 @@ var App = function (_Component) {
         _this.addFriend = _friends3.addFriend.bind(_this);
         _this.getFriends = _friends3.getFriends.bind(_this);
         _this.friendToInfo = _friends3.friendToInfo.bind(_this);
+        _this.removeFriend = _friends3.removeFriend.bind(_this);
 
         //streakRequests
         _this.sendStreakRequest = _streakRequests.sendStreakRequest.bind(_this);
@@ -40070,6 +40075,7 @@ var App = function (_Component) {
         _this.stokeStreak = _streaks3.stokeStreak.bind(_this);
         _this.checkForExpiredTime = _streaks3.checkForExpiredTime.bind(_this);
         _this.checkForExpiredStreaks = _streaks3.checkForExpiredStreaks.bind(_this);
+        _this.streakTerminationDatabaseTransfer = _streaks3.streakTerminationDatabaseTransfer.bind(_this);
         _this.streakToOwner = _streaks3.streakToOwner.bind(_this);
         _this.searchUsers = _streaks3.searchUsers.bind(_this);
 
@@ -40100,15 +40106,55 @@ var App = function (_Component) {
             streakRequests: [],
             streakRequestsInfo: [],
             streaks: [],
-            streaksInfo: []
+            streaksInfo: [],
+            isVisibleSplash: false
         };
         return _this;
     }
 
     _createClass(App, [{
+        key: 'toggleSplash',
+        value: function toggleSplash() {
+            this.setState({
+                isVisibleSplash: !this.state.isVisibleSplash
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
+
+            var splashScreen = _react2.default.createElement(
+                _reactBootstrap.Modal,
+                { show: this.state.isVisibleSplash },
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Header,
+                    null,
+                    _react2.default.createElement(
+                        _reactBootstrap.Modal.Title,
+                        null,
+                        'Splash'
+                    )
+                ),
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Body,
+                    null,
+                    _react2.default.createElement(
+                        'span',
+                        null,
+                        'This is some information about the app.'
+                    )
+                ),
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Footer,
+                    null,
+                    _react2.default.createElement(
+                        'span',
+                        { onClick: this.toggleSplash },
+                        'Close'
+                    )
+                )
+            );
 
             return _react2.default.createElement(
                 _reactRouterDom.BrowserRouter,
@@ -40119,6 +40165,7 @@ var App = function (_Component) {
                     this.state.loggedIn ? _react2.default.createElement(
                         'div',
                         null,
+                        splashScreen,
                         _react2.default.createElement(
                             _reactRouterDom.Switch,
                             null,
@@ -40159,7 +40206,8 @@ var App = function (_Component) {
                                         sendFriendRequest: _this2.sendFriendRequest,
                                         requests: _this2.state.friendRequestsInfo,
                                         acceptFriendRequest: _this2.acceptFriendRequest,
-                                        rejectFriendRequest: _this2.rejectFriendRequest
+                                        rejectFriendRequest: _this2.rejectFriendRequest,
+                                        removeFriend: _this2.removeFriend
                                     });
                                 }
                             }),
@@ -43682,7 +43730,7 @@ var Friends = function (_Component) {
             );
             if (this.props.friends.length != 0) {
                 friendsRender = this.props.friends.map(function (friend, index) {
-                    return _react2.default.createElement(_friend2.default, { key: index, friend: friend });
+                    return _react2.default.createElement(_friend2.default, { key: index, friend: friend, removeFriend: _this4.props.removeFriend });
                 });
             }
 
@@ -43860,6 +43908,8 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactDom = __webpack_require__(14);
 
+var _reactBootstrap = __webpack_require__(62);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -43874,61 +43924,154 @@ var Friend = function (_Component) {
     function Friend(props) {
         _classCallCheck(this, Friend);
 
-        return _possibleConstructorReturn(this, (Friend.__proto__ || Object.getPrototypeOf(Friend)).call(this, props));
+        var _this = _possibleConstructorReturn(this, (Friend.__proto__ || Object.getPrototypeOf(Friend)).call(this, props));
+
+        _this.toggleInfoModal = _this.toggleInfoModal.bind(_this);
+        _this.toggleConfirmationModal = _this.toggleConfirmationModal.bind(_this);
+        _this.handleRemoveFriend = _this.handleRemoveFriend.bind(_this);
+
+        _this.state = {
+            isVisibleInfo: false,
+            isVisibleConfirmation: false
+        };
+        return _this;
     }
 
     _createClass(Friend, [{
+        key: 'toggleInfoModal',
+        value: function toggleInfoModal() {
+            this.setState({
+                isVisibleInfo: !this.state.isVisibleInfo
+            });
+        }
+    }, {
+        key: 'toggleConfirmationModal',
+        value: function toggleConfirmationModal() {
+            var _this2 = this;
+
+            this.setState({
+                isVisibleConfirmation: true
+            });
+
+            setTimeout(function () {
+                _this2.setState({
+                    isVisibleConfirmation: false
+                });
+            }, 3000);
+        }
+    }, {
+        key: 'handleRemoveFriend',
+        value: function handleRemoveFriend() {
+            var _this3 = this;
+
+            this.props.removeFriend(friendID).then(function (confirmation) {
+                _this3.toggleInfoModal();
+                if (confirmation) {
+                    _this3.toggleConfirmationModal();
+                }
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
+            var modalRender = _react2.default.createElement(
+                _reactBootstrap.Modal,
+                { show: this.state.isVisibleInfo, onHide: this.toggleInfoModal },
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Header,
+                    null,
+                    _react2.default.createElement(
+                        _reactBootstrap.Modal.Title,
+                        null,
+                        'Friend Info'
+                    )
+                ),
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Body,
+                    null,
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'row-container' },
+                        _react2.default.createElement(
+                            'span',
+                            { onClick: this.handleRemoveFriend() },
+                            'Remove Friend'
+                        )
+                    )
+                ),
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Footer,
+                    null,
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'row-container' },
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row-item' },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'btn btn-danger', onClick: this.toggleInfoModal },
+                                'Close'
+                            )
+                        )
+                    )
+                )
+            );
+
             return _react2.default.createElement(
                 'div',
-                { className: 'friends-item' },
+                null,
+                modalRender,
                 _react2.default.createElement(
                     'div',
-                    { className: 'friend-item-img friend-user-img' },
-                    this.props.friend.imgAvailable ? _react2.default.createElement('img', { src: '', className: '' }) : _react2.default.createElement('span', { className: 'friend-user-glyph glyphicon glyphicon-user' })
-                ),
-                _react2.default.createElement(
-                    'div',
-                    { className: 'friend-item' },
+                    { className: 'friends-item', onClick: this.toggleInfoModal },
                     _react2.default.createElement(
-                        'span',
-                        null,
-                        this.props.friend.username
-                    )
-                ),
-                _react2.default.createElement(
-                    'div',
-                    { className: 'friend-item' },
-                    _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-fire' }),
-                    _react2.default.createElement(
-                        'span',
-                        null,
-                        this.props.friend.totalStreaks
-                    )
-                ),
-                _react2.default.createElement(
-                    'div',
-                    { className: 'friend-item' },
-                    _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-flash' }),
-                    _react2.default.createElement(
-                        'span',
-                        null,
-                        this.props.friend.totalDays
-                    )
-                ),
-                _react2.default.createElement(
-                    'div',
-                    { className: 'friend-item' },
-                    _react2.default.createElement(
-                        'span',
-                        { className: 'large-font' },
-                        '$'
+                        'div',
+                        { className: 'friend-item-img friend-user-img' },
+                        this.props.friend.imgAvailable ? _react2.default.createElement('img', { src: '', className: '' }) : _react2.default.createElement('span', { className: 'friend-user-glyph glyphicon glyphicon-user' })
                     ),
                     _react2.default.createElement(
-                        'span',
-                        null,
-                        this.props.friend.value
+                        'div',
+                        { className: 'friend-item' },
+                        _react2.default.createElement(
+                            'span',
+                            null,
+                            this.props.friend.username
+                        )
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'friend-item' },
+                        _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-fire' }),
+                        _react2.default.createElement(
+                            'span',
+                            null,
+                            this.props.friend.totalStreaks
+                        )
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'friend-item' },
+                        _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-flash' }),
+                        _react2.default.createElement(
+                            'span',
+                            null,
+                            this.props.friend.totalDays
+                        )
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'friend-item' },
+                        _react2.default.createElement(
+                            'span',
+                            { className: 'large-font' },
+                            '$'
+                        ),
+                        _react2.default.createElement(
+                            'span',
+                            null,
+                            this.props.friend.value
+                        )
                     )
                 )
             );
@@ -56306,7 +56449,7 @@ var Login = function (_Component) {
                         { className: 'login-block' },
                         _react2.default.createElement('input', { className: 'login-input login-item', type: 'email', value: this.state.email, onChange: this.handleEmail, placeholder: 'E-Mail' }),
                         _react2.default.createElement('input', { className: 'login-input login-item', type: 'password', value: this.state.password, onChange: this.handlePassword, placeholder: 'Password' }),
-                        _react2.default.createElement('input', { className: 'btn login-item', type: 'submit', value: 'Login', onClick: this.handleSubmit }),
+                        _react2.default.createElement('input', { className: 'btn btn-default login-item', type: 'submit', value: 'Login', onClick: this.handleSubmit }),
                         _react2.default.createElement(
                             _reactBootstrap.Modal,
                             { show: this.state.isVisible, onHide: this.failedLoginModalToggle },
@@ -56406,7 +56549,7 @@ var Signup = function (_Component) {
             username: '',
             email: '',
             password: '',
-            isVisible: false
+            isVisibleSignup: false
         };
         return _this;
     }
@@ -56450,7 +56593,7 @@ var Signup = function (_Component) {
         key: 'toggleSignup',
         value: function toggleSignup() {
             this.setState({
-                isVisible: !this.state.isVisible
+                isVisibleSignup: !this.state.isVisibleSignup
             });
         }
     }, {
@@ -56479,7 +56622,7 @@ var Signup = function (_Component) {
                     ),
                     _react2.default.createElement(
                         _reactBootstrap.Modal,
-                        { show: this.state.isVisible, onHide: this.toggleSignup },
+                        { show: this.state.isVisibleSignup, onHide: this.toggleSignup },
                         _react2.default.createElement(
                             _reactBootstrap.Modal.Header,
                             null,
@@ -65731,6 +65874,7 @@ var addNewUser = function addNewUser() {
         lastChecked: lastChecked
     });
     this.setState({
+        isVisibleSplash: true,
         loggedIn: true,
         email: email,
         userID: userID
@@ -66025,7 +66169,7 @@ exports.calculateDailyAllowance = calculateDailyAllowance;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.addFriend = exports.friendToInfo = exports.getFriends = undefined;
+exports.removeFriend = exports.addFriend = exports.friendToInfo = exports.getFriends = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66097,9 +66241,19 @@ var addFriend = function addFriend(userID, friendID) {
     }
 };
 
+var removeFriend = function removeFriend(friendID) {
+    return this.db.ref('friends/' + friendID).remove().then(function () {
+        return true;
+    }).catch(function (reason) {
+        console.log(reason);
+        return false;
+    });
+};
+
 exports.getFriends = getFriends;
 exports.friendToInfo = friendToInfo;
 exports.addFriend = addFriend;
+exports.removeFriend = removeFriend;
 
 /***/ }),
 /* 478 */
@@ -66111,7 +66265,7 @@ exports.addFriend = addFriend;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.searchUsers = exports.streakToOwner = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
+exports.searchUsers = exports.streakToOwner = exports.streakTerminationDatabaseTransfer = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66332,14 +66486,7 @@ var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
 
             } else if (currentExpired && nextExpired && !streak.terminated) {
                 //streak terminated
-                streak.terminated = true;
-                streak.terminator = streak.currentOwner;
-                streak.betrayed = streak.nextOwner;
-
-                _this5.db.ref('terminatedStreaks/' + streakID).set(streak);
-
-                _this5.db.ref('streaks/' + streakID).remove();
-
+                _this5.streakTerminationDatabaseTransfer(streak, streakID);
                 _this5.streakTermination(streakID);
             } else if (currentExpired && !nextExpired) {
                 //streak transition
@@ -66365,6 +66512,20 @@ var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
         console.log(reason);
     });
     //send streak termination info to history db
+};
+
+var streakTerminationDatabaseTransfer = function streakTerminationDatabaseTransfer(streak, streakID) {
+    streak.terminated = true;
+    streak.terminator = streak.currentOwner;
+    streak.betrayed = streak.nextOwner;
+
+    this.db.ref('terminatedStreaks/' + streakID).set(streak);
+    this.db.ref('terminatedStreakOwners/' + streak.currentOwner + '/' + streakID).set(true);
+    this.db.ref('terminatedStreakOwners/' + streak.nextOwner + '/' + streakID).set(true);
+
+    this.db.ref('streakOwners/' + streak.currentOwner + '/' + streakID).remove();
+    this.db.ref('streakOwners/' + streak.nextOwner + '/' + streakID).remove();
+    this.db.ref('streaks/' + streakID).remove();
 };
 
 //sets a streak id to a users streaklist
@@ -66404,6 +66565,7 @@ exports.getDate24HoursAheadOfGiven = getDate24HoursAheadOfGiven;
 exports.stokeStreak = stokeStreak;
 exports.checkForExpiredTime = checkForExpiredTime;
 exports.checkForExpiredStreaks = checkForExpiredStreaks;
+exports.streakTerminationDatabaseTransfer = streakTerminationDatabaseTransfer;
 exports.streakToOwner = streakToOwner;
 exports.searchUsers = searchUsers;
 

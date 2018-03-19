@@ -59,7 +59,7 @@ export default class Login extends Component {
                     <div className='login-block'>
                         <input className='login-input login-item' type='email' value={this.state.email} onChange={this.handleEmail} placeholder='E-Mail' />
                         <input className='login-input login-item' type='password' value={this.state.password} onChange={this.handlePassword} placeholder='Password' />
-                        <input className='btn login-item' type='submit' value='Login' onClick={this.handleSubmit}/>
+                        <input className='btn btn-default login-item' type='submit' value='Login' onClick={this.handleSubmit}/>
 
                         <Modal show={this.state.isVisible} onHide={this.failedLoginModalToggle}>
                             <Modal.Header>

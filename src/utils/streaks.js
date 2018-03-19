@@ -201,14 +201,7 @@ const checkForExpiredStreaks = function(streakID) {
             } else if (!currentExpired && nextExpired) { //streak active | unstoked
                 
             } else if (currentExpired && nextExpired && !streak.terminated) { //streak terminated
-                streak.terminated = true;
-                streak.terminator = streak.currentOwner;
-                streak.betrayed = streak.nextOwner;
-
-                this.db.ref(`terminatedStreaks/${streakID}`).set(streak);
-
-                this.db.ref(`streaks/${streakID}`).remove();
-
+                this.streakTerminationDatabaseTransfer(streak, streakID);
                 this.streakTermination(streakID);
             } else if (currentExpired && !nextExpired) { //streak transition
                 let currentExpirationDate = this.getDate24HoursAhead();
@@ -233,6 +226,20 @@ const checkForExpiredStreaks = function(streakID) {
         console.log(reason);
     });
     //send streak termination info to history db
+};
+
+const streakTerminationDatabaseTransfer = function(streak, streakID) {
+    streak.terminated = true;
+    streak.terminator = streak.currentOwner;
+    streak.betrayed = streak.nextOwner;
+
+    this.db.ref(`terminatedStreaks/${streakID}`).set(streak);
+    this.db.ref(`terminatedStreakOwners/${streak.currentOwner}/${streakID}`).set(true);
+    this.db.ref(`terminatedStreakOwners/${streak.nextOwner}/${streakID}`).set(true);
+
+    this.db.ref(`streakOwners/${streak.currentOwner}/${streakID}`).remove();
+    this.db.ref(`streakOwners/${streak.nextOwner}/${streakID}`).remove();
+    this.db.ref(`streaks/${streakID}`).remove();
 };
 
 //sets a streak id to a users streaklist
@@ -278,6 +285,7 @@ export {
     stokeStreak,
     checkForExpiredTime,
     checkForExpiredStreaks,
+    streakTerminationDatabaseTransfer,
     streakToOwner,
     searchUsers,
 };

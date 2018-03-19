@@ -7,6 +7,13 @@ import {
   Redirect,
   Switch
 } from 'react-router-dom';
+import { Modal } from 'react-bootstrap';
+import firebase from 'firebase/app';
+import 'firebase/database';
+import 'firebase/auth';
+
+import { DB_CONFIG } from '../config/config.js';
+
 import History from './components/history.js';
 import Friends from './components/friends.js';
 import Profile from './components/profile.js';
@@ -14,10 +21,8 @@ import Unlocks from './components/unlocks.js';
 import Streaks from './components/streaks.js';
 import Login from './components/login.js';
 import Signup from './components/signup.js';
-import { DB_CONFIG } from '../config/config.js';
-import firebase from 'firebase/app';
-import 'firebase/database';
-import 'firebase/auth';
+
+
 import {
     streakTermination,
     calculateStreakTerminatorTerminationPrice,
@@ -46,6 +51,7 @@ import {
     getFriends,
     friendToInfo,
     addFriend,
+    removeFriend,
 } from './utils/friends.js';
 import {
     startStreak,
@@ -57,6 +63,7 @@ import {
     checkForExpiredTime,
     checkForExpiredStreaks,
     convertDateToTimeDifference,
+    streakTerminationDatabaseTransfer,
     streakToOwner,
     searchUsers,
 } from './utils/streaks.js';
@@ -101,6 +108,8 @@ export default class App extends Component {
         this.db = this.app.database();
 
         //BINDINGS
+        this.toggleSplash = this.toggleSplash.bind(this);
+
         //helperFunctions
         this.getUsername = getUsername.bind(this);
         this.convertPastTimestampToDays = convertPastTimestampToDays.bind(this);
@@ -135,6 +144,7 @@ export default class App extends Component {
         this.addFriend = addFriend.bind(this);
         this.getFriends = getFriends.bind(this);
         this.friendToInfo = friendToInfo.bind(this);
+        this.removeFriend = removeFriend.bind(this);
 
         //streakRequests
         this.sendStreakRequest = sendStreakRequest.bind(this);
@@ -155,6 +165,7 @@ export default class App extends Component {
         this.stokeStreak = stokeStreak.bind(this);
         this.checkForExpiredTime = checkForExpiredTime.bind(this);
         this.checkForExpiredStreaks = checkForExpiredStreaks.bind(this);
+        this.streakTerminationDatabaseTransfer = streakTerminationDatabaseTransfer.bind(this);
         this.streakToOwner = streakToOwner.bind(this);
         this.searchUsers = searchUsers.bind(this);
 
@@ -186,16 +197,38 @@ export default class App extends Component {
             streakRequestsInfo: [],
             streaks: [],
             streaksInfo: [],
+            isVisibleSplash: false, 
         };
     }
 
+    toggleSplash() {
+        this.setState({
+            isVisibleSplash: !this.state.isVisibleSplash
+        });
+    }
+
     render() {
+        let splashScreen = (
+            <Modal show={this.state.isVisibleSplash}>
+                <Modal.Header>
+                    <Modal.Title>Splash</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <span>This is some information about the app.</span>
+                </Modal.Body>
+                <Modal.Footer>
+                    <span onClick={this.toggleSplash}>Close</span>
+                </Modal.Footer>
+            </Modal>
+        );
+
         return (
             <Router history={browserHistory}>
                 <div className='wrapper'>
                     {
                         this.state.loggedIn ? (
                             <div>
+                                {splashScreen}
                                 <Switch>
                                     <Route exact path='/' render={() => (
                                             <Redirect to='/streaks' />
@@ -235,6 +268,7 @@ export default class App extends Component {
                                                 requests={this.state.friendRequestsInfo}
                                                 acceptFriendRequest={this.acceptFriendRequest}
                                                 rejectFriendRequest={this.rejectFriendRequest}
+                                                removeFriend={this.removeFriend}
                                             />
                                         )}
                                     />

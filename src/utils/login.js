@@ -119,6 +119,7 @@ const addNewUser = function(username = '', userID, first = '', last = '', email 
         lastChecked: lastChecked,
     });
     this.setState({
+        isVisibleSplash: true,
         loggedIn: true,
         email: email,
         userID: userID,
