@@ -43730,7 +43730,7 @@ var Friends = function (_Component) {
             );
             if (this.props.friends.length != 0) {
                 friendsRender = this.props.friends.map(function (friend, index) {
-                    return _react2.default.createElement(_friend2.default, { key: index, friend: friend, removeFriend: _this4.props.removeFriend });
+                    return _react2.default.createElement(_friend2.default, { user: _this4.props.user, key: index, friend: friend, removeFriend: _this4.props.removeFriend });
                 });
             }
 
@@ -43964,7 +43964,7 @@ var Friend = function (_Component) {
         value: function handleRemoveFriend() {
             var _this3 = this;
 
-            this.props.removeFriend(friendID).then(function (confirmation) {
+            this.props.removeFriend(this.props.user, this.props.friend.uid).then(function (confirmation) {
                 _this3.toggleInfoModal();
                 if (confirmation) {
                     _this3.toggleConfirmationModal();
@@ -43974,7 +43974,37 @@ var Friend = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var modalRender = _react2.default.createElement(
+            var confirmationModalRender = _react2.default.createElement(
+                _reactBootstrap.Modal,
+                { show: this.state.isVisibleConfirmation },
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Header,
+                    null,
+                    _react2.default.createElement(
+                        _reactBootstrap.Modal.Title,
+                        null,
+                        'Friend Removed'
+                    )
+                ),
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Body,
+                    null,
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'row-container' },
+                        _react2.default.createElement(
+                            'span',
+                            null,
+                            'You have removed ',
+                            this.props.friend.username,
+                            ' from your friends list.'
+                        )
+                    )
+                ),
+                _react2.default.createElement(_reactBootstrap.Modal.Footer, null)
+            );
+
+            var infoModalRender = _react2.default.createElement(
                 _reactBootstrap.Modal,
                 { show: this.state.isVisibleInfo, onHide: this.toggleInfoModal },
                 _react2.default.createElement(
@@ -43993,9 +44023,47 @@ var Friend = function (_Component) {
                         'div',
                         { className: 'row-container' },
                         _react2.default.createElement(
-                            'span',
-                            { onClick: this.handleRemoveFriend() },
-                            'Remove Friend'
+                            'div',
+                            { className: 'row-item' },
+                            _react2.default.createElement(
+                                'span',
+                                null,
+                                this.props.friend.username
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row-item' },
+                            _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-fire' }),
+                            _react2.default.createElement(
+                                'span',
+                                null,
+                                this.props.friend.totalStreaks
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row-item' },
+                            _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-flash' }),
+                            _react2.default.createElement(
+                                'span',
+                                null,
+                                this.props.friend.totalDays
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row-item' },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'large-font' },
+                                '$'
+                            ),
+                            _react2.default.createElement(
+                                'span',
+                                null,
+                                this.props.friend.value
+                            )
                         )
                     )
                 ),
@@ -44005,6 +44073,15 @@ var Friend = function (_Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'row-container' },
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row-item' },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'btn btn-warning', onClick: this.handleRemoveFriend },
+                                'Remove Friend'
+                            )
+                        ),
                         _react2.default.createElement(
                             'div',
                             { className: 'row-item' },
@@ -44021,7 +44098,8 @@ var Friend = function (_Component) {
             return _react2.default.createElement(
                 'div',
                 null,
-                modalRender,
+                confirmationModalRender,
+                infoModalRender,
                 _react2.default.createElement(
                     'div',
                     { className: 'friends-item', onClick: this.toggleInfoModal },
@@ -66241,9 +66319,35 @@ var addFriend = function addFriend(userID, friendID) {
     }
 };
 
-var removeFriend = function removeFriend(friendID) {
-    return this.db.ref('friends/' + friendID).remove().then(function () {
-        return true;
+var removeFriend = function removeFriend(userID, friendID) {
+    var _this3 = this;
+
+    return this.db.ref('streakOwners/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var streaks = snapshot.val();
+            Object.keys(streaks).map(function (streak) {
+                _this3.db.ref('streaks/' + streak).once('value').then(function (snapshot) {
+                    if (snapshot.exists()) {
+                        var streakInfo = snapshot.val();
+                        if (streakInfo.currentOwner === friendID || streakInfo.nextOwner === friendID) {
+                            _this3.db.ref('streaks/' + streak).remove();
+                            _this3.db.ref('friends/' + userID + '/' + friendID).remove();
+                            _this3.db.ref('friends/' + friendID + '/' + userID).remove();
+                            _this3.getFriends();
+                            _this3.getStreaks();
+                            return true;
+                        }
+                    } else {
+                        throw '';
+                    }
+                }).catch(function (reason) {
+                    console.log(reason);
+                    return false;
+                });
+            });
+        } else {
+            throw '';
+        }
     }).catch(function (reason) {
         console.log(reason);
         return false;

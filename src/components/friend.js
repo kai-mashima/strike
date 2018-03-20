@@ -36,7 +36,7 @@ export default class Friend extends Component {
     }
 
     handleRemoveFriend(){
-        this.props.removeFriend(friendID)
+        this.props.removeFriend(this.props.user ,this.props.friend.uid)
         .then(confirmation => {
             this.toggleInfoModal();
             if (confirmation) {
@@ -46,18 +46,50 @@ export default class Friend extends Component {
     }
 
     render() {
-        let modalRender = (
+        let confirmationModalRender = (
+            <Modal show={this.state.isVisibleConfirmation}>
+                <Modal.Header>
+                    <Modal.Title>Friend Removed</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className='row-container'>
+                        <span>You have removed {this.props.friend.username} from your friends list.</span>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                </Modal.Footer>
+            </Modal>
+        );
+
+        let infoModalRender = (
             <Modal show={this.state.isVisibleInfo} onHide={this.toggleInfoModal}>
                 <Modal.Header>
                     <Modal.Title>Friend Info</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className='row-container'>
-                        <span onClick={this.handleRemoveFriend()}>Remove Friend</span>
+                        <div className='row-item'>
+                            <span>{this.props.friend.username}</span>
+                        </div>
+                        <div className='row-item'>
+                            <span className='streak-item-glyph glyphicon glyphicon-fire'></span>
+                            <span>{this.props.friend.totalStreaks}</span>
+                        </div>
+                        <div className='row-item'>
+                            <span className='streak-item-glyph glyphicon glyphicon-flash'></span>
+                            <span>{this.props.friend.totalDays}</span>
+                        </div>
+                        <div className='row-item'>
+                            <span className='large-font'>$</span>
+                            <span>{this.props.friend.value}</span>
+                        </div>
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
                     <div className='row-container'>
+                        <div className='row-item'>
+                            <span className='btn btn-warning' onClick={this.handleRemoveFriend}>Remove Friend</span>
+                        </div>
                         <div className='row-item'>
                             <span className='btn btn-danger' onClick={this.toggleInfoModal}>Close</span>
                         </div>
@@ -68,7 +100,8 @@ export default class Friend extends Component {
 
         return (
             <div>
-                {modalRender}
+                {confirmationModalRender}
+                {infoModalRender}
                 <div className='friends-item' onClick={this.toggleInfoModal}>
                     <div className='friend-item-img friend-user-img'>
                         {

@@ -140,7 +140,7 @@ export default class Friends extends Component {
         let friendsRender = <div><span>You have no friends</span></div>;
         if (this.props.friends.length != 0) {
             friendsRender = this.props.friends.map((friend, index) => (
-                <Friend key={index} friend={friend} removeFriend={this.props.removeFriend}/>
+                <Friend user={this.props.user} key={index} friend={friend} removeFriend={this.props.removeFriend}/>
             ));
         }
 

@@ -62,11 +62,37 @@ const addFriend = function(userID, friendID) {
     }
 };
 
-const removeFriend = function(friendID) {
-    return this.db.ref(`friends/${friendID}`)
-    .remove()
-    .then(() => {
-        return true;
+const removeFriend = function(userID, friendID) {
+    return this.db.ref(`streakOwners/${userID}`)
+    .once('value')
+    .then(snapshot => {
+        if (snapshot.exists()) {
+            let streaks = snapshot.val();
+            Object.keys(streaks).map(streak => {
+                this.db.ref(`streaks/${streak}`)
+                .once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        let streakInfo = snapshot.val();
+                        if (streakInfo.currentOwner === friendID || streakInfo.nextOwner === friendID) {
+                            this.db.ref(`streaks/${streak}`).remove();
+                            this.db.ref(`friends/${userID}/${friendID}`).remove();
+                            this.db.ref(`friends/${friendID}/${userID}`).remove();
+                            this.getFriends();
+                            this.getStreaks();
+                            return true;
+                        }
+                    } else {
+                        throw '';
+                    }
+                }).catch(reason => {
+                    console.log(reason);
+                    return false;
+                });
+            });
+        } else {
+            throw '';
+        }
     }).catch(reason => {
         console.log(reason);
         return false;
