@@ -42,14 +42,14 @@ export default class Streak extends Component {
                     <Modal.Title>Streak With {this.props.streak.friend}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className='row-container'>
-                        <div className='row-item'>
+                    <div className='streak-modal-container'>
+                        <div className='streak-modal-item'>
                             <span>Value: ${this.props.streak.value}</span>
                         </div>
-                        <div className='row-item'>
+                        <div className='streak-modal-item'>
                             <span>Days: {this.props.streak.days}</span>
                         </div>
-                        <div className='row-item'>
+                        <div className='streak-modal-item'>
                             <span>Expirates In: {this.props.streak.currentExpirationTime} hours</span>
                         </div>
                     </div>
@@ -77,14 +77,14 @@ export default class Streak extends Component {
                     <div className='streak-item-img streak-user-img'>
                         {userRender}
                     </div>
-                    <div className='streak-item large-font'>
+                    <div className='streak-item'>
                         <span>{this.props.streak.friend}</span>
                     </div>
-                    <div className='streak-item large-font'>
+                    <div className='streak-item'>
                         <span className='streak-item-glyph glyphicon glyphicon-fire'></span>
                         <span>{this.props.streak.days}</span>
                     </div>
-                    <div className='streak-item large-font'>
+                    <div className='streak-item'>
                         <span className='streak-item-glyph glyphicon glyphicon-time'></span>
                         <span>{this.props.streak.currentExpirationTime}</span>
                     </div>

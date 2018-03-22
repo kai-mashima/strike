@@ -315,6 +315,29 @@ li {
     width: 17%;
 }
 
+.streak-modal-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.streak-modal-item {
+    flex: 0 1 auto;
+}
+
+.friend-modal-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.friend-modal-item {
+    flex: 0 1 auto;
+}
+
 .streak-modal-footer-container {
     justify-content: flex-end;
 }

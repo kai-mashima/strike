@@ -67,21 +67,18 @@ export default class Friend extends Component {
                     <Modal.Title>Friend Info</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className='row-container'>
-                        <div className='row-item'>
-                            <span>{this.props.friend.username}</span>
+                    <div className='friend-modal-container'>
+                        <div className='friend-modal-item'>
+                            <span>@{this.props.friend.username}</span>
                         </div>
-                        <div className='row-item'>
-                            <span className='streak-item-glyph glyphicon glyphicon-fire'></span>
-                            <span>{this.props.friend.totalStreaks}</span>
+                        <div className='friend-modal-item'>
+                            <span>Streaks: {this.props.friend.totalStreaks}</span>
                         </div>
-                        <div className='row-item'>
-                            <span className='streak-item-glyph glyphicon glyphicon-flash'></span>
-                            <span>{this.props.friend.totalDays}</span>
+                        <div className='friend-modal-item'>
+                            <span>Total Days: {this.props.friend.totalDays}</span>
                         </div>
-                        <div className='row-item'>
-                            <span className='large-font'>$</span>
-                            <span>{this.props.friend.value}</span>
+                        <div className='friend-modal-item'>
+                            <span>Value: ${this.props.friend.value}</span>
                         </div>
                     </div>
                 </Modal.Body>

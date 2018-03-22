@@ -44021,47 +44021,44 @@ var Friend = function (_Component) {
                     null,
                     _react2.default.createElement(
                         'div',
-                        { className: 'row-container' },
+                        { className: 'friend-modal-container' },
                         _react2.default.createElement(
                             'div',
-                            { className: 'row-item' },
+                            { className: 'friend-modal-item' },
                             _react2.default.createElement(
                                 'span',
                                 null,
+                                '@',
                                 this.props.friend.username
                             )
                         ),
                         _react2.default.createElement(
                             'div',
-                            { className: 'row-item' },
-                            _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-fire' }),
+                            { className: 'friend-modal-item' },
                             _react2.default.createElement(
                                 'span',
                                 null,
+                                'Streaks: ',
                                 this.props.friend.totalStreaks
                             )
                         ),
                         _react2.default.createElement(
                             'div',
-                            { className: 'row-item' },
-                            _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-flash' }),
+                            { className: 'friend-modal-item' },
                             _react2.default.createElement(
                                 'span',
                                 null,
+                                'Total Days: ',
                                 this.props.friend.totalDays
                             )
                         ),
                         _react2.default.createElement(
                             'div',
-                            { className: 'row-item' },
-                            _react2.default.createElement(
-                                'span',
-                                { className: 'large-font' },
-                                '$'
-                            ),
+                            { className: 'friend-modal-item' },
                             _react2.default.createElement(
                                 'span',
                                 null,
+                                'Value: $',
                                 this.props.friend.value
                             )
                         )
@@ -56302,10 +56299,10 @@ var Streak = function (_Component) {
                     null,
                     _react2.default.createElement(
                         'div',
-                        { className: 'row-container' },
+                        { className: 'streak-modal-container' },
                         _react2.default.createElement(
                             'div',
-                            { className: 'row-item' },
+                            { className: 'streak-modal-item' },
                             _react2.default.createElement(
                                 'span',
                                 null,
@@ -56315,7 +56312,7 @@ var Streak = function (_Component) {
                         ),
                         _react2.default.createElement(
                             'div',
-                            { className: 'row-item' },
+                            { className: 'streak-modal-item' },
                             _react2.default.createElement(
                                 'span',
                                 null,
@@ -56325,7 +56322,7 @@ var Streak = function (_Component) {
                         ),
                         _react2.default.createElement(
                             'div',
-                            { className: 'row-item' },
+                            { className: 'streak-modal-item' },
                             _react2.default.createElement(
                                 'span',
                                 null,
@@ -56383,7 +56380,7 @@ var Streak = function (_Component) {
                     ),
                     _react2.default.createElement(
                         'div',
-                        { className: 'streak-item large-font' },
+                        { className: 'streak-item' },
                         _react2.default.createElement(
                             'span',
                             null,
@@ -56392,7 +56389,7 @@ var Streak = function (_Component) {
                     ),
                     _react2.default.createElement(
                         'div',
-                        { className: 'streak-item large-font' },
+                        { className: 'streak-item' },
                         _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-fire' }),
                         _react2.default.createElement(
                             'span',
@@ -56402,7 +56399,7 @@ var Streak = function (_Component) {
                     ),
                     _react2.default.createElement(
                         'div',
-                        { className: 'streak-item large-font' },
+                        { className: 'streak-item' },
                         _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time' }),
                         _react2.default.createElement(
                             'span',
