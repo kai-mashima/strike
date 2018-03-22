@@ -32,7 +32,7 @@ export default class Friend extends Component {
             this.setState({
                 isVisibleConfirmation: false,
             });           
-        }, 3000);
+        }, 2000);
     }
 
     handleRemoveFriend(){

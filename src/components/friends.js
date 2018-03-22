@@ -68,7 +68,7 @@ export default class Friends extends Component {
             this.setState({
                 isVisibleConfirmation: false
             });
-        }, 3000);
+        }, 2000);
     }
 
     //add a friend with search results info

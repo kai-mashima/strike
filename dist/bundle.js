@@ -43592,7 +43592,7 @@ var Friends = function (_Component) {
                 _this3.setState({
                     isVisibleConfirmation: false
                 });
-            }, 3000);
+            }, 2000);
         }
 
         //add a friend with search results info
@@ -43957,7 +43957,7 @@ var Friend = function (_Component) {
                 _this2.setState({
                     isVisibleConfirmation: false
                 });
-            }, 3000);
+            }, 2000);
         }
     }, {
         key: 'handleRemoveFriend',
@@ -55940,7 +55940,7 @@ var Streaks = function (_Component) {
                 _this2.setState({
                     isVisibleConfirmation: false
                 });
-            }, 3000);
+            }, 2000);
         }
 
         //initiate streak request process and toggle modal
@@ -56293,7 +56293,8 @@ var Streak = function (_Component) {
                     _react2.default.createElement(
                         _reactBootstrap.Modal.Title,
                         null,
-                        'Streak Info'
+                        'Streak With ',
+                        this.props.streak.friend
                     )
                 ),
                 _react2.default.createElement(
@@ -56308,7 +56309,7 @@ var Streak = function (_Component) {
                             _react2.default.createElement(
                                 'span',
                                 null,
-                                'Streak Value: $',
+                                'Value: $',
                                 this.props.streak.value
                             )
                         ),
@@ -56318,7 +56319,7 @@ var Streak = function (_Component) {
                             _react2.default.createElement(
                                 'span',
                                 null,
-                                'Streak Days: ',
+                                'Days: ',
                                 this.props.streak.days
                             )
                         ),
@@ -56328,8 +56329,9 @@ var Streak = function (_Component) {
                             _react2.default.createElement(
                                 'span',
                                 null,
-                                'Time Until Expiration: ',
-                                this.props.streak.currentExpirationTime
+                                'Expirates In: ',
+                                this.props.streak.currentExpirationTime,
+                                ' hours'
                             )
                         )
                     )
@@ -56381,7 +56383,7 @@ var Streak = function (_Component) {
                     ),
                     _react2.default.createElement(
                         'div',
-                        { className: 'streak-item' },
+                        { className: 'streak-item large-font' },
                         _react2.default.createElement(
                             'span',
                             null,
@@ -56390,7 +56392,7 @@ var Streak = function (_Component) {
                     ),
                     _react2.default.createElement(
                         'div',
-                        { className: 'streak-item' },
+                        { className: 'streak-item large-font' },
                         _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-fire' }),
                         _react2.default.createElement(
                             'span',
@@ -56400,7 +56402,7 @@ var Streak = function (_Component) {
                     ),
                     _react2.default.createElement(
                         'div',
-                        { className: 'streak-item' },
+                        { className: 'streak-item large-font' },
                         _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time' }),
                         _react2.default.createElement(
                             'span',

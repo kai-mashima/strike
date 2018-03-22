@@ -47,7 +47,7 @@ export default class Streaks extends Component {
             this.setState({
                 isVisibleConfirmation: false
             });
-        }, 3000);
+        }, 2000);
     }
 
     //initiate streak request process and toggle modal

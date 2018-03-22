@@ -39,18 +39,18 @@ export default class Streak extends Component {
         let modalRender = (
             <Modal show={this.state.isVisible} onHide={this.toggleModal}>
                 <Modal.Header>
-                    <Modal.Title>Streak Info</Modal.Title>
+                    <Modal.Title>Streak With {this.props.streak.friend}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className='row-container'>
                         <div className='row-item'>
-                            <span>Streak Value: ${this.props.streak.value}</span>
+                            <span>Value: ${this.props.streak.value}</span>
                         </div>
                         <div className='row-item'>
-                            <span>Streak Days: {this.props.streak.days}</span>
+                            <span>Days: {this.props.streak.days}</span>
                         </div>
                         <div className='row-item'>
-                            <span>Time Until Expiration: {this.props.streak.currentExpirationTime}</span>
+                            <span>Expirates In: {this.props.streak.currentExpirationTime} hours</span>
                         </div>
                     </div>
                 </Modal.Body>
@@ -77,14 +77,14 @@ export default class Streak extends Component {
                     <div className='streak-item-img streak-user-img'>
                         {userRender}
                     </div>
-                    <div className='streak-item'>
+                    <div className='streak-item large-font'>
                         <span>{this.props.streak.friend}</span>
                     </div>
-                    <div className='streak-item'>
+                    <div className='streak-item large-font'>
                         <span className='streak-item-glyph glyphicon glyphicon-fire'></span>
                         <span>{this.props.streak.days}</span>
                     </div>
-                    <div className='streak-item'>
+                    <div className='streak-item large-font'>
                         <span className='streak-item-glyph glyphicon glyphicon-time'></span>
                         <span>{this.props.streak.currentExpirationTime}</span>
                     </div>
