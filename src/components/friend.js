@@ -83,11 +83,11 @@ export default class Friend extends Component {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <div className='row-container'>
-                        <div className='row-item'>
+                    <div className='row-container friend-modal-footer-container'>
+                        <div className='row-item friend-modal-footer-item'>
                             <span className='btn btn-warning' onClick={this.handleRemoveFriend}>Remove Friend</span>
                         </div>
-                        <div className='row-item'>
+                        <div className='row-item friend-modal-footer-item'>
                             <span className='btn btn-danger' onClick={this.toggleInfoModal}>Close</span>
                         </div>
                     </div>

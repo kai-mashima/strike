@@ -44069,10 +44069,10 @@ var Friend = function (_Component) {
                     null,
                     _react2.default.createElement(
                         'div',
-                        { className: 'row-container' },
+                        { className: 'row-container friend-modal-footer-container' },
                         _react2.default.createElement(
                             'div',
-                            { className: 'row-item' },
+                            { className: 'row-item friend-modal-footer-item' },
                             _react2.default.createElement(
                                 'span',
                                 { className: 'btn btn-warning', onClick: this.handleRemoveFriend },
@@ -44081,7 +44081,7 @@ var Friend = function (_Component) {
                         ),
                         _react2.default.createElement(
                             'div',
-                            { className: 'row-item' },
+                            { className: 'row-item friend-modal-footer-item' },
                             _react2.default.createElement(
                                 'span',
                                 { className: 'btn btn-danger', onClick: this.toggleInfoModal },
