@@ -56237,11 +56237,16 @@ var Streak = function (_Component) {
 
         var _this = _possibleConstructorReturn(this, (Streak.__proto__ || Object.getPrototypeOf(Streak)).call(this, props));
 
-        _this.toggleModal = _this.toggleModal.bind(_this);
-        _this.handleStreakStoke = _this.handleStreakStoke.bind(_this);
+        _this.toggleInfoModal = _this.toggleInfoModal.bind(_this);
+        _this.toggleStokeModal = _this.toggleStokeModal.bind(_this);
+        _this.handleInitialStoke = _this.handleInitialStoke.bind(_this);
+        _this.handleConfirmationStoke = _this.handleConfirmationStoke.bind(_this);
+        _this.handleMessageInput = _this.handleMessageInput.bind(_this);
 
         _this.state = {
-            isVisible: false
+            isVisibleInfo: false,
+            isVisibleStoke: false,
+            message: ''
         };
         return _this;
     }
@@ -56250,29 +56255,50 @@ var Streak = function (_Component) {
 
 
     _createClass(Streak, [{
-        key: 'toggleModal',
-        value: function toggleModal() {
+        key: 'toggleInfoModal',
+        value: function toggleInfoModal() {
             this.setState({
-                isVisible: !this.state.isVisible
+                isVisibleInfo: !this.state.isVisibleInfo
+            });
+        }
+    }, {
+        key: 'toggleStokeModal',
+        value: function toggleStokeModal() {
+            this.setState({
+                isVisibleStoke: !this.state.isVisibleStoke
+            });
+        }
+    }, {
+        key: 'handleMessageInput',
+        value: function handleMessageInput(e) {
+            this.setState({
+                message: e.target.value
             });
         }
 
         //stoke a streak and toggle modal
 
     }, {
-        key: 'handleStreakStoke',
-        value: function handleStreakStoke() {
+        key: 'handleInitialStoke',
+        value: function handleInitialStoke() {
+            this.toggleStokeModal();
+        }
+    }, {
+        key: 'handleConfirmationStoke',
+        value: function handleConfirmationStoke() {
             this.props.stokeStreak(this.props.streak.id, this.props.userID);
-            this.toggleModal();
+            //this.props.stokeStreakMessage(this.props.streak.id, this.props.userID, this.state.message);
+            this.toggleStokeModal();
+            this.toggleInfoModal();
         }
     }, {
         key: 'render',
         value: function render() {
             var userRender = _react2.default.createElement('span', { className: 'streak-user-glyph glyphicon glyphicon-user' });
 
-            var stokeBtnRender = !this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID ? _react2.default.createElement(
+            var initialStokeBtnRender = !this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID ? _react2.default.createElement(
                 'span',
-                { onClick: this.handleStreakStoke, className: 'btn btn-success' },
+                { onClick: this.handleInitialStoke, className: 'btn btn-success' },
                 'Stoke for $',
                 this.props.streak.stokePrice
             ) : _react2.default.createElement(
@@ -56281,9 +56307,66 @@ var Streak = function (_Component) {
                 'Stoke'
             );
 
+            var confirmationStokeBtnRender = !this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID ? _react2.default.createElement(
+                'span',
+                { onClick: this.handleConfirmationStoke, className: 'btn btn-success' },
+                'Stoke for $',
+                this.props.streak.stokePrice
+            ) : _react2.default.createElement(
+                'span',
+                { className: 'btn btn-default disabled' },
+                'Stoke'
+            );
+
+            var stokeModalRender = _react2.default.createElement(
+                _reactBootstrap.Modal,
+                { show: this.state.isVisibleStoke, onHide: this.toggleStokeModal },
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Header,
+                    null,
+                    _react2.default.createElement(
+                        _reactBootstrap.Modal.Title,
+                        null,
+                        'Stoke Streak With ',
+                        this.props.streak.friend
+                    )
+                ),
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Body,
+                    null,
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'col-container' },
+                        _react2.default.createElement('input', { onChange: this.handleMessageInput, placeholder: 'Message...' })
+                    )
+                ),
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Footer,
+                    null,
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'streak-modal-footer-container row-container' },
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'streak-modal-footer-item row-item' },
+                            confirmationStokeBtnRender
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'streak-modal-footer-item row-item' },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'btn btn-danger', onClick: this.toggleStokeModal },
+                                'Close'
+                            )
+                        )
+                    )
+                )
+            );
+
             var modalRender = _react2.default.createElement(
                 _reactBootstrap.Modal,
-                { show: this.state.isVisible, onHide: this.toggleModal },
+                { show: this.state.isVisibleInfo, onHide: this.toggleInfoModal },
                 _react2.default.createElement(
                     _reactBootstrap.Modal.Header,
                     null,
@@ -56299,37 +56382,56 @@ var Streak = function (_Component) {
                     null,
                     _react2.default.createElement(
                         'div',
-                        { className: 'streak-modal-container' },
+                        { className: 'col-container' },
                         _react2.default.createElement(
                             'div',
-                            { className: 'streak-modal-item' },
+                            { className: 'col-item streak-modal-container' },
                             _react2.default.createElement(
-                                'span',
-                                null,
-                                'Value: $',
-                                this.props.streak.value
+                                'div',
+                                { className: 'streak-modal-item' },
+                                _react2.default.createElement(
+                                    'span',
+                                    null,
+                                    'Value: $',
+                                    this.props.streak.value
+                                )
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'streak-modal-item' },
+                                _react2.default.createElement(
+                                    'span',
+                                    null,
+                                    'Days: ',
+                                    this.props.streak.days
+                                )
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'streak-modal-item' },
+                                _react2.default.createElement(
+                                    'span',
+                                    null,
+                                    'Expirates In: ',
+                                    this.props.streak.currentExpirationTime,
+                                    ' hours'
+                                )
                             )
                         ),
                         _react2.default.createElement(
                             'div',
-                            { className: 'streak-modal-item' },
-                            _react2.default.createElement(
-                                'span',
-                                null,
-                                'Days: ',
-                                this.props.streak.days
-                            )
-                        ),
-                        _react2.default.createElement(
-                            'div',
-                            { className: 'streak-modal-item' },
-                            _react2.default.createElement(
-                                'span',
-                                null,
-                                'Expirates In: ',
-                                this.props.streak.currentExpirationTime,
-                                ' hours'
-                            )
+                            { className: 'col-item col-container' },
+                            this.props.streak.messages.map(function (message) {
+                                return _react2.default.createElement(
+                                    'div',
+                                    { className: 'col-item' },
+                                    _react2.default.createElement(
+                                        'span',
+                                        null,
+                                        message.content
+                                    )
+                                );
+                            })
                         )
                     )
                 ),
@@ -56351,14 +56453,14 @@ var Streak = function (_Component) {
                         _react2.default.createElement(
                             'div',
                             { className: 'streak-modal-footer-item row-item' },
-                            stokeBtnRender
+                            initialStokeBtnRender
                         ),
                         _react2.default.createElement(
                             'div',
                             { className: 'streak-modal-footer-item row-item' },
                             _react2.default.createElement(
                                 'span',
-                                { className: 'btn btn-danger', onClick: this.toggleModal },
+                                { className: 'btn btn-danger', onClick: this.toggleInfoModal },
                                 'Close'
                             )
                         )
@@ -56370,6 +56472,7 @@ var Streak = function (_Component) {
                 'div',
                 null,
                 modalRender,
+                stokeModalRender,
                 _react2.default.createElement(
                     'div',
                     { onClick: this.toggleModal, className: 'streaks-item' },
@@ -66520,7 +66623,7 @@ var getDate24HoursAheadOfGiven = function getDate24HoursAheadOfGiven(date) {
     return result;
 };
 
-//toggles and resests the time for the ownership of a streaks termination period 
+//toggles and resets the time for the ownership of a streaks termination period 
 var stokeStreak = function stokeStreak(streakID, userID) {
     var _this4 = this;
 

@@ -133,7 +133,7 @@ const getDate24HoursAheadOfGiven = function(date) {
     return result;
 };
 
-//toggles and resests the time for the ownership of a streaks termination period 
+//toggles and resets the time for the ownership of a streaks termination period 
 const stokeStreak = function(streakID, userID) {
     this.db.ref(`streaks/${streakID}`)
     .once('value')
