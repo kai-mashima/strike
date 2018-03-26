@@ -57,9 +57,11 @@ import {
     startStreak,
     getStreaks,
     streakToInfo,
+    getStreakMessages,
     getDate24HoursAhead,
     getDate24HoursAheadOfGiven,
     stokeStreak,
+    sendStreakMessage,
     checkForExpiredTime,
     checkForExpiredStreaks,
     convertDateToTimeDifference,
@@ -160,9 +162,11 @@ export default class App extends Component {
         this.startStreak = startStreak.bind(this);
         this.getStreaks = getStreaks.bind(this);
         this.streakToInfo = streakToInfo.bind(this);
+        this.getStreakMessages = getStreakMessages.bind(this);
         this.getDate24HoursAhead = getDate24HoursAhead.bind(this);
         this.getDate24HoursAheadOfGiven = getDate24HoursAheadOfGiven.bind(this);
         this.stokeStreak = stokeStreak.bind(this);
+        this.sendStreakMessage = sendStreakMessage.bind(this);
         this.checkForExpiredTime = checkForExpiredTime.bind(this);
         this.checkForExpiredStreaks = checkForExpiredStreaks.bind(this);
         this.streakTerminationDatabaseTransfer = streakTerminationDatabaseTransfer.bind(this);

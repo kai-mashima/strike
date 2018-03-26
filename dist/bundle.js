@@ -40070,9 +40070,11 @@ var App = function (_Component) {
         _this.startStreak = _streaks3.startStreak.bind(_this);
         _this.getStreaks = _streaks3.getStreaks.bind(_this);
         _this.streakToInfo = _streaks3.streakToInfo.bind(_this);
+        _this.getStreakMessages = _streaks3.getStreakMessages.bind(_this);
         _this.getDate24HoursAhead = _streaks3.getDate24HoursAhead.bind(_this);
         _this.getDate24HoursAheadOfGiven = _streaks3.getDate24HoursAheadOfGiven.bind(_this);
         _this.stokeStreak = _streaks3.stokeStreak.bind(_this);
+        _this.sendStreakMessage = _streaks3.sendStreakMessage.bind(_this);
         _this.checkForExpiredTime = _streaks3.checkForExpiredTime.bind(_this);
         _this.checkForExpiredStreaks = _streaks3.checkForExpiredStreaks.bind(_this);
         _this.streakTerminationDatabaseTransfer = _streaks3.streakTerminationDatabaseTransfer.bind(_this);
@@ -56286,8 +56288,7 @@ var Streak = function (_Component) {
     }, {
         key: 'handleConfirmationStoke',
         value: function handleConfirmationStoke() {
-            this.props.stokeStreak(this.props.streak.id, this.props.userID);
-            //this.props.stokeStreakMessage(this.props.streak.id, this.props.userID, this.state.message);
+            this.props.stokeStreak(this.props.streak.id, this.props.userID, this.props.streak.friendID, this.state.message);
             this.toggleStokeModal();
             this.toggleInfoModal();
         }
@@ -56364,6 +56365,29 @@ var Streak = function (_Component) {
                 )
             );
 
+            var messagesRender = _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement(
+                    'span',
+                    null,
+                    'You have no messages.'
+                )
+            );
+            if (this.props.streak.messages) {
+                messagesRender = Object.values(this.props.streak.messages).map(function (message, index) {
+                    return _react2.default.createElement(
+                        'div',
+                        { className: 'col-item', key: index },
+                        _react2.default.createElement(
+                            'span',
+                            null,
+                            message.message
+                        )
+                    );
+                });
+            }
+
             var modalRender = _react2.default.createElement(
                 _reactBootstrap.Modal,
                 { show: this.state.isVisibleInfo, onHide: this.toggleInfoModal },
@@ -56421,17 +56445,7 @@ var Streak = function (_Component) {
                         _react2.default.createElement(
                             'div',
                             { className: 'col-item col-container' },
-                            this.props.streak.messages.map(function (message) {
-                                return _react2.default.createElement(
-                                    'div',
-                                    { className: 'col-item' },
-                                    _react2.default.createElement(
-                                        'span',
-                                        null,
-                                        message.content
-                                    )
-                                );
-                            })
+                            messagesRender
                         )
                     )
                 ),
@@ -56475,7 +56489,7 @@ var Streak = function (_Component) {
                 stokeModalRender,
                 _react2.default.createElement(
                     'div',
-                    { onClick: this.toggleModal, className: 'streaks-item' },
+                    { onClick: this.toggleInfoModal, className: 'streaks-item' },
                     _react2.default.createElement(
                         'div',
                         { className: 'streak-item-img streak-user-img' },
@@ -66471,7 +66485,7 @@ exports.removeFriend = removeFriend;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.searchUsers = exports.streakToOwner = exports.streakTerminationDatabaseTransfer = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
+exports.searchUsers = exports.streakToOwner = exports.streakTerminationDatabaseTransfer = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.sendStreakMessage = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.getStreakMessages = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66494,6 +66508,7 @@ var startStreak = function startStreak(userID, friendID) {
         var newStreakID = this.db.ref().child('streaks').push().key;
         this.db.ref('streaks/' + newStreakID).set({
             participants: (_participants = {}, _defineProperty(_participants, userID, true), _defineProperty(_participants, friendID, true), _participants),
+            id: newStreakID,
             terminated: false,
             neutral: false,
             value: 0,
@@ -66509,7 +66524,8 @@ var startStreak = function startStreak(userID, friendID) {
             nextExpirationDate: 0,
             nextExpirationTime: 0,
             nextExpired: true,
-            lastChecked: null
+            lastChecked: false,
+            messages: false
         }).then(function () {
             _this.streakToOwner(friendID, newStreakID);
             _this.streakToOwner(userID, newStreakID);
@@ -66586,25 +66602,38 @@ var streakToInfo = function streakToInfo(streakID, userID) {
                 if (participant === userID) {
                     return _this3.getUsername(participant).then(function (username) {
                         streak.user = username;
+                        streak.userID = participant;
                     });
                 } else {
                     return _this3.getUsername(participant).then(function (username) {
                         streak.friend = username;
+                        streak.friendID = participant;
                         streak.friendTurn = participant;
                     });
                 }
             });
 
+            funcs.push(_this3.getStreakMessages(streakID).then(function (messages) {
+                streak.messages = messages;
+            }));
+
             Promise.all(funcs).then(function (results) {
                 return results;
             });
-
-            _this3.db.ref('streaks/' + streakID).update({
-                id: streak.id,
-                days: streak.days
-            });
-
+            console.log(streak);
             return streak;
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+var getStreakMessages = function getStreakMessages(streakID) {
+    return this.db.ref('streakMessages/' + streakID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            return snapshot.val();
+        } else {
+            return false;
         }
     }).catch(function (reason) {
         console.log(reason);
@@ -66624,7 +66653,7 @@ var getDate24HoursAheadOfGiven = function getDate24HoursAheadOfGiven(date) {
 };
 
 //toggles and resets the time for the ownership of a streaks termination period 
-var stokeStreak = function stokeStreak(streakID, userID) {
+var stokeStreak = function stokeStreak(streakID, userID, friendID, message) {
     var _this4 = this;
 
     this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
@@ -66639,6 +66668,8 @@ var stokeStreak = function stokeStreak(streakID, userID) {
                 nextExpired: false
             });
 
+            _this4.sendStreakMessage(streakID, userID, friendID, message);
+
             _this4.streakStoke(streakID, userID);
         } else {
             throw 'No streak found for this streakID';
@@ -66647,6 +66678,15 @@ var stokeStreak = function stokeStreak(streakID, userID) {
         _this4.getStreaks(userID);
     }).catch(function (reason) {
         console.log(reason);
+    });
+};
+
+var sendStreakMessage = function sendStreakMessage(streakID, userID, friendID, message) {
+    var newMessageID = this.db.ref().child('streakMessages/' + streakID).push().key;
+    this.db.ref('streakMessages/' + streakID + '/' + newMessageID).set({
+        sender: userID,
+        recipient: friendID,
+        message: message
     });
 };
 
@@ -66766,9 +66806,11 @@ var searchUsers = function searchUsers(username, userID) {
 exports.startStreak = startStreak;
 exports.getStreaks = getStreaks;
 exports.streakToInfo = streakToInfo;
+exports.getStreakMessages = getStreakMessages;
 exports.getDate24HoursAhead = getDate24HoursAhead;
 exports.getDate24HoursAheadOfGiven = getDate24HoursAheadOfGiven;
 exports.stokeStreak = stokeStreak;
+exports.sendStreakMessage = sendStreakMessage;
 exports.checkForExpiredTime = checkForExpiredTime;
 exports.checkForExpiredStreaks = checkForExpiredStreaks;
 exports.streakTerminationDatabaseTransfer = streakTerminationDatabaseTransfer;

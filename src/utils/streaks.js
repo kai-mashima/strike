@@ -13,6 +13,7 @@ const startStreak = function(userID, friendID) {
                 [userID]: true,
                 [friendID]: true,
             },
+            id: newStreakID,
             terminated: false,
             neutral: false,
             value: 0,
@@ -28,7 +29,8 @@ const startStreak = function(userID, friendID) {
             nextExpirationDate: 0,
             nextExpirationTime: 0,
             nextExpired: true,
-            lastChecked: null,
+            lastChecked: false,
+            messages: false,
         }).then(() => {
             this.streakToOwner(friendID, newStreakID);
             this.streakToOwner(userID, newStreakID);
@@ -95,26 +97,43 @@ const streakToInfo = function(streakID, userID){
                     return (
                         this.getUsername(participant).then(username => {
                             streak.user = username;
+                            streak.userID = participant;
                         })
                     );
                 } else {
                     return (
                         this.getUsername(participant).then(username => {
                             streak.friend = username;
+                            streak.friendID = participant;
                             streak.friendTurn = participant;
                         })
                     );
                 } 
             });
 
+            funcs.push(
+                this.getStreakMessages(streakID).then(messages => {
+                    streak.messages = messages;
+                })
+            );
+
             Promise.all(funcs).then(results => results);
-
-            this.db.ref(`streaks/${streakID}`).update({
-                id: streak.id,
-                days: streak.days,
-            });
-
+            console.log(streak);
             return streak
+        }
+    }).catch(reason => {
+        console.log(reason);
+    });
+};
+
+const getStreakMessages = function(streakID) {
+    return this.db.ref(`streakMessages/${streakID}`)
+    .once('value')
+    .then(snapshot => {
+        if (snapshot.exists()) {
+            return snapshot.val();
+        } else {
+            return false;
         }
     }).catch(reason => {
         console.log(reason);
@@ -134,7 +153,7 @@ const getDate24HoursAheadOfGiven = function(date) {
 };
 
 //toggles and resets the time for the ownership of a streaks termination period 
-const stokeStreak = function(streakID, userID) {
+const stokeStreak = function(streakID, userID, friendID, message) {
     this.db.ref(`streaks/${streakID}`)
     .once('value')
     .then(snapshot => {
@@ -149,6 +168,8 @@ const stokeStreak = function(streakID, userID) {
                 nextExpired: false,
             });
 
+            this.sendStreakMessage(streakID, userID, friendID, message);
+
             this.streakStoke(streakID, userID);
         } else {
             throw 'No streak found for this streakID';
@@ -157,6 +178,15 @@ const stokeStreak = function(streakID, userID) {
         this.getStreaks(userID);
     }).catch(reason => {
         console.log(reason);
+    });
+};
+
+const sendStreakMessage = function(streakID, userID, friendID, message) {
+    const newMessageID = this.db.ref().child(`streakMessages/${streakID}`).push().key;
+    this.db.ref(`streakMessages/${streakID}/${newMessageID}`).set({
+        sender: userID,
+        recipient: friendID,
+        message: message,
     });
 };
 
@@ -280,9 +310,11 @@ export {
     startStreak,
     getStreaks,
     streakToInfo,
+    getStreakMessages,
     getDate24HoursAhead,
     getDate24HoursAheadOfGiven,
     stokeStreak,
+    sendStreakMessage,
     checkForExpiredTime,
     checkForExpiredStreaks,
     streakTerminationDatabaseTransfer,

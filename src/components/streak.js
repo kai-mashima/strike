@@ -44,13 +44,10 @@ export default class Streak extends Component {
     }
 
     handleConfirmationStoke() {
-        this.props.stokeStreak(this.props.streak.id, this.props.userID);
-        //this.props.stokeStreakMessage(this.props.streak.id, this.props.userID, this.state.message);
+        this.props.stokeStreak(this.props.streak.id, this.props.userID, this.props.streak.friendID, this.state.message);
         this.toggleStokeModal();
         this.toggleInfoModal();
     }
-
-
 
     render() {
         let userRender = <span className='streak-user-glyph glyphicon glyphicon-user'></span>;
@@ -90,6 +87,16 @@ export default class Streak extends Component {
             </Modal>
         );
 
+
+        let messagesRender = <div><span>You have no messages.</span></div>;
+        if (this.props.streak.messages) {
+            messagesRender = Object.values(this.props.streak.messages).map((message, index) => (
+                <div className='col-item' key={index}>
+                    <span>{message.message}</span>
+                </div>
+            ));
+        }
+
         let modalRender = (
             <Modal show={this.state.isVisibleInfo} onHide={this.toggleInfoModal}>
                 <Modal.Header>
@@ -109,13 +116,7 @@ export default class Streak extends Component {
                             </div>
                         </div>
                         <div className='col-item col-container'>
-                            {
-                                this.props.streak.messages.map(message => (
-                                    <div className='col-item'>
-                                        <span>{message.content}</span>
-                                    </div>
-                                ))
-                            }
+                            {messagesRender}
                         </div>
                     </div>
                 </Modal.Body>
@@ -139,7 +140,7 @@ export default class Streak extends Component {
             <div>
                 {modalRender}
                 {stokeModalRender}
-                <div onClick={this.toggleModal} className='streaks-item'>
+                <div onClick={this.toggleInfoModal} className='streaks-item'>
                     <div className='streak-item-img streak-user-img'>
                         {userRender}
                     </div>
