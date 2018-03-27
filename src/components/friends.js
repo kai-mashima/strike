@@ -37,8 +37,7 @@ export default class Friends extends Component {
 
     //search for a user by username and populate state with results
     handleSearchSubmit() {
-        this.props.searchUsers(this.state.searchInput, this.props.user)
-        .then(result => {
+        this.props.searchUsers(this.state.searchInput, this.props.user).then(result => {
             this.setState({
                 searchResults: result
             });
@@ -48,6 +47,7 @@ export default class Friends extends Component {
     clearSearchResults() {
         this.setState({
             searchInput: null,
+            searchResults: [],
         });
     }
 
@@ -56,6 +56,7 @@ export default class Friends extends Component {
         this.setState({
             isVisibleAdd: !this.state.isVisibleAdd
         });
+        this.clearSearchResults();
     }
 
     //toggle state for adding a friend modal
@@ -73,12 +74,13 @@ export default class Friends extends Component {
 
     //add a friend with search results info
     handleSendFriendRequest(){
-        let confirmation = this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid);
-        this.toggleAddFriendModal();
-        this.clearSearchResults();
-        if (confirmation) {
-            this.toggleConfirmationModal();
-        }
+        this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid).then(confirmation => {
+            this.toggleAddFriendModal();
+            this.clearSearchResults();
+            if (confirmation) {
+                this.toggleConfirmationModal();
+            }
+        });
     }
 
     toggleFriendRequestModal(){
@@ -90,22 +92,25 @@ export default class Friends extends Component {
     //accept friend request and toggle modal
     handleRequestAcceptance(requestID, userID, friendID) {
         this.props.acceptFriendRequest(requestID, userID, friendID);
+        this.props.getFriendRequests(userID);
+        this.props.getFriends(userID);
         this.toggleFriendRequestModal();
     }
 
     //reject friend request and toggle modal
     handleRequestRejection(requestID, userID, friendID) {
         this.props.rejectFriendRequest(requestID, userID, friendID);
+        this.props.getFriendRequests(userID);
         this.toggleFriendRequestModal();
     }
 
     render() {
-        let searchRender = <div><span>No Users Found</span></div>;
+        let searchRender = <div className='center-text'><span>No Users Found</span></div>;
         if (this.state.searchResults.length != 0) {
-            let searchAddBtn = this.state.searchResults.self ? (
-                <span className='add-friend-btn search-item-part btn btn-secondary disabled'>Add</span>
-            ) : (
+            let searchAddBtn = this.state.searchResults.addable ? (
                 <span className='add-friend-btn search-item-part btn btn-success' onClick={this.handleSendFriendRequest}>Add</span>
+            ) : (
+                <span className='add-friend-btn search-item-part btn btn-secondary disabled'>Add</span>
             )
             searchRender =  (
                 <div className='search-item'>
@@ -116,7 +121,7 @@ export default class Friends extends Component {
             );
         }
 
-        let requestsRender = <div><span>You have no friend requests</span></div>;
+        let requestsRender = <div className='center-text'><span>No friend requests</span></div>;
         if (this.props.requests.length != 0) { 
             //handle no unanswered requests
             requestsRender = this.props.requests.map((request, index) => {
@@ -124,20 +129,15 @@ export default class Friends extends Component {
                     return (
                         <div className='col-item row-container request-list-container' key={index}>
                             <span className='request-list-item row-item'>@{request.senderUsername}</span>
-                            <span className='request-list-item row-item btn btn-success' onClick={() => this.handleRequestAcceptance(request.id, request.recipient, request.sender)}>Accept Friend Request</span>
-                            <span className='request-list-item row-item btn btn-danger' onClick={() => this.handleRequestRejection(request.id, request.recipient, request.sender)}>Reject Friend Request</span>
+                            <span className='request-list-item row-item btn btn-success' onClick={() => this.handleRequestAcceptance(request.id, request.recipient, request.sender)}>Accept</span>
+                            <span className='request-list-item row-item btn btn-danger' onClick={() => this.handleRequestRejection(request.id, request.recipient, request.sender)}>Ignore</span>
                         </div>
                     )
                 }
             });
         }
 
-        // let friendsCountRender = <span className='friends-header-right-item'>0 friends</span>;
-        // if (this.props.friends.length != 0) {
-        //     friendsCountRender = <span className='friends-header-right-item'>{this.props.friends.length} friends</span>;
-        // }
-
-        let friendsRender = <div><span>You have no friends</span></div>;
+        let friendsRender = <div className='center-text'><span>No friends</span></div>;
         if (this.props.friends.length != 0) {
             friendsRender = this.props.friends.map((friend, index) => (
                 <Friend user={this.props.user} key={index} friend={friend} removeFriend={this.props.removeFriend}/>
@@ -193,7 +193,7 @@ export default class Friends extends Component {
                                     <Modal.Header>
                                         <Modal.Title>Friend Requests</Modal.Title>
                                     </Modal.Header>
-                                    <Modal.Body>
+                                    <Modal.Body bsClass='no-padding-modal'>
                                         <div className='col-container'>
                                             {requestsRender}
                                         </div>

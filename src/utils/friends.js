@@ -99,9 +99,61 @@ const removeFriend = function(userID, friendID) {
     });
 };
 
+//searches and returns a promise containing the user information by username
+const searchUsers = function(username, userID) {
+    return this.db.ref('users')
+    .orderByChild('username')
+    .equalTo(username)
+    .once('value')
+    .then(snapshot => {
+        if (snapshot.exists()) {
+            let result = {};
+            let data = snapshot.val();
+            let recipientID = Object.keys(data)[0];
+             if (recipientID === userID) {
+                result.self = true;
+                result.addable = false;
+            } else {
+                result.self = false;
+            }
+            result.uid = recipientID;
+            let innerData = snapshot.child(`${recipientID}`).val();
+            result.first = innerData.first;
+            result.last = innerData.last
+
+            return this.db.ref(`friendRequestPairs/${userID}/${recipientID}`)
+            .once('value')
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    result.addable = false;
+                    console.log('User cannot be added: Friend request has been made');
+                    return result;
+                } else {
+                    return this.db.ref(`friends/${userID}/${recipientID}`)
+                    .once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            result.addable = false;
+                            console.log('User cannot be added: Already friends');
+                            return result;
+                        } else {
+                            result.addable = true;
+                            return result;
+                        }
+                    });
+                }
+            });
+        } else {
+            console.log('User cannot be added: No user found for given username');
+            return {};
+        }
+    });
+};
+
 export {
     getFriends,
     friendToInfo,
     addFriend,
     removeFriend,
+    searchUsers,
 };

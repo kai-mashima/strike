@@ -40043,6 +40043,7 @@ var App = function (_Component) {
 
         //friendRequests
         _this.sendFriendRequest = _friendRequests.sendFriendRequest.bind(_this);
+        _this.friendRequestToPair = _friendRequests.friendRequestToPair.bind(_this);
         _this.friendRequestToSender = _friendRequests.friendRequestToSender.bind(_this);
         _this.friendRequestToRecipient = _friendRequests.friendRequestToRecipient.bind(_this);
         _this.getFriendRequests = _friendRequests.getFriendRequests.bind(_this);
@@ -40055,6 +40056,7 @@ var App = function (_Component) {
         _this.getFriends = _friends3.getFriends.bind(_this);
         _this.friendToInfo = _friends3.friendToInfo.bind(_this);
         _this.removeFriend = _friends3.removeFriend.bind(_this);
+        _this.searchUsers = _friends3.searchUsers.bind(_this);
 
         //streakRequests
         _this.sendStreakRequest = _streakRequests.sendStreakRequest.bind(_this);
@@ -40079,7 +40081,6 @@ var App = function (_Component) {
         _this.checkForExpiredStreaks = _streaks3.checkForExpiredStreaks.bind(_this);
         _this.streakTerminationDatabaseTransfer = _streaks3.streakTerminationDatabaseTransfer.bind(_this);
         _this.streakToOwner = _streaks3.streakToOwner.bind(_this);
-        _this.searchUsers = _streaks3.searchUsers.bind(_this);
 
         //currency
         _this.streakTermination = _currency.streakTermination.bind(_this);
@@ -40209,7 +40210,9 @@ var App = function (_Component) {
                                         requests: _this2.state.friendRequestsInfo,
                                         acceptFriendRequest: _this2.acceptFriendRequest,
                                         rejectFriendRequest: _this2.rejectFriendRequest,
-                                        removeFriend: _this2.removeFriend
+                                        removeFriend: _this2.removeFriend,
+                                        getFriendRequests: _this2.getFriendRequests,
+                                        getFriends: _this2.getFriends
                                     });
                                 }
                             }),
@@ -43565,7 +43568,8 @@ var Friends = function (_Component) {
         key: 'clearSearchResults',
         value: function clearSearchResults() {
             this.setState({
-                searchInput: null
+                searchInput: null,
+                searchResults: []
             });
         }
 
@@ -43577,6 +43581,7 @@ var Friends = function (_Component) {
             this.setState({
                 isVisibleAdd: !this.state.isVisibleAdd
             });
+            this.clearSearchResults();
         }
 
         //toggle state for adding a friend modal
@@ -43602,12 +43607,15 @@ var Friends = function (_Component) {
     }, {
         key: 'handleSendFriendRequest',
         value: function handleSendFriendRequest() {
-            var confirmation = this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid);
-            this.toggleAddFriendModal();
-            this.clearSearchResults();
-            if (confirmation) {
-                this.toggleConfirmationModal();
-            }
+            var _this4 = this;
+
+            this.props.sendFriendRequest(this.props.user, this.state.searchResults.uid).then(function (confirmation) {
+                _this4.toggleAddFriendModal();
+                _this4.clearSearchResults();
+                if (confirmation) {
+                    _this4.toggleConfirmationModal();
+                }
+            });
         }
     }, {
         key: 'toggleFriendRequestModal',
@@ -43623,6 +43631,8 @@ var Friends = function (_Component) {
         key: 'handleRequestAcceptance',
         value: function handleRequestAcceptance(requestID, userID, friendID) {
             this.props.acceptFriendRequest(requestID, userID, friendID);
+            this.props.getFriendRequests(userID);
+            this.props.getFriends(userID);
             this.toggleFriendRequestModal();
         }
 
@@ -43632,16 +43642,17 @@ var Friends = function (_Component) {
         key: 'handleRequestRejection',
         value: function handleRequestRejection(requestID, userID, friendID) {
             this.props.rejectFriendRequest(requestID, userID, friendID);
+            this.props.getFriendRequests(userID);
             this.toggleFriendRequestModal();
         }
     }, {
         key: 'render',
         value: function render() {
-            var _this4 = this;
+            var _this5 = this;
 
             var searchRender = _react2.default.createElement(
                 'div',
-                null,
+                { className: 'center-text' },
                 _react2.default.createElement(
                     'span',
                     null,
@@ -43649,13 +43660,13 @@ var Friends = function (_Component) {
                 )
             );
             if (this.state.searchResults.length != 0) {
-                var searchAddBtn = this.state.searchResults.self ? _react2.default.createElement(
+                var searchAddBtn = this.state.searchResults.addable ? _react2.default.createElement(
                     'span',
-                    { className: 'add-friend-btn search-item-part btn btn-secondary disabled' },
+                    { className: 'add-friend-btn search-item-part btn btn-success', onClick: this.handleSendFriendRequest },
                     'Add'
                 ) : _react2.default.createElement(
                     'span',
-                    { className: 'add-friend-btn search-item-part btn btn-success', onClick: this.handleSendFriendRequest },
+                    { className: 'add-friend-btn search-item-part btn btn-secondary disabled' },
                     'Add'
                 );
                 searchRender = _react2.default.createElement(
@@ -43677,11 +43688,11 @@ var Friends = function (_Component) {
 
             var requestsRender = _react2.default.createElement(
                 'div',
-                null,
+                { className: 'center-text' },
                 _react2.default.createElement(
                     'span',
                     null,
-                    'You have no friend requests'
+                    'No friend requests'
                 )
             );
             if (this.props.requests.length != 0) {
@@ -43700,39 +43711,34 @@ var Friends = function (_Component) {
                             _react2.default.createElement(
                                 'span',
                                 { className: 'request-list-item row-item btn btn-success', onClick: function onClick() {
-                                        return _this4.handleRequestAcceptance(request.id, request.recipient, request.sender);
+                                        return _this5.handleRequestAcceptance(request.id, request.recipient, request.sender);
                                     } },
-                                'Accept Friend Request'
+                                'Accept'
                             ),
                             _react2.default.createElement(
                                 'span',
                                 { className: 'request-list-item row-item btn btn-danger', onClick: function onClick() {
-                                        return _this4.handleRequestRejection(request.id, request.recipient, request.sender);
+                                        return _this5.handleRequestRejection(request.id, request.recipient, request.sender);
                                     } },
-                                'Reject Friend Request'
+                                'Ignore'
                             )
                         );
                     }
                 });
             }
 
-            // let friendsCountRender = <span className='friends-header-right-item'>0 friends</span>;
-            // if (this.props.friends.length != 0) {
-            //     friendsCountRender = <span className='friends-header-right-item'>{this.props.friends.length} friends</span>;
-            // }
-
             var friendsRender = _react2.default.createElement(
                 'div',
-                null,
+                { className: 'center-text' },
                 _react2.default.createElement(
                     'span',
                     null,
-                    'You have no friends'
+                    'No friends'
                 )
             );
             if (this.props.friends.length != 0) {
                 friendsRender = this.props.friends.map(function (friend, index) {
-                    return _react2.default.createElement(_friend2.default, { user: _this4.props.user, key: index, friend: friend, removeFriend: _this4.props.removeFriend });
+                    return _react2.default.createElement(_friend2.default, { user: _this5.props.user, key: index, friend: friend, removeFriend: _this5.props.removeFriend });
                 });
             }
 
@@ -43852,7 +43858,7 @@ var Friends = function (_Component) {
                                     ),
                                     _react2.default.createElement(
                                         _reactBootstrap.Modal.Body,
-                                        null,
+                                        { bsClass: 'no-padding-modal' },
                                         _react2.default.createElement(
                                             'div',
                                             { className: 'col-container' },
@@ -55981,11 +55987,11 @@ var Streaks = function (_Component) {
 
             var friendsRender = _react2.default.createElement(
                 'div',
-                null,
+                { className: 'center-text' },
                 _react2.default.createElement(
                     'span',
                     null,
-                    'You have no friends'
+                    'No friends'
                 )
             );
             if (this.props.friends.length != 0) {
@@ -56012,11 +56018,11 @@ var Streaks = function (_Component) {
 
             var requestsRender = _react2.default.createElement(
                 'div',
-                null,
+                { className: 'center-text' },
                 _react2.default.createElement(
                     'span',
                     null,
-                    'You have no requests'
+                    'No streak requests'
                 )
             );
             if (this.props.requests.length != 0) {
@@ -56053,11 +56059,11 @@ var Streaks = function (_Component) {
 
             var streaksRender = _react2.default.createElement(
                 'div',
-                null,
+                { className: 'center-text' },
                 _react2.default.createElement(
                     'span',
                     null,
-                    'You have no streaks'
+                    'No streaks'
                 )
             );
             if (this.props.streaks.length != 0) {
@@ -56096,7 +56102,7 @@ var Streaks = function (_Component) {
                                     ),
                                     _react2.default.createElement(
                                         _reactBootstrap.Modal.Body,
-                                        null,
+                                        { bsClass: 'no-padding-modal' },
                                         _react2.default.createElement(
                                             'div',
                                             { className: 'col-container' },
@@ -56163,7 +56169,7 @@ var Streaks = function (_Component) {
                                     ),
                                     _react2.default.createElement(
                                         _reactBootstrap.Modal.Body,
-                                        null,
+                                        { bsClass: 'no-padding-modal' },
                                         _react2.default.createElement(
                                             'div',
                                             { className: 'col-container' },
@@ -56367,11 +56373,11 @@ var Streak = function (_Component) {
 
             var messagesRender = _react2.default.createElement(
                 'div',
-                null,
+                { className: 'center-text' },
                 _react2.default.createElement(
                     'span',
                     null,
-                    'You have no messages.'
+                    'No messages'
                 )
             );
             if (this.props.streak.messages) {
@@ -66363,7 +66369,7 @@ exports.calculateDailyAllowance = calculateDailyAllowance;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.removeFriend = exports.addFriend = exports.friendToInfo = exports.getFriends = undefined;
+exports.searchUsers = exports.removeFriend = exports.addFriend = exports.friendToInfo = exports.getFriends = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66470,10 +66476,56 @@ var removeFriend = function removeFriend(userID, friendID) {
     });
 };
 
+//searches and returns a promise containing the user information by username
+var searchUsers = function searchUsers(username, userID) {
+    var _this4 = this;
+
+    return this.db.ref('users').orderByChild('username').equalTo(username).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var result = {};
+            var data = snapshot.val();
+            var recipientID = Object.keys(data)[0];
+            if (recipientID === userID) {
+                result.self = true;
+                result.addable = false;
+            } else {
+                result.self = false;
+            }
+            result.uid = recipientID;
+            var innerData = snapshot.child('' + recipientID).val();
+            result.first = innerData.first;
+            result.last = innerData.last;
+
+            return _this4.db.ref('friendRequestPairs/' + userID + '/' + recipientID).once('value').then(function (snapshot) {
+                if (snapshot.exists()) {
+                    result.addable = false;
+                    console.log('User cannot be added: Friend request has been made');
+                    return result;
+                } else {
+                    return _this4.db.ref('friends/' + userID + '/' + recipientID).once('value').then(function (snapshot) {
+                        if (snapshot.exists()) {
+                            result.addable = false;
+                            console.log('User cannot be added: Already friends');
+                            return result;
+                        } else {
+                            result.addable = true;
+                            return result;
+                        }
+                    });
+                }
+            });
+        } else {
+            console.log('User cannot be added: No user found for given username');
+            return {};
+        }
+    });
+};
+
 exports.getFriends = getFriends;
 exports.friendToInfo = friendToInfo;
 exports.addFriend = addFriend;
 exports.removeFriend = removeFriend;
+exports.searchUsers = searchUsers;
 
 /***/ }),
 /* 478 */
@@ -66485,7 +66537,7 @@ exports.removeFriend = removeFriend;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.searchUsers = exports.streakToOwner = exports.streakTerminationDatabaseTransfer = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.sendStreakMessage = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.getStreakMessages = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
+exports.streakToOwner = exports.streakTerminationDatabaseTransfer = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.sendStreakMessage = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.getStreakMessages = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66620,7 +66672,7 @@ var streakToInfo = function streakToInfo(streakID, userID) {
             Promise.all(funcs).then(function (results) {
                 return results;
             });
-            console.log(streak);
+
             return streak;
         }
     }).catch(function (reason) {
@@ -66779,30 +66831,6 @@ var streakToOwner = function streakToOwner(ownerID, streakID) {
     this.db.ref('streakOwners/' + ownerID + '/' + streakID).set(true);
 };
 
-//searches and returns a promise containing the user information by username
-var searchUsers = function searchUsers(username, userID) {
-    return this.db.ref('users').orderByChild('username').equalTo(username).once('value').then(function (snapshot) {
-        if (snapshot.exists()) {
-            var result = {};
-            var data = snapshot.val();
-            var foundUserID = Object.keys(data)[0];
-            if (foundUserID === userID) {
-                console.log('You cannot add yourself as a friend');
-                result.self = true;
-            } else {
-                result.self = false;
-            }
-            result.uid = foundUserID;
-            var innerData = snapshot.child('' + foundUserID).val();
-            result.first = innerData.first;
-            result.last = innerData.last;
-            return result;
-        } else {
-            return {};
-        }
-    });
-};
-
 exports.startStreak = startStreak;
 exports.getStreaks = getStreaks;
 exports.streakToInfo = streakToInfo;
@@ -66815,7 +66843,6 @@ exports.checkForExpiredTime = checkForExpiredTime;
 exports.checkForExpiredStreaks = checkForExpiredStreaks;
 exports.streakTerminationDatabaseTransfer = streakTerminationDatabaseTransfer;
 exports.streakToOwner = streakToOwner;
-exports.searchUsers = searchUsers;
 
 /***/ }),
 /* 479 */
@@ -67001,7 +67028,7 @@ exports.rejectStreakRequest = rejectStreakRequest;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.rejectFriendRequest = exports.acceptFriendRequest = exports.friendRequestsToInfo = exports.getFriendRequests = exports.friendRequestToRecipient = exports.friendRequestToSender = exports.sendFriendRequest = undefined;
+exports.rejectFriendRequest = exports.acceptFriendRequest = exports.friendRequestsToInfo = exports.getFriendRequests = exports.friendRequestToRecipient = exports.friendRequestToSender = exports.friendRequestToPair = exports.sendFriendRequest = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -67011,22 +67038,40 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //adds a friend request to the db and calls functions to assign friend request to sender and recipient
 var sendFriendRequest = function sendFriendRequest(userID, recipientID) {
-    if (userID !== recipientID) {
-        var newRequestID = this.db.ref().child('friendRequests/').push().key;
-        this.friendRequestToSender(userID, newRequestID);
-        this.friendRequestToRecipient(recipientID, newRequestID);
-        this.db.ref('friendRequests/' + newRequestID).set({
-            id: newRequestID,
-            sender: userID,
-            recipient: recipientID,
-            answered: false,
-            accepted: false
-        });
-        return true;
-    } else {
-        console.log('No request sent: You cannot send a friend request to yourself.');
-        return false;
-    }
+    var _this = this;
+
+    return this.db.ref('friendRequestPairs/' + userID + '/' + recipientID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            console.log('No request sent: You cannot send a friend request to someone you have already requested or been requested by.');
+            return false;
+        } else {
+            return _this.db.ref('friends/' + userID + '/' + recipientID).once('value').then(function (snapshot) {
+                if (snapshot.exists()) {
+                    console.log('No request sent: You cannot send a friend request to someone you are already friends with.');
+                    return false;
+                } else {
+                    var newRequestID = _this.db.ref().child('friendRequests/').push().key;
+                    _this.friendRequestToSender(userID, newRequestID);
+                    _this.friendRequestToRecipient(recipientID, newRequestID);
+                    _this.friendRequestToPair(userID, recipientID);
+                    _this.db.ref('friendRequests/' + newRequestID).set({
+                        id: newRequestID,
+                        sender: userID,
+                        recipient: recipientID,
+                        answered: false,
+                        accepted: false
+                    });
+                    console.log('Friend Request Sent');
+                    return true;
+                }
+            });
+        }
+    });
+};
+
+var friendRequestToPair = function friendRequestToPair(ownerID, recipientID) {
+    this.db.ref('friendRequestPairs/' + ownerID + '/' + recipientID).set(true);
+    this.db.ref('friendRequestPairs/' + recipientID + '/' + ownerID).set(true);
 };
 
 //sets the given friend request id to the sender of the request
@@ -67041,12 +67086,12 @@ var friendRequestToRecipient = function friendRequestToRecipient(recipientID, fr
 
 //grabs and sets friend information to state by user id
 var getFriendRequests = function getFriendRequests(userID) {
-    var _this = this;
+    var _this2 = this;
 
     this.db.ref('friendRequestOwners/' + userID + '/received').once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             var friendRequests = Object.keys(snapshot.val());
-            _this.setState({
+            _this2.setState({
                 friendRequests: friendRequests
             });
             return friendRequests;
@@ -67055,13 +67100,13 @@ var getFriendRequests = function getFriendRequests(userID) {
         }
     }).then(function (friendRequests) {
         var funcs = friendRequests.map(function (request) {
-            return _this.friendRequestsToInfo(request);
+            return _this2.friendRequestsToInfo(request);
         });
         Promise.all(funcs).then(function (results) {
             results = results.filter(function (n) {
                 return n;
             });
-            _this.setState({
+            _this2.setState({
                 friendRequestsInfo: results
             });
         });
@@ -67072,17 +67117,17 @@ var getFriendRequests = function getFriendRequests(userID) {
 
 //returns a promise containing the information of a friend request by friend request id
 var friendRequestsToInfo = function friendRequestsToInfo(friendRequestID) {
-    var _this2 = this;
+    var _this3 = this;
 
     var friendRequest = null;
     return this.db.ref('friendRequests/' + friendRequestID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             friendRequest = snapshot.val();
             if (friendRequest.answered === false) {
-                _this2.getUsername(friendRequest.sender).then(function (username) {
+                _this3.getUsername(friendRequest.sender).then(function (username) {
                     friendRequest.senderUsername = username;
                 });
-                _this2.getUsername(friendRequest.recipient).then(function (username) {
+                _this3.getUsername(friendRequest.recipient).then(function (username) {
                     friendRequest.recipientUsername = username;
                 });
             } else {
@@ -67115,6 +67160,7 @@ var rejectFriendRequest = function rejectFriendRequest(friendRequestID, userID, 
 };
 
 exports.sendFriendRequest = sendFriendRequest;
+exports.friendRequestToPair = friendRequestToPair;
 exports.friendRequestToSender = friendRequestToSender;
 exports.friendRequestToRecipient = friendRequestToRecipient;
 exports.getFriendRequests = getFriendRequests;

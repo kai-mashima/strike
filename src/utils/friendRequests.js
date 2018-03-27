@@ -2,23 +2,43 @@ import firebase from 'firebase/app';
 
 //adds a friend request to the db and calls functions to assign friend request to sender and recipient
 const sendFriendRequest = function(userID, recipientID) {
-    if (userID !== recipientID) {
-        const newRequestID = this.db.ref().child(`friendRequests/`).push().key;
-        this.friendRequestToSender(userID, newRequestID);
-        this.friendRequestToRecipient(recipientID, newRequestID);
-        this.db.ref(`friendRequests/${newRequestID}`)
-        .set({
-            id: newRequestID,
-            sender: userID,
-            recipient: recipientID,
-            answered: false,
-            accepted: false,
-        });
-        return true;
-    } else {
-        console.log('No request sent: You cannot send a friend request to yourself.');
-        return false;
-    }
+    return this.db.ref(`friendRequestPairs/${userID}/${recipientID}`)
+    .once('value')
+    .then(snapshot => {
+        if (snapshot.exists()) {
+            console.log('No request sent: You cannot send a friend request to someone you have already requested or been requested by.');
+            return false;
+        } else {
+            return this.db.ref(`friends/${userID}/${recipientID}`)
+            .once('value')
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    console.log('No request sent: You cannot send a friend request to someone you are already friends with.');
+                    return false;
+                } else {
+                    const newRequestID = this.db.ref().child(`friendRequests/`).push().key;
+                    this.friendRequestToSender(userID, newRequestID);
+                    this.friendRequestToRecipient(recipientID, newRequestID);
+                    this.friendRequestToPair(userID, recipientID);
+                    this.db.ref(`friendRequests/${newRequestID}`)
+                    .set({
+                        id: newRequestID,
+                        sender: userID,
+                        recipient: recipientID,
+                        answered: false,
+                        accepted: false,
+                    });
+                    console.log('Friend Request Sent');
+                    return true;
+                }
+            });
+        }
+    });
+};
+
+const friendRequestToPair = function(ownerID, recipientID) {
+    this.db.ref(`friendRequestPairs/${ownerID}/${recipientID}`).set(true);
+    this.db.ref(`friendRequestPairs/${recipientID}/${ownerID}`).set(true);
 };
 
 //sets the given friend request id to the sender of the request
@@ -106,6 +126,7 @@ const rejectFriendRequest = function(friendRequestID, userID, senderID) {
 
 export {
     sendFriendRequest,
+    friendRequestToPair,
     friendRequestToSender,
     friendRequestToRecipient,
     getFriendRequests,

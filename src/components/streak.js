@@ -88,7 +88,7 @@ export default class Streak extends Component {
         );
 
 
-        let messagesRender = <div><span>You have no messages.</span></div>;
+        let messagesRender = <div className='center-text'><span>No messages</span></div>;
         if (this.props.streak.messages) {
             messagesRender = Object.values(this.props.streak.messages).map((message, index) => (
                 <div className='col-item' key={index}>

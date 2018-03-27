@@ -118,7 +118,7 @@ const streakToInfo = function(streakID, userID){
             );
 
             Promise.all(funcs).then(results => results);
-            console.log(streak);
+
             return streak
         }
     }).catch(reason => {
@@ -277,35 +277,6 @@ const streakToOwner = function(ownerID, streakID) {
     this.db.ref(`streakOwners/${ownerID}/${streakID}`).set(true);
 };
 
-//searches and returns a promise containing the user information by username
-const searchUsers = function(username, userID) {
-    return this.db.ref('users')
-    .orderByChild('username')
-    .equalTo(username)
-    .once('value')
-    .then(snapshot => {
-        if (snapshot.exists()) {
-            let result = {};
-            let data = snapshot.val();
-            let foundUserID = Object.keys(data)[0];
-            if (foundUserID === userID) {
-                console.log('You cannot add yourself as a friend');
-                result.self = true;
-            } else {
-                result.self = false;
-            }
-            result.uid = foundUserID;
-            let innerData = snapshot.child(`${foundUserID}`).val();
-            result.first = innerData.first;
-            result.last = innerData.last
-            return result;
-        } else {
-            return {};
-        }
-    });
-};
-
-
 export {
     startStreak,
     getStreaks,
@@ -319,5 +290,4 @@ export {
     checkForExpiredStreaks,
     streakTerminationDatabaseTransfer,
     streakToOwner,
-    searchUsers,
 };

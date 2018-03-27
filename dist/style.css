@@ -92,6 +92,9 @@ li {
 
 .request-list-container {
     justify-content: space-around;
+    align-items: center;
+    padding: 5px;
+    border-bottom:  1px solid lightgrey;
 }
 
 .request-list-item {
@@ -100,6 +103,9 @@ li {
 
 .friend-list-container {
     justify-content: space-around;
+    align-items: center;
+    padding: 5px;
+    border-bottom: 1px solid lightgrey;
 }
 
 .friend-list-item {
@@ -159,6 +165,10 @@ li {
     position: relative;
     top: 10px;
     left: 25px;
+}
+
+.no-padding-modal {
+    padding: 0;
 }
 
 .modal-body {
@@ -221,6 +231,11 @@ li {
 .search-content {
     display: flex;
     flex-direction: column;
+}
+
+.center-text {
+    text-align: center;
+    padding: 5px;
 }
 
 .search-item {

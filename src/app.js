@@ -40,6 +40,7 @@ import {
 } from './utils/currency.js';
 import {
     sendFriendRequest,
+    friendRequestToPair,
     friendRequestToSender,
     friendRequestToRecipient,
     getFriendRequests,
@@ -52,6 +53,7 @@ import {
     friendToInfo,
     addFriend,
     removeFriend,
+    searchUsers,
 } from './utils/friends.js';
 import {
     startStreak,
@@ -67,7 +69,6 @@ import {
     convertDateToTimeDifference,
     streakTerminationDatabaseTransfer,
     streakToOwner,
-    searchUsers,
 } from './utils/streaks.js';
 import {
     sendStreakRequest,
@@ -135,6 +136,7 @@ export default class App extends Component {
 
         //friendRequests
         this.sendFriendRequest = sendFriendRequest.bind(this);
+        this.friendRequestToPair = friendRequestToPair.bind(this);
         this.friendRequestToSender = friendRequestToSender.bind(this);
         this.friendRequestToRecipient = friendRequestToRecipient.bind(this);
         this.getFriendRequests = getFriendRequests.bind(this);
@@ -147,6 +149,7 @@ export default class App extends Component {
         this.getFriends = getFriends.bind(this);
         this.friendToInfo = friendToInfo.bind(this);
         this.removeFriend = removeFriend.bind(this);
+        this.searchUsers = searchUsers.bind(this);
 
         //streakRequests
         this.sendStreakRequest = sendStreakRequest.bind(this);
@@ -171,7 +174,6 @@ export default class App extends Component {
         this.checkForExpiredStreaks = checkForExpiredStreaks.bind(this);
         this.streakTerminationDatabaseTransfer = streakTerminationDatabaseTransfer.bind(this);
         this.streakToOwner = streakToOwner.bind(this);
-        this.searchUsers = searchUsers.bind(this);
 
         //currency
         this.streakTermination = streakTermination.bind(this);
@@ -273,6 +275,8 @@ export default class App extends Component {
                                                 acceptFriendRequest={this.acceptFriendRequest}
                                                 rejectFriendRequest={this.rejectFriendRequest}
                                                 removeFriend={this.removeFriend}
+                                                getFriendRequests={this.getFriendRequests}
+                                                getFriends={this.getFriends}
                                             />
                                         )}
                                     />

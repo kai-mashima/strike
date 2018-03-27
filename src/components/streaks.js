@@ -74,7 +74,7 @@ export default class Streaks extends Component {
     }
 
     render() {
-        let friendsRender = <div><span>You have no friends</span></div>;
+        let friendsRender = <div className='center-text'><span>No friends</span></div>;
         if (this.props.friends.length != 0) {
             friendsRender = this.props.friends.map((friend, index) => (
                 <div className='col-item row-container friend-list-container' key={index}>
@@ -84,7 +84,7 @@ export default class Streaks extends Component {
             ));
         }
 
-        let requestsRender = <div><span>You have no requests</span></div>;
+        let requestsRender = <div className='center-text'><span>No streak requests</span></div>;
         if (this.props.requests.length != 0) { 
             //handle no unanswered requests
             requestsRender = this.props.requests.map((request, index) => {
@@ -100,7 +100,7 @@ export default class Streaks extends Component {
             });
         }
 
-        let streaksRender = <div><span>You have no streaks</span></div>;
+        let streaksRender = <div className='center-text'><span>No streaks</span></div>;
         if (this.props.streaks.length != 0) {
             streaksRender = this.props.streaks.map((streak, index) => (
                 <Streak key={index} streak={streak} stokeStreak={this.props.stokeStreak} userID={this.props.userID}/>
@@ -118,7 +118,7 @@ export default class Streaks extends Component {
                                     <Modal.Header>
                                         <Modal.Title>New Streak</Modal.Title>
                                     </Modal.Header>
-                                    <Modal.Body>
+                                    <Modal.Body bsClass='no-padding-modal'>
                                         <div className='col-container'>
                                             {friendsRender}
                                         </div>
@@ -147,7 +147,7 @@ export default class Streaks extends Component {
                                     <Modal.Header>
                                         <Modal.Title>Streak Requests</Modal.Title>
                                     </Modal.Header>
-                                    <Modal.Body>
+                                    <Modal.Body bsClass='no-padding-modal'>
                                         <div className='col-container'>
                                             {requestsRender}
                                         </div>
