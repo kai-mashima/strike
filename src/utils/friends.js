@@ -74,28 +74,31 @@ const removeFriend = function(userID, friendID) {
                 .then(snapshot => {
                     if (snapshot.exists()) {
                         let streakInfo = snapshot.val();
+                        let streakID = streakInfo.id;
                         if (streakInfo.currentOwner === friendID || streakInfo.nextOwner === friendID) {
-                            this.db.ref(`streaks/${streak}`).remove();
+                            this.streakTerminationDatabaseTransfer(streakInfo, streakID);
+                            this.streakTermination(streakID);
+
                             this.db.ref(`friends/${userID}/${friendID}`).remove();
                             this.db.ref(`friends/${friendID}/${userID}`).remove();
+
+                            this.db.ref(`friendRequestPairs/${userID}/${friendID}`).remove();
+                            this.db.ref(`friendRequestPairs/${friendID}/${userID}`).remove();
+
                             this.getFriends();
                             this.getStreaks();
                             return true;
                         }
                     } else {
-                        throw '';
+                        console.log('Friend Removed: No streaks to terminate');
+                        return false;
                     }
-                }).catch(reason => {
-                    console.log(reason);
-                    return false;
                 });
             });
         } else {
-            throw '';
+            console.log('Friend Removed: No streaks to terminate');
+            return false;
         }
-    }).catch(reason => {
-        console.log(reason);
-        return false;
     });
 };
 

@@ -34,8 +34,7 @@ const startStreak = function(userID, friendID) {
             lastChecked: false,
             messages: false,
         }).then(() => {
-            this.streakToOwner(friendID, newStreakID);
-            this.streakToOwner(userID, newStreakID);
+            this.streakToOwners(userID, friendID, newStreakID);
             this.streakStoke(newStreakID, userID);
         }).then(() => {
             this.getStreaks(userID);
@@ -269,14 +268,27 @@ const streakTerminationDatabaseTransfer = function(streak, streakID) {
     this.db.ref(`terminatedStreakOwners/${streak.currentOwner}/${streakID}`).set(true);
     this.db.ref(`terminatedStreakOwners/${streak.nextOwner}/${streakID}`).set(true);
 
-    this.db.ref(`streakOwners/${streak.currentOwner}/${streakID}`).remove();
-    this.db.ref(`streakOwners/${streak.nextOwner}/${streakID}`).remove();
-    this.db.ref(`streaks/${streakID}`).remove();
+    this.removeStreak(streak.currentOwner, streak.nextOwner, streakID);
+    this.removeStreakRequest(streak.currentOwner, streak.nextOwner);
 };
 
 //sets a streak id to a users streaklist
-const streakToOwner = function(ownerID, streakID) {
-    this.db.ref(`streakOwners/${ownerID}/${streakID}`).set(true);
+const streakToOwners = function(firstOwnerID, secondOwnerID, streakID) {
+    this.db.ref(`streakOwners/${firstOwnerID}/${streakID}`).set(true);
+    this.db.ref(`streakOwners/${secondOwnerID}/${streakID}`).set(true);
+};
+
+const removeStreak = function(userID, friendID, streakID) {
+    this.db.ref(`streaks/${streakID}`).remove();
+    this.db.ref(`streakOwners/${userID}/${streakID}`).remove();
+    this.db.ref(`streakOwners/${friendID}/${streakID}`).remove();
+    this.db.ref(`streakPairs/${userID}/${friendID}`).remove();
+    this.db.ref(`streakPairs/${friendID}/${userID}`).remove();
+};
+
+const removeStreakRequest = function(userID, friendID) {
+    this.db.ref(`streakRequestPairs/${userID}/${friendID}`).remove();
+    this.db.ref(`streakRequestPairs/${friendID}/${userID}`).remove();
 };
 
 export {
@@ -291,5 +303,7 @@ export {
     checkForExpiredTime,
     checkForExpiredStreaks,
     streakTerminationDatabaseTransfer,
-    streakToOwner,
+    streakToOwners,
+    removeStreak,
+    removeStreakRequest,
 };

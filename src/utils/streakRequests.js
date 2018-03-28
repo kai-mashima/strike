@@ -32,8 +32,7 @@ const sendStreakRequest = function(userID, recipientID) {
 
 const streakRequestAction = function(userID, recipientID) {
     const newRequestID = this.db.ref().child(`streakRequests/`).push().key;
-    this.streakRequestToSender(userID, newRequestID);
-    this.streakRequestToRecipient(recipientID, newRequestID);
+    this.streakRequestToOwners(userID, recipientID, newRequestID);
     this.streakRequestToPair(userID, recipientID);
     this.db.ref(`streakRequests/${newRequestID}`)
     .set({
@@ -51,12 +50,8 @@ const streakRequestToPair = function(ownerID, recipientID) {
 };
 
 //sets the given streak request id to the sender of the request
-const streakRequestToSender = function(ownerID, streakRequestID) {
+const streakRequestToOwners = function(ownerID, recipientID, streakRequestID) {
     this.db.ref(`streakRequestOwners/${ownerID}/sent/${streakRequestID}`).set(true);
-};
-
-//sets the given streak request id to the recipient of the request
-const streakRequestToRecipient = function(recipientID, streakRequestID) {
     this.db.ref(`streakRequestOwners/${recipientID}/received/${streakRequestID}`).set(true);
 };
 
@@ -137,8 +132,7 @@ export {
     sendStreakRequest,
     streakRequestAction,
     streakRequestToPair,
-    streakRequestToSender,
-    streakRequestToRecipient,
+    streakRequestToOwners,
     getStreakRequests,
     streakRequestToInfo,
     acceptStreakRequest,

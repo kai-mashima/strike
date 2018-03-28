@@ -41,8 +41,7 @@ import {
 import {
     sendFriendRequest,
     friendRequestToPair,
-    friendRequestToSender,
-    friendRequestToRecipient,
+    friendRequestToOwners,
     getFriendRequests,
     friendRequestsToInfo,
     acceptFriendRequest,
@@ -68,14 +67,15 @@ import {
     checkForExpiredStreaks,
     convertDateToTimeDifference,
     streakTerminationDatabaseTransfer,
-    streakToOwner,
+    streakToOwners,
+    removeStreak,
+    removeStreakRequest,
 } from './utils/streaks.js';
 import {
     sendStreakRequest,
     streakRequestAction,
     streakRequestToPair,
-    streakRequestToSender,
-    streakRequestToRecipient,
+    streakRequestToOwners,
     getStreakRequests,
     streakRequestToInfo,
     acceptStreakRequest,
@@ -138,8 +138,7 @@ export default class App extends Component {
         //friendRequests
         this.sendFriendRequest = sendFriendRequest.bind(this);
         this.friendRequestToPair = friendRequestToPair.bind(this);
-        this.friendRequestToSender = friendRequestToSender.bind(this);
-        this.friendRequestToRecipient = friendRequestToRecipient.bind(this);
+        this.friendRequestToOwners = friendRequestToOwners.bind(this);
         this.getFriendRequests = getFriendRequests.bind(this);
         this.friendRequestsToInfo = friendRequestsToInfo.bind(this);
         this.acceptFriendRequest = acceptFriendRequest.bind(this);
@@ -156,8 +155,7 @@ export default class App extends Component {
         this.sendStreakRequest = sendStreakRequest.bind(this);
         this.streakRequestAction = streakRequestAction.bind(this);
         this.streakRequestToPair = streakRequestToPair.bind(this);
-        this.streakRequestToSender = streakRequestToSender.bind(this);
-        this.streakRequestToRecipient = streakRequestToRecipient.bind(this);
+        this.streakRequestToOwners = streakRequestToOwners.bind(this);
         this.getStreakRequests = getStreakRequests.bind(this);
         this.streakRequestToInfo = streakRequestToInfo.bind(this);
         this.acceptStreakRequest = acceptStreakRequest.bind(this);
@@ -175,7 +173,9 @@ export default class App extends Component {
         this.checkForExpiredTime = checkForExpiredTime.bind(this);
         this.checkForExpiredStreaks = checkForExpiredStreaks.bind(this);
         this.streakTerminationDatabaseTransfer = streakTerminationDatabaseTransfer.bind(this);
-        this.streakToOwner = streakToOwner.bind(this);
+        this.streakToOwners = streakToOwners.bind(this);
+        this.removeStreak = removeStreak.bind(this);
+        this.removeStreakRequest = removeStreakRequest.bind(this);
 
         //currency
         this.streakTermination = streakTermination.bind(this);

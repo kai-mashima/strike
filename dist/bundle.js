@@ -40044,8 +40044,7 @@ var App = function (_Component) {
         //friendRequests
         _this.sendFriendRequest = _friendRequests.sendFriendRequest.bind(_this);
         _this.friendRequestToPair = _friendRequests.friendRequestToPair.bind(_this);
-        _this.friendRequestToSender = _friendRequests.friendRequestToSender.bind(_this);
-        _this.friendRequestToRecipient = _friendRequests.friendRequestToRecipient.bind(_this);
+        _this.friendRequestToOwners = _friendRequests.friendRequestToOwners.bind(_this);
         _this.getFriendRequests = _friendRequests.getFriendRequests.bind(_this);
         _this.friendRequestsToInfo = _friendRequests.friendRequestsToInfo.bind(_this);
         _this.acceptFriendRequest = _friendRequests.acceptFriendRequest.bind(_this);
@@ -40062,8 +40061,7 @@ var App = function (_Component) {
         _this.sendStreakRequest = _streakRequests.sendStreakRequest.bind(_this);
         _this.streakRequestAction = _streakRequests.streakRequestAction.bind(_this);
         _this.streakRequestToPair = _streakRequests.streakRequestToPair.bind(_this);
-        _this.streakRequestToSender = _streakRequests.streakRequestToSender.bind(_this);
-        _this.streakRequestToRecipient = _streakRequests.streakRequestToRecipient.bind(_this);
+        _this.streakRequestToOwners = _streakRequests.streakRequestToOwners.bind(_this);
         _this.getStreakRequests = _streakRequests.getStreakRequests.bind(_this);
         _this.streakRequestToInfo = _streakRequests.streakRequestToInfo.bind(_this);
         _this.acceptStreakRequest = _streakRequests.acceptStreakRequest.bind(_this);
@@ -40081,7 +40079,9 @@ var App = function (_Component) {
         _this.checkForExpiredTime = _streaks3.checkForExpiredTime.bind(_this);
         _this.checkForExpiredStreaks = _streaks3.checkForExpiredStreaks.bind(_this);
         _this.streakTerminationDatabaseTransfer = _streaks3.streakTerminationDatabaseTransfer.bind(_this);
-        _this.streakToOwner = _streaks3.streakToOwner.bind(_this);
+        _this.streakToOwners = _streaks3.streakToOwners.bind(_this);
+        _this.removeStreak = _streaks3.removeStreak.bind(_this);
+        _this.removeStreakRequest = _streaks3.removeStreakRequest.bind(_this);
 
         //currency
         _this.streakTermination = _currency.streakTermination.bind(_this);
@@ -66493,28 +66493,31 @@ var removeFriend = function removeFriend(userID, friendID) {
                 _this3.db.ref('streaks/' + streak).once('value').then(function (snapshot) {
                     if (snapshot.exists()) {
                         var streakInfo = snapshot.val();
+                        var streakID = streakInfo.id;
                         if (streakInfo.currentOwner === friendID || streakInfo.nextOwner === friendID) {
-                            _this3.db.ref('streaks/' + streak).remove();
+                            _this3.streakTerminationDatabaseTransfer(streakInfo, streakID);
+                            _this3.streakTermination(streakID);
+
                             _this3.db.ref('friends/' + userID + '/' + friendID).remove();
                             _this3.db.ref('friends/' + friendID + '/' + userID).remove();
+
+                            _this3.db.ref('friendRequestPairs/' + userID + '/' + friendID).remove();
+                            _this3.db.ref('friendRequestPairs/' + friendID + '/' + userID).remove();
+
                             _this3.getFriends();
                             _this3.getStreaks();
                             return true;
                         }
                     } else {
-                        throw '';
+                        console.log('Friend Removed: No streaks to terminate');
+                        return false;
                     }
-                }).catch(function (reason) {
-                    console.log(reason);
-                    return false;
                 });
             });
         } else {
-            throw '';
+            console.log('Friend Removed: No streaks to terminate');
+            return false;
         }
-    }).catch(function (reason) {
-        console.log(reason);
-        return false;
     });
 };
 
@@ -66579,7 +66582,7 @@ exports.searchUsers = searchUsers;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.streakToOwner = exports.streakTerminationDatabaseTransfer = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.sendStreakMessage = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.getStreakMessages = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
+exports.removeStreakRequest = exports.removeStreak = exports.streakToOwners = exports.streakTerminationDatabaseTransfer = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.sendStreakMessage = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.getStreakMessages = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66623,8 +66626,7 @@ var startStreak = function startStreak(userID, friendID) {
             lastChecked: false,
             messages: false
         }).then(function () {
-            _this.streakToOwner(friendID, newStreakID);
-            _this.streakToOwner(userID, newStreakID);
+            _this.streakToOwners(userID, friendID, newStreakID);
             _this.streakStoke(newStreakID, userID);
         }).then(function () {
             _this.getStreaks(userID);
@@ -66865,14 +66867,27 @@ var streakTerminationDatabaseTransfer = function streakTerminationDatabaseTransf
     this.db.ref('terminatedStreakOwners/' + streak.currentOwner + '/' + streakID).set(true);
     this.db.ref('terminatedStreakOwners/' + streak.nextOwner + '/' + streakID).set(true);
 
-    this.db.ref('streakOwners/' + streak.currentOwner + '/' + streakID).remove();
-    this.db.ref('streakOwners/' + streak.nextOwner + '/' + streakID).remove();
-    this.db.ref('streaks/' + streakID).remove();
+    this.removeStreak(streak.currentOwner, streak.nextOwner, streakID);
+    this.removeStreakRequest(streak.currentOwner, streak.nextOwner);
 };
 
 //sets a streak id to a users streaklist
-var streakToOwner = function streakToOwner(ownerID, streakID) {
-    this.db.ref('streakOwners/' + ownerID + '/' + streakID).set(true);
+var streakToOwners = function streakToOwners(firstOwnerID, secondOwnerID, streakID) {
+    this.db.ref('streakOwners/' + firstOwnerID + '/' + streakID).set(true);
+    this.db.ref('streakOwners/' + secondOwnerID + '/' + streakID).set(true);
+};
+
+var removeStreak = function removeStreak(userID, friendID, streakID) {
+    this.db.ref('streaks/' + streakID).remove();
+    this.db.ref('streakOwners/' + userID + '/' + streakID).remove();
+    this.db.ref('streakOwners/' + friendID + '/' + streakID).remove();
+    this.db.ref('streakPairs/' + userID + '/' + friendID).remove();
+    this.db.ref('streakPairs/' + friendID + '/' + userID).remove();
+};
+
+var removeStreakRequest = function removeStreakRequest(userID, friendID) {
+    this.db.ref('streakRequestPairs/' + userID + '/' + friendID).remove();
+    this.db.ref('streakRequestPairs/' + friendID + '/' + userID).remove();
 };
 
 exports.startStreak = startStreak;
@@ -66886,7 +66901,9 @@ exports.sendStreakMessage = sendStreakMessage;
 exports.checkForExpiredTime = checkForExpiredTime;
 exports.checkForExpiredStreaks = checkForExpiredStreaks;
 exports.streakTerminationDatabaseTransfer = streakTerminationDatabaseTransfer;
-exports.streakToOwner = streakToOwner;
+exports.streakToOwners = streakToOwners;
+exports.removeStreak = removeStreak;
+exports.removeStreakRequest = removeStreakRequest;
 
 /***/ }),
 /* 479 */
@@ -66898,7 +66915,7 @@ exports.streakToOwner = streakToOwner;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.rejectStreakRequest = exports.acceptStreakRequest = exports.streakRequestToInfo = exports.getStreakRequests = exports.streakRequestToRecipient = exports.streakRequestToSender = exports.streakRequestToPair = exports.streakRequestAction = exports.sendStreakRequest = undefined;
+exports.rejectStreakRequest = exports.acceptStreakRequest = exports.streakRequestToInfo = exports.getStreakRequests = exports.streakRequestToOwners = exports.streakRequestToPair = exports.streakRequestAction = exports.sendStreakRequest = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66935,8 +66952,7 @@ var sendStreakRequest = function sendStreakRequest(userID, recipientID) {
 
 var streakRequestAction = function streakRequestAction(userID, recipientID) {
     var newRequestID = this.db.ref().child('streakRequests/').push().key;
-    this.streakRequestToSender(userID, newRequestID);
-    this.streakRequestToRecipient(recipientID, newRequestID);
+    this.streakRequestToOwners(userID, recipientID, newRequestID);
     this.streakRequestToPair(userID, recipientID);
     this.db.ref('streakRequests/' + newRequestID).set({
         id: newRequestID,
@@ -66953,12 +66969,8 @@ var streakRequestToPair = function streakRequestToPair(ownerID, recipientID) {
 };
 
 //sets the given streak request id to the sender of the request
-var streakRequestToSender = function streakRequestToSender(ownerID, streakRequestID) {
+var streakRequestToOwners = function streakRequestToOwners(ownerID, recipientID, streakRequestID) {
     this.db.ref('streakRequestOwners/' + ownerID + '/sent/' + streakRequestID).set(true);
-};
-
-//sets the given streak request id to the recipient of the request
-var streakRequestToRecipient = function streakRequestToRecipient(recipientID, streakRequestID) {
     this.db.ref('streakRequestOwners/' + recipientID + '/received/' + streakRequestID).set(true);
 };
 
@@ -67040,8 +67052,7 @@ var rejectStreakRequest = function rejectStreakRequest(streakRequestID, userID, 
 exports.sendStreakRequest = sendStreakRequest;
 exports.streakRequestAction = streakRequestAction;
 exports.streakRequestToPair = streakRequestToPair;
-exports.streakRequestToSender = streakRequestToSender;
-exports.streakRequestToRecipient = streakRequestToRecipient;
+exports.streakRequestToOwners = streakRequestToOwners;
 exports.getStreakRequests = getStreakRequests;
 exports.streakRequestToInfo = streakRequestToInfo;
 exports.acceptStreakRequest = acceptStreakRequest;
@@ -67057,7 +67068,7 @@ exports.rejectStreakRequest = rejectStreakRequest;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.rejectFriendRequest = exports.acceptFriendRequest = exports.friendRequestsToInfo = exports.getFriendRequests = exports.friendRequestToRecipient = exports.friendRequestToSender = exports.friendRequestToPair = exports.sendFriendRequest = undefined;
+exports.rejectFriendRequest = exports.acceptFriendRequest = exports.friendRequestsToInfo = exports.getFriendRequests = exports.friendRequestToOwners = exports.friendRequestToPair = exports.sendFriendRequest = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -67080,8 +67091,7 @@ var sendFriendRequest = function sendFriendRequest(userID, recipientID) {
                     return false;
                 } else {
                     var newRequestID = _this.db.ref().child('friendRequests/').push().key;
-                    _this.friendRequestToSender(userID, newRequestID);
-                    _this.friendRequestToRecipient(recipientID, newRequestID);
+                    _this.friendRequestToOwners(userID, recipientID, newRequestID);
                     _this.friendRequestToPair(userID, recipientID);
                     _this.db.ref('friendRequests/' + newRequestID).set({
                         id: newRequestID,
@@ -67104,12 +67114,8 @@ var friendRequestToPair = function friendRequestToPair(ownerID, recipientID) {
 };
 
 //sets the given friend request id to the sender of the request
-var friendRequestToSender = function friendRequestToSender(ownerID, friendRequestID) {
+var friendRequestToOwners = function friendRequestToOwners(ownerID, recipientID, friendRequestID) {
     this.db.ref('friendRequestOwners/' + ownerID + '/sent/' + friendRequestID).set(true);
-};
-
-//sets the given friend request id to the recipient of the request
-var friendRequestToRecipient = function friendRequestToRecipient(recipientID, friendRequestID) {
     this.db.ref('friendRequestOwners/' + recipientID + '/received/' + friendRequestID).set(true);
 };
 
@@ -67190,8 +67196,7 @@ var rejectFriendRequest = function rejectFriendRequest(friendRequestID, userID, 
 
 exports.sendFriendRequest = sendFriendRequest;
 exports.friendRequestToPair = friendRequestToPair;
-exports.friendRequestToSender = friendRequestToSender;
-exports.friendRequestToRecipient = friendRequestToRecipient;
+exports.friendRequestToOwners = friendRequestToOwners;
 exports.getFriendRequests = getFriendRequests;
 exports.friendRequestsToInfo = friendRequestsToInfo;
 exports.acceptFriendRequest = acceptFriendRequest;

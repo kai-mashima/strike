@@ -17,8 +17,7 @@ const sendFriendRequest = function(userID, recipientID) {
                     return false;
                 } else {
                     const newRequestID = this.db.ref().child(`friendRequests/`).push().key;
-                    this.friendRequestToSender(userID, newRequestID);
-                    this.friendRequestToRecipient(recipientID, newRequestID);
+                    this.friendRequestToOwners(userID, recipientID, newRequestID);
                     this.friendRequestToPair(userID, recipientID);
                     this.db.ref(`friendRequests/${newRequestID}`)
                     .set({
@@ -42,12 +41,8 @@ const friendRequestToPair = function(ownerID, recipientID) {
 };
 
 //sets the given friend request id to the sender of the request
-const friendRequestToSender = function(ownerID, friendRequestID) {
+const friendRequestToOwners = function(ownerID, recipientID, friendRequestID) {
     this.db.ref(`friendRequestOwners/${ownerID}/sent/${friendRequestID}`).set(true);
-};
-
-//sets the given friend request id to the recipient of the request
-const friendRequestToRecipient = function(recipientID, friendRequestID) {
     this.db.ref(`friendRequestOwners/${recipientID}/received/${friendRequestID}`).set(true);
 };
 
@@ -127,8 +122,7 @@ const rejectFriendRequest = function(friendRequestID, userID, senderID) {
 export {
     sendFriendRequest,
     friendRequestToPair,
-    friendRequestToSender,
-    friendRequestToRecipient,
+    friendRequestToOwners,
     getFriendRequests,
     friendRequestsToInfo,
     acceptFriendRequest,
