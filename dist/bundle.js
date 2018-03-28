@@ -40061,6 +40061,7 @@ var App = function (_Component) {
         //streakRequests
         _this.sendStreakRequest = _streakRequests.sendStreakRequest.bind(_this);
         _this.streakRequestAction = _streakRequests.streakRequestAction.bind(_this);
+        _this.streakRequestToPair = _streakRequests.streakRequestToPair.bind(_this);
         _this.streakRequestToSender = _streakRequests.streakRequestToSender.bind(_this);
         _this.streakRequestToRecipient = _streakRequests.streakRequestToRecipient.bind(_this);
         _this.getStreakRequests = _streakRequests.getStreakRequests.bind(_this);
@@ -55902,12 +55903,14 @@ var Streaks = function (_Component) {
         _this.handleRequestAcceptance = _this.handleRequestAcceptance.bind(_this);
         _this.handleRequestRejection = _this.handleRequestRejection.bind(_this);
         _this.toggleConfirmationModal = _this.toggleConfirmationModal.bind(_this);
+        _this.toggleErrorModal = _this.toggleErrorModal.bind(_this);
 
         //STATE
         _this.state = {
             isVisibleStreak: false,
             isVisibleRequests: false,
-            isVisibleConfirmation: false
+            isVisibleConfirmation: false,
+            isVisibleError: false
         };
         return _this;
     }
@@ -55947,18 +55950,35 @@ var Streaks = function (_Component) {
                 });
             }, 2000);
         }
+    }, {
+        key: 'toggleErrorModal',
+        value: function toggleErrorModal() {
+            var _this3 = this;
+
+            this.setState({
+                isVisibleError: true
+            });
+
+            setTimeout(function () {
+                _this3.setState({
+                    isVisibleError: false
+                });
+            }, 2000);
+        }
 
         //initiate streak request process and toggle modal
 
     }, {
         key: 'handleStreakStart',
         value: function handleStreakStart(userID, friendID) {
-            var _this3 = this;
+            var _this4 = this;
 
             this.props.sendStreakRequest(userID, friendID).then(function (confirmation) {
-                _this3.toggleNewStreakModal();
+                _this4.toggleNewStreakModal();
                 if (confirmation) {
-                    _this3.toggleConfirmationModal();
+                    _this4.toggleConfirmationModal();
+                } else {
+                    _this4.toggleErrorModal();
                 }
             });
         }
@@ -55983,7 +56003,7 @@ var Streaks = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this4 = this;
+            var _this5 = this;
 
             var friendsRender = _react2.default.createElement(
                 'div',
@@ -56008,7 +56028,7 @@ var Streaks = function (_Component) {
                         _react2.default.createElement(
                             'span',
                             { className: 'friend-list-item row-item btn btn-success', onClick: function onClick() {
-                                    return _this4.handleStreakStart(_this4.props.userID, friend.uid);
+                                    return _this5.handleStreakStart(_this5.props.userID, friend.uid);
                                 } },
                             ' Start Streak'
                         )
@@ -56041,14 +56061,14 @@ var Streaks = function (_Component) {
                             _react2.default.createElement(
                                 'span',
                                 { className: 'request-list-item row-item btn btn-success', onClick: function onClick() {
-                                        return _this4.handleRequestAcceptance(request.id, request.recipient, request.sender);
+                                        return _this5.handleRequestAcceptance(request.id, request.recipient, request.sender);
                                     } },
                                 'Accept Streak'
                             ),
                             _react2.default.createElement(
                                 'span',
                                 { className: 'request-list-item row-item btn btn-danger', onClick: function onClick() {
-                                        return _this4.handleRequestRejection(request.id, request.recipient, request.sender);
+                                        return _this5.handleRequestRejection(request.id, request.recipient, request.sender);
                                     } },
                                 'Reject Streak'
                             )
@@ -56068,7 +56088,7 @@ var Streaks = function (_Component) {
             );
             if (this.props.streaks.length != 0) {
                 streaksRender = this.props.streaks.map(function (streak, index) {
-                    return _react2.default.createElement(_streak2.default, { key: index, streak: streak, stokeStreak: _this4.props.stokeStreak, userID: _this4.props.userID });
+                    return _react2.default.createElement(_streak2.default, { key: index, streak: streak, stokeStreak: _this5.props.stokeStreak, userID: _this5.props.userID });
                 });
             }
 
@@ -56128,7 +56148,7 @@ var Streaks = function (_Component) {
                                         _react2.default.createElement(
                                             _reactBootstrap.Modal.Title,
                                             null,
-                                            'Streak Requests Confirmation'
+                                            'Streak Request Confirmation'
                                         )
                                     ),
                                     _react2.default.createElement(
@@ -56138,6 +56158,28 @@ var Streaks = function (_Component) {
                                             'span',
                                             null,
                                             'Your streak request has been sent.'
+                                        )
+                                    )
+                                ),
+                                _react2.default.createElement(
+                                    _reactBootstrap.Modal,
+                                    { show: this.state.isVisibleError },
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Header,
+                                        null,
+                                        _react2.default.createElement(
+                                            _reactBootstrap.Modal.Title,
+                                            null,
+                                            'Streak Request Error'
+                                        )
+                                    ),
+                                    _react2.default.createElement(
+                                        _reactBootstrap.Modal.Body,
+                                        null,
+                                        _react2.default.createElement(
+                                            'span',
+                                            null,
+                                            'Your streak request has not been sent. Please make sure you have not already sent a request to this user or that you do not already have a streak with this user.'
                                         )
                                     )
                                 )
@@ -66558,6 +66600,8 @@ var startStreak = function startStreak(userID, friendID) {
         var expirationDate = this.getDate24HoursAhead();
         var expirationTime = this.convertFutureTimestampToHours(expirationDate);
         var newStreakID = this.db.ref().child('streaks').push().key;
+        this.db.ref('streakPairs/' + userID + '/' + friendID).set(true);
+        this.db.ref('streakPairs/' + friendID + '/' + userID).set(true);
         this.db.ref('streaks/' + newStreakID).set({
             participants: (_participants = {}, _defineProperty(_participants, userID, true), _defineProperty(_participants, friendID, true), _participants),
             id: newStreakID,
@@ -66854,7 +66898,7 @@ exports.streakToOwner = streakToOwner;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.rejectStreakRequest = exports.acceptStreakRequest = exports.streakRequestToInfo = exports.getStreakRequests = exports.streakRequestToRecipient = exports.streakRequestToSender = exports.streakRequestAction = exports.sendStreakRequest = undefined;
+exports.rejectStreakRequest = exports.acceptStreakRequest = exports.streakRequestToInfo = exports.getStreakRequests = exports.streakRequestToRecipient = exports.streakRequestToSender = exports.streakRequestToPair = exports.streakRequestAction = exports.sendStreakRequest = undefined;
 
 var _app = __webpack_require__(417);
 
@@ -66862,48 +66906,26 @@ var _app2 = _interopRequireDefault(_app);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 //adds a streak request to the db and calls functions to assign streak request to sender and recipient
 var sendStreakRequest = function sendStreakRequest(userID, recipientID) {
     var _this = this;
 
     if (userID !== recipientID) {
-        return this.db.ref('streakOwners/' + userID).once('value').then(function (snapshot) {
+        return this.db.ref('streakRequestPairs/' + userID + '/' + recipientID).once('value').then(function (snapshot) {
             if (snapshot.exists()) {
-                var userStreaks = Object.keys(snapshot.val());
-
-                return _this.db.ref('streakOwners/' + recipientID).once('value').then(function (snapshot) {
+                console.log('No request sent: You cannot send a request to someone you have already sent a request to');
+                return false;
+            } else {
+                return _this.db.ref('streakPairs/' + userID + '/' + recipientID).once('value').then(function (snapshot) {
                     if (snapshot.exists()) {
-                        var recipientStreaks = Object.keys(snapshot.val());
-                        var userSet = new Set(userStreaks);
-                        var recipientSet = new Set(recipientStreaks);
-                        var intersection = new Set([].concat(_toConsumableArray(userSet)).filter(function (x) {
-                            return recipientSet.has(x);
-                        }));
-
-                        if (intersection.size === 0) {
-                            _this.streakRequestAction(userID, recipientID);
-                            return true;
-                        } else {
-                            console.log('You cannot have more than one streak with a friend');
-                            return false;
-                        }
+                        console.log('No request sent: You cannot send a request to someone you already have a streak with');
+                        return false;
                     } else {
                         _this.streakRequestAction(userID, recipientID);
                         return true;
                     }
-                }).catch(function (reason) {
-                    console.log(reason);
-                    return false;
                 });
-            } else {
-                _this.streakRequestAction(userID, recipientID);
-                return true;
             }
-        }).catch(function (reason) {
-            console.log(reason);
-            return false;
         });
     } else {
         console.log('No request sent: You cannot send a streak request to yourself.');
@@ -66915,6 +66937,7 @@ var streakRequestAction = function streakRequestAction(userID, recipientID) {
     var newRequestID = this.db.ref().child('streakRequests/').push().key;
     this.streakRequestToSender(userID, newRequestID);
     this.streakRequestToRecipient(recipientID, newRequestID);
+    this.streakRequestToPair(userID, recipientID);
     this.db.ref('streakRequests/' + newRequestID).set({
         id: newRequestID,
         sender: userID,
@@ -66922,6 +66945,11 @@ var streakRequestAction = function streakRequestAction(userID, recipientID) {
         answered: false,
         accepted: false
     });
+};
+
+var streakRequestToPair = function streakRequestToPair(ownerID, recipientID) {
+    this.db.ref('streakRequestPairs/' + ownerID + '/' + recipientID).set(true);
+    this.db.ref('streakRequestPairs/' + recipientID + '/' + ownerID).set(true);
 };
 
 //sets the given streak request id to the sender of the request
@@ -67011,6 +67039,7 @@ var rejectStreakRequest = function rejectStreakRequest(streakRequestID, userID, 
 
 exports.sendStreakRequest = sendStreakRequest;
 exports.streakRequestAction = streakRequestAction;
+exports.streakRequestToPair = streakRequestToPair;
 exports.streakRequestToSender = streakRequestToSender;
 exports.streakRequestToRecipient = streakRequestToRecipient;
 exports.getStreakRequests = getStreakRequests;

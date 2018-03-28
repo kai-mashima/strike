@@ -7,6 +7,8 @@ const startStreak = function(userID, friendID) {
         let expirationDate = this.getDate24HoursAhead();
         let expirationTime = this.convertFutureTimestampToHours(expirationDate);
         const newStreakID = this.db.ref().child('streaks').push().key;
+        this.db.ref(`streakPairs/${userID}/${friendID}`).set(true);
+        this.db.ref(`streakPairs/${friendID}/${userID}`).set(true);
         this.db.ref(`streaks/${newStreakID}`)
         .set({
             participants: {

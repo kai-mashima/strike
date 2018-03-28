@@ -3,46 +3,25 @@ import firebase from 'firebase/app';
 //adds a streak request to the db and calls functions to assign streak request to sender and recipient
 const sendStreakRequest = function(userID, recipientID) {
     if (userID !== recipientID) {
-        return this.db.ref(`streakOwners/${userID}`)
+        return this.db.ref(`streakRequestPairs/${userID}/${recipientID}`)
         .once('value')
         .then(snapshot => {
             if (snapshot.exists()) {
-                const userStreaks = Object.keys(snapshot.val());
-
-                return this.db.ref(`streakOwners/${recipientID}`)
+                console.log('No request sent: You cannot send a request to someone you have already sent a request to');
+                return false;
+            } else {
+                return this.db.ref(`streakPairs/${userID}/${recipientID}`)
                 .once('value')
                 .then(snapshot => {
                     if (snapshot.exists()) {
-                        const recipientStreaks = Object.keys(snapshot.val());
-                        const userSet = new Set(userStreaks);
-                        const recipientSet = new Set(recipientStreaks);
-                        const intersection = new Set([...userSet].filter(x => recipientSet.has(x)));
-
-                        if (intersection.size === 0) {
-                            this.streakRequestAction(userID, recipientID);
-                            return true;
-                        } else {
-                            console.log('You cannot have more than one streak with a friend');
-                            return false;
-                        }
-
+                        console.log('No request sent: You cannot send a request to someone you already have a streak with');
+                        return false;
                     } else {
                         this.streakRequestAction(userID, recipientID);
                         return true;
                     }
-                }).catch(reason => {
-                    console.log(reason);
-                    return false;
                 });
-
-            } else {
-                this.streakRequestAction(userID, recipientID);
-                return true;
             }
-
-        }).catch(reason => {
-            console.log(reason);
-            return false;
         });
 
     } else {
@@ -55,6 +34,7 @@ const streakRequestAction = function(userID, recipientID) {
     const newRequestID = this.db.ref().child(`streakRequests/`).push().key;
     this.streakRequestToSender(userID, newRequestID);
     this.streakRequestToRecipient(recipientID, newRequestID);
+    this.streakRequestToPair(userID, recipientID);
     this.db.ref(`streakRequests/${newRequestID}`)
     .set({
         id: newRequestID,
@@ -63,6 +43,11 @@ const streakRequestAction = function(userID, recipientID) {
         answered: false,
         accepted: false,
     });
+};
+
+const streakRequestToPair = function(ownerID, recipientID) {
+    this.db.ref(`streakRequestPairs/${ownerID}/${recipientID}`).set(true);
+    this.db.ref(`streakRequestPairs/${recipientID}/${ownerID}`).set(true);
 };
 
 //sets the given streak request id to the sender of the request
@@ -151,6 +136,7 @@ const rejectStreakRequest = function(streakRequestID, userID, senderID) {
 export {
     sendStreakRequest,
     streakRequestAction,
+    streakRequestToPair,
     streakRequestToSender,
     streakRequestToRecipient,
     getStreakRequests,

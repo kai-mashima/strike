@@ -14,13 +14,15 @@ export default class Streaks extends Component {
         this.handleStreakStart = this.handleStreakStart.bind(this);
         this.handleRequestAcceptance = this.handleRequestAcceptance.bind(this);
         this.handleRequestRejection = this.handleRequestRejection.bind(this);
-        this.toggleConfirmationModal = this.toggleConfirmationModal.bind(this);  
+        this.toggleConfirmationModal = this.toggleConfirmationModal.bind(this); 
+        this.toggleErrorModal = this.toggleErrorModal.bind(this); 
 
         //STATE
         this.state = {
             isVisibleStreak: false,
             isVisibleRequests: false,
             isVisibleConfirmation: false,
+            isVisibleError: false,
         }
     }
 
@@ -50,13 +52,26 @@ export default class Streaks extends Component {
         }, 2000);
     }
 
+    toggleErrorModal() {
+        this.setState({
+            isVisibleError: true
+        });
+
+        setTimeout(() => {
+            this.setState({
+                isVisibleError: false
+            });
+        }, 2000);
+    }
+
     //initiate streak request process and toggle modal
     handleStreakStart(userID, friendID) {
-        this.props.sendStreakRequest(userID, friendID)
-        .then(confirmation => {
+        this.props.sendStreakRequest(userID, friendID).then(confirmation => {
             this.toggleNewStreakModal();
             if (confirmation) {
                 this.toggleConfirmationModal();
+            } else {
+                this.toggleErrorModal();
             }
         });       
     }
@@ -129,10 +144,18 @@ export default class Streaks extends Component {
                                 </Modal>
                                 <Modal show={this.state.isVisibleConfirmation}>
                                     <Modal.Header>
-                                        <Modal.Title>Streak Requests Confirmation</Modal.Title>
+                                        <Modal.Title>Streak Request Confirmation</Modal.Title>
                                     </Modal.Header>
                                     <Modal.Body>
                                         <span>Your streak request has been sent.</span>
+                                    </Modal.Body>
+                                </Modal>
+                                <Modal show={this.state.isVisibleError}>
+                                    <Modal.Header>
+                                        <Modal.Title>Streak Request Error</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <span>Your streak request has not been sent. Please make sure you have not already sent a request to this user or that you do not already have a streak with this user.</span>
                                     </Modal.Body>
                                 </Modal>
                             </div>

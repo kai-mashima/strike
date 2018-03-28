@@ -73,6 +73,7 @@ import {
 import {
     sendStreakRequest,
     streakRequestAction,
+    streakRequestToPair,
     streakRequestToSender,
     streakRequestToRecipient,
     getStreakRequests,
@@ -154,6 +155,7 @@ export default class App extends Component {
         //streakRequests
         this.sendStreakRequest = sendStreakRequest.bind(this);
         this.streakRequestAction = streakRequestAction.bind(this);
+        this.streakRequestToPair = streakRequestToPair.bind(this);
         this.streakRequestToSender = streakRequestToSender.bind(this);
         this.streakRequestToRecipient = streakRequestToRecipient.bind(this);
         this.getStreakRequests = getStreakRequests.bind(this);
