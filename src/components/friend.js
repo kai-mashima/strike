@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import {Modal} from 'react-bootstrap';
+import emoji from 'node-emoji';
 
 export default class Friend extends Component {
     constructor(props){

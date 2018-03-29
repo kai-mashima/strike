@@ -11,6 +11,7 @@ import { Modal } from 'react-bootstrap';
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
+import emoji from 'node-emoji';
 
 import { DB_CONFIG } from '../config/config.js';
 
@@ -21,7 +22,6 @@ import Unlocks from './components/unlocks.js';
 import Streaks from './components/streaks.js';
 import Login from './components/login.js';
 import Signup from './components/signup.js';
-
 
 import {
     streakTermination,
@@ -219,7 +219,7 @@ export default class App extends Component {
 
     toggleCurrentPage(e) {
         let first = true;
-        
+
         if (first) {
             document.getElementById('streakPage').classList.remove('current-page');
             first = false;
