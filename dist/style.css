@@ -474,6 +474,16 @@ li {
     text-align: center;
 }
 
+.notification-icon {
+    border: 3px solid red;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.current-page {
+    border-bottom: 1px solid lightgrey;
+}
+
 .glyphicon::before{
     color: black;
     font-size: 25pt;

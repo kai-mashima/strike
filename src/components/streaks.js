@@ -100,8 +100,7 @@ export default class Streaks extends Component {
         }
 
         let requestsRender = <div className='center-text'><span>No streak requests</span></div>;
-        if (this.props.requests.length != 0) { 
-            //handle no unanswered requests
+        if (this.props.requests.length != 0) {
             requestsRender = this.props.requests.map((request, index) => {
                 if (request.answered !== true) {
                     return (
@@ -122,6 +121,19 @@ export default class Streaks extends Component {
             ));
         }
 
+        let notificationIconRender = (
+            <div>
+                <span onClick={this.toggleRequestsModal} className='streak-request-btn glyphicon glyphicon-bell'></span>
+            </div>
+        );
+        if (this.props.requests.length != 0) {
+            notificationIconRender = (
+                <div>
+                    <span onClick={this.toggleRequestsModal} className='streak-request-btn glyphicon glyphicon-bell'></span>
+                    <span className='notification-icon'></span>
+                </div>
+            );
+        }
         return (
             <div>
                 <div className='main'>
@@ -165,7 +177,7 @@ export default class Streaks extends Component {
                         </div>
                         <div className='header-right'>
                             <div className='streak-header-right-item'>
-                                <span onClick={this.toggleRequestsModal} className='streak-request-btn glyphicon glyphicon-bell'></span>
+                                {notificationIconRender}
                                 <Modal show={this.state.isVisibleRequests} onHide={this.toggleRequestsModal}>
                                     <Modal.Header>
                                         <Modal.Title>Streak Requests</Modal.Title>

@@ -40252,7 +40252,7 @@ var App = function (_Component) {
                                     _react2.default.createElement(
                                         _reactRouterDom.Link,
                                         { className: 'link-item-tag', to: '/streaks' },
-                                        _react2.default.createElement('span', { className: 'glyph-span glyphicon glyphicon-fire' })
+                                        _react2.default.createElement('span', { className: 'current-page glyph-span glyphicon glyphicon-fire' })
                                     )
                                 ),
                                 _react2.default.createElement(
@@ -43743,6 +43743,20 @@ var Friends = function (_Component) {
                 });
             }
 
+            var notificationIconRender = _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement('span', { onClick: this.toggleFriendRequestModal, className: 'add-friend-btn glyphicon glyphicon-bell' })
+            );
+            if (this.props.requests.length != 0) {
+                notificationIconRender = _react2.default.createElement(
+                    'div',
+                    null,
+                    _react2.default.createElement('span', { onClick: this.toggleFriendRequestModal, className: 'add-friend-btn glyphicon glyphicon-bell' }),
+                    _react2.default.createElement('span', { className: 'notification-icon' })
+                );
+            }
+
             return _react2.default.createElement(
                 'div',
                 null,
@@ -43844,7 +43858,7 @@ var Friends = function (_Component) {
                             _react2.default.createElement(
                                 'div',
                                 { className: 'friends-header-right-item' },
-                                _react2.default.createElement('span', { onClick: this.toggleFriendRequestModal, className: 'add-friend-btn glyphicon glyphicon-bell' }),
+                                notificationIconRender,
                                 _react2.default.createElement(
                                     _reactBootstrap.Modal,
                                     { show: this.state.isVisibleRequests, onHide: this.toggleFriendRequestModal },
@@ -56046,7 +56060,6 @@ var Streaks = function (_Component) {
                 )
             );
             if (this.props.requests.length != 0) {
-                //handle no unanswered requests
                 requestsRender = this.props.requests.map(function (request, index) {
                     if (request.answered !== true) {
                         return _react2.default.createElement(
@@ -56092,6 +56105,19 @@ var Streaks = function (_Component) {
                 });
             }
 
+            var notificationIconRender = _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement('span', { onClick: this.toggleRequestsModal, className: 'streak-request-btn glyphicon glyphicon-bell' })
+            );
+            if (this.props.requests.length != 0) {
+                notificationIconRender = _react2.default.createElement(
+                    'div',
+                    null,
+                    _react2.default.createElement('span', { onClick: this.toggleRequestsModal, className: 'streak-request-btn glyphicon glyphicon-bell' }),
+                    _react2.default.createElement('span', { className: 'notification-icon' })
+                );
+            }
             return _react2.default.createElement(
                 'div',
                 null,
@@ -56196,7 +56222,7 @@ var Streaks = function (_Component) {
                             _react2.default.createElement(
                                 'div',
                                 { className: 'streak-header-right-item' },
-                                _react2.default.createElement('span', { onClick: this.toggleRequestsModal, className: 'streak-request-btn glyphicon glyphicon-bell' }),
+                                notificationIconRender,
                                 _react2.default.createElement(
                                     _reactBootstrap.Modal,
                                     { show: this.state.isVisibleRequests, onHide: this.toggleRequestsModal },

@@ -144,6 +144,20 @@ export default class Friends extends Component {
             ));
         }
 
+        let notificationIconRender = (
+            <div>
+                <span onClick={this.toggleFriendRequestModal} className='add-friend-btn glyphicon glyphicon-bell'></span>
+            </div>
+        );
+        if (this.props.requests.length != 0) {
+            notificationIconRender = (
+                <div>
+                    <span onClick={this.toggleFriendRequestModal} className='add-friend-btn glyphicon glyphicon-bell'></span>
+                    <span className='notification-icon'></span>
+                </div>
+            );
+        }
+
         return (
             <div>
                 <div className='main'>
@@ -188,7 +202,7 @@ export default class Friends extends Component {
                         </div>
                         <div className='header-right'>
                             <div className='friends-header-right-item'>
-                                <span onClick={this.toggleFriendRequestModal} className='add-friend-btn glyphicon glyphicon-bell'></span>
+                                {notificationIconRender}
                                 <Modal show={this.state.isVisibleRequests} onHide={this.toggleFriendRequestModal}>
                                     <Modal.Header>
                                         <Modal.Title>Friend Requests</Modal.Title>
