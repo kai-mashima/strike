@@ -113,6 +113,7 @@ export default class App extends Component {
 
         //BINDINGS
         this.toggleSplash = this.toggleSplash.bind(this);
+        this.toggleCurrentPage = this.toggleCurrentPage.bind(this);
 
         //helperFunctions
         this.getUsername = getUsername.bind(this);
@@ -205,7 +206,8 @@ export default class App extends Component {
             streakRequestsInfo: [],
             streaks: [],
             streaksInfo: [],
-            isVisibleSplash: false, 
+            isVisibleSplash: false,
+            previousCurrent: false,
         };
     }
 
@@ -213,6 +215,29 @@ export default class App extends Component {
         this.setState({
             isVisibleSplash: !this.state.isVisibleSplash
         });
+    }
+
+    toggleCurrentPage(e) {
+        let first = true;
+        
+        if (first) {
+            document.getElementById('streakPage').classList.remove('current-page');
+            first = false;
+        }
+
+        this.setState({
+            previousCurrent: e.target
+        });
+
+        if (this.state.previousCurrent != false) {
+            this.state.previousCurrent.classList.remove('current-page');
+        }
+
+        if (e.target.classList.contains('current-page')) {
+            e.target.classList.remove('current-page');
+        } else {
+            e.target.classList.add('current-page');
+        }
     }
 
     render() {
@@ -289,11 +314,11 @@ export default class App extends Component {
                                 </Switch>
                                 <div className='footernav'>
                                     <ul className='link-container'>
-                                        <li className='link-item'><Link className='link-item-tag' to='/friends'><span className='glyph-span glyphicon glyphicon-plus'></span></Link></li>
-                                        <li className='link-item'><Link className='link-item-tag' to='/unlocks'><span className='glyph-span glyphicon glyphicon-lock'></span></Link></li>
-                                        <li className='link-item'><Link className='link-item-tag' to='/streaks'><span className='current-page glyph-span glyphicon glyphicon-fire'></span></Link></li>
-                                        <li className='link-item'><Link className='link-item-tag' to='/history'><span className='glyph-span glyphicon glyphicon-list'></span></Link></li>
-                                        <li className='link-item'><Link className='link-item-tag' to='/profile'><span className='glyph-span glyphicon glyphicon-user'></span></Link></li>
+                                        <li className='link-item'><Link className='link-item-tag' to='/friends'><span onClick={this.toggleCurrentPage} className='glyph-span glyphicon glyphicon-plus'></span></Link></li>
+                                        <li className='link-item'><Link className='link-item-tag' to='/unlocks'><span onClick={this.toggleCurrentPage} className='glyph-span glyphicon glyphicon-lock'></span></Link></li>
+                                        <li className='link-item'><Link className='link-item-tag' to='/streaks'><span onClick={this.toggleCurrentPage} id='streakPage' className='current-page glyph-span glyphicon glyphicon-fire'></span></Link></li>
+                                        <li className='link-item'><Link className='link-item-tag' to='/history'><span onClick={this.toggleCurrentPage} className='glyph-span glyphicon glyphicon-list'></span></Link></li>
+                                        <li className='link-item'><Link className='link-item-tag' to='/profile'><span onClick={this.toggleCurrentPage} className='glyph-span glyphicon glyphicon-user'></span></Link></li>
                                     </ul>
                                 </div>
                             </div>

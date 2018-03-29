@@ -40019,6 +40019,7 @@ var App = function (_Component) {
 
         //BINDINGS
         _this.toggleSplash = _this.toggleSplash.bind(_this);
+        _this.toggleCurrentPage = _this.toggleCurrentPage.bind(_this);
 
         //helperFunctions
         _this.getUsername = _helperFunctions.getUsername.bind(_this);
@@ -40111,7 +40112,8 @@ var App = function (_Component) {
             streakRequestsInfo: [],
             streaks: [],
             streaksInfo: [],
-            isVisibleSplash: false
+            isVisibleSplash: false,
+            previousCurrent: false
         };
         return _this;
     }
@@ -40122,6 +40124,30 @@ var App = function (_Component) {
             this.setState({
                 isVisibleSplash: !this.state.isVisibleSplash
             });
+        }
+    }, {
+        key: 'toggleCurrentPage',
+        value: function toggleCurrentPage(e) {
+            var first = true;
+
+            if (first) {
+                document.getElementById('streakPage').classList.remove('current-page');
+                first = false;
+            }
+
+            this.setState({
+                previousCurrent: e.target
+            });
+
+            if (this.state.previousCurrent != false) {
+                this.state.previousCurrent.classList.remove('current-page');
+            }
+
+            if (e.target.classList.contains('current-page')) {
+                e.target.classList.remove('current-page');
+            } else {
+                e.target.classList.add('current-page');
+            }
         }
     }, {
         key: 'render',
@@ -40234,7 +40260,7 @@ var App = function (_Component) {
                                     _react2.default.createElement(
                                         _reactRouterDom.Link,
                                         { className: 'link-item-tag', to: '/friends' },
-                                        _react2.default.createElement('span', { className: 'glyph-span glyphicon glyphicon-plus' })
+                                        _react2.default.createElement('span', { onClick: this.toggleCurrentPage, className: 'glyph-span glyphicon glyphicon-plus' })
                                     )
                                 ),
                                 _react2.default.createElement(
@@ -40243,7 +40269,7 @@ var App = function (_Component) {
                                     _react2.default.createElement(
                                         _reactRouterDom.Link,
                                         { className: 'link-item-tag', to: '/unlocks' },
-                                        _react2.default.createElement('span', { className: 'glyph-span glyphicon glyphicon-lock' })
+                                        _react2.default.createElement('span', { onClick: this.toggleCurrentPage, className: 'glyph-span glyphicon glyphicon-lock' })
                                     )
                                 ),
                                 _react2.default.createElement(
@@ -40252,7 +40278,7 @@ var App = function (_Component) {
                                     _react2.default.createElement(
                                         _reactRouterDom.Link,
                                         { className: 'link-item-tag', to: '/streaks' },
-                                        _react2.default.createElement('span', { className: 'current-page glyph-span glyphicon glyphicon-fire' })
+                                        _react2.default.createElement('span', { onClick: this.toggleCurrentPage, id: 'streakPage', className: 'current-page glyph-span glyphicon glyphicon-fire' })
                                     )
                                 ),
                                 _react2.default.createElement(
@@ -40261,7 +40287,7 @@ var App = function (_Component) {
                                     _react2.default.createElement(
                                         _reactRouterDom.Link,
                                         { className: 'link-item-tag', to: '/history' },
-                                        _react2.default.createElement('span', { className: 'glyph-span glyphicon glyphicon-list' })
+                                        _react2.default.createElement('span', { onClick: this.toggleCurrentPage, className: 'glyph-span glyphicon glyphicon-list' })
                                     )
                                 ),
                                 _react2.default.createElement(
@@ -40270,7 +40296,7 @@ var App = function (_Component) {
                                     _react2.default.createElement(
                                         _reactRouterDom.Link,
                                         { className: 'link-item-tag', to: '/profile' },
-                                        _react2.default.createElement('span', { className: 'glyph-span glyphicon glyphicon-user' })
+                                        _react2.default.createElement('span', { onClick: this.toggleCurrentPage, className: 'glyph-span glyphicon glyphicon-user' })
                                     )
                                 )
                             )

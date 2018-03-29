@@ -481,10 +481,12 @@ li {
 }
 
 .current-page {
-    border-bottom: 1px solid lightgrey;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #999999;
 }
 
 .glyphicon::before{
+    padding-left: 2px;
     color: black;
     font-size: 25pt;
 }
