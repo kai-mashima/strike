@@ -43771,11 +43771,16 @@ var Friends = function (_Component) {
 
             var friendsRender = _react2.default.createElement(
                 'div',
-                { className: 'center-text' },
+                { className: 'center-text col-container floating-div' },
                 _react2.default.createElement(
                     'span',
-                    null,
+                    { className: 'col-item' },
                     'No friends'
+                ),
+                _react2.default.createElement(
+                    'span',
+                    { className: 'col-item btn btn-success new-btn', onClick: this.toggleAddFriendModal },
+                    'Add Friend'
                 )
             );
             if (this.props.friends.length != 0) {
@@ -56202,11 +56207,16 @@ var Streaks = function (_Component) {
 
             var streaksRender = _react2.default.createElement(
                 'div',
-                { className: 'center-text' },
+                { className: 'center-text col-container floating-div' },
                 _react2.default.createElement(
                     'span',
-                    null,
+                    { className: 'col-item' },
                     'No streaks'
+                ),
+                _react2.default.createElement(
+                    'span',
+                    { className: 'btn btn-success col-item new-btn', onClick: this.toggleNewStreakModal },
+                    'Start Streak'
                 )
             );
             if (this.props.streaks.length != 0) {

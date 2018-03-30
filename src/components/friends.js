@@ -137,7 +137,12 @@ export default class Friends extends Component {
             });
         }
 
-        let friendsRender = <div className='center-text'><span>No friends</span></div>;
+        let friendsRender = (
+            <div className='center-text col-container floating-div'>
+                <span className='col-item'>No friends</span>
+                <span className='col-item btn btn-success new-btn' onClick={this.toggleAddFriendModal}>Add Friend</span>
+            </div>
+        );
         if (this.props.friends.length != 0) {
             friendsRender = this.props.friends.map((friend, index) => (
                 <Friend user={this.props.user} key={index} friend={friend} removeFriend={this.props.removeFriend}/>

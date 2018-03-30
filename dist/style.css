@@ -516,3 +516,16 @@ li {
     border-bottom: 1px solid lightgrey;
 }
 
+.floating-div {
+    justify-content: center;
+    align-items: center;
+    padding-top: 10%;
+    text-align: center;
+    height: 25%;
+    width: 100%;
+}
+
+.new-btn {
+    margin-top: 5px;
+    width: 100px;
+}

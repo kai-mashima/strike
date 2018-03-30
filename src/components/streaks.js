@@ -114,7 +114,12 @@ export default class Streaks extends Component {
             });
         }
 
-        let streaksRender = <div className='center-text'><span>No streaks</span></div>;
+        let streaksRender = (
+            <div className='center-text col-container floating-div'>
+                <span className='col-item'>No streaks</span>
+                <span className='btn btn-success col-item new-btn' onClick={this.toggleNewStreakModal}>Start Streak</span>
+            </div>
+        );
         if (this.props.streaks.length != 0) {
             streaksRender = this.props.streaks.map((streak, index) => (
                 <Streak key={index} streak={streak} stokeStreak={this.props.stokeStreak} userID={this.props.userID}/>
