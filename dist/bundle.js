@@ -40116,6 +40116,11 @@ var App = function (_Component) {
             streakRequestsInfo: [],
             streaks: [],
             streaksInfo: [],
+            unlockProgress: { days: 3, streaks: 2 },
+            dayUnlocks: [{ emoji: '100', goal: 100 }, { emoji: '1234', goal: 4 }],
+            streaksUnlocks: [{ emoji: 'point_up', goal: 1 }, { emoji: 'two_hearts', goal: 2 }, { emoji: 'trident', goal: 3 }],
+            terminationUnlocks: [],
+            friendUnlocks: [],
             isVisibleSplash: false,
             previousCurrent: false
         };
@@ -40248,7 +40253,13 @@ var App = function (_Component) {
                                 }
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/unlocks', component: function component() {
-                                    return _react2.default.createElement(_unlocks2.default, null);
+                                    return _react2.default.createElement(_unlocks2.default, {
+                                        progress: _this2.state.unlockProgress,
+                                        days: _this2.state.dayUnlocks,
+                                        streaks: _this2.state.streaksUnlocks,
+                                        termination: _this2.state.terminationUnlocks,
+                                        friends: _this2.state.friendUnlocks
+                                    });
                                 }
                             })
                         ),
@@ -55839,6 +55850,10 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactDom = __webpack_require__(14);
 
+var _nodeEmoji = __webpack_require__(482);
+
+var _nodeEmoji2 = _interopRequireDefault(_nodeEmoji);
+
 var _strikeLogo = __webpack_require__(29);
 
 var _strikeLogo2 = _interopRequireDefault(_strikeLogo);
@@ -55863,6 +55878,8 @@ var Unlocks = function (_Component) {
     _createClass(Unlocks, [{
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
             return _react2.default.createElement(
                 'div',
                 null,
@@ -55884,9 +55901,68 @@ var Unlocks = function (_Component) {
                         'div',
                         { className: 'content' },
                         _react2.default.createElement(
-                            'p',
-                            null,
-                            'Unlocks'
+                            'div',
+                            { className: 'col-container ' },
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-item col-container unlock-container' },
+                                _react2.default.createElement(
+                                    'span',
+                                    { className: 'unlock-title' },
+                                    'Streaks'
+                                ),
+                                this.props.streaks.map(function (unlock) {
+                                    return _react2.default.createElement(
+                                        'div',
+                                        { className: 'col-item row-container unlock-item-container' },
+                                        _react2.default.createElement(
+                                            'span',
+                                            { className: 'row-item unlock-item' },
+                                            _nodeEmoji2.default.emojify(':' + unlock.emoji + ':')
+                                        ),
+                                        _react2.default.createElement(
+                                            'span',
+                                            { className: 'row-item unlock-item' },
+                                            _this2.props.progress.days
+                                        ),
+                                        _react2.default.createElement(
+                                            'span',
+                                            { className: 'row-item unlock-item' },
+                                            unlock.goal
+                                        )
+                                    );
+                                })
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-item col-container unlock-container' },
+                                _react2.default.createElement(
+                                    'span',
+                                    { className: 'unlock-title' },
+                                    'Days'
+                                ),
+                                this.props.days.map(function (unlock) {
+                                    return _react2.default.createElement(
+                                        'div',
+                                        { className: 'col-item row-container unlock-item-container' },
+                                        _react2.default.createElement(
+                                            'span',
+                                            { className: 'row-item unlock-item' },
+                                            _nodeEmoji2.default.emojify(':' + unlock.emoji + ':')
+                                        ),
+                                        _react2.default.createElement(
+                                            'span',
+                                            { className: 'row-item unlock-item' },
+                                            _this2.props.progress.days
+                                        ),
+                                        _react2.default.createElement(
+                                            'span',
+                                            { className: 'row-item unlock-item' },
+                                            unlock.goal
+                                        )
+                                    );
+                                })
+                            )
                         )
                     )
                 )

@@ -206,6 +206,11 @@ export default class App extends Component {
             streakRequestsInfo: [],
             streaks: [],
             streaksInfo: [],
+            unlockProgress: {days: 3, streaks: 2,},
+            dayUnlocks: [{emoji: '100', goal: 100}, {emoji: '1234', goal: 4}],
+            streaksUnlocks: [{emoji: 'point_up', goal: 1}, {emoji: 'two_hearts', goal: 2}, {emoji: 'trident', goal: 3},],
+            terminationUnlocks: [],
+            friendUnlocks: [],
             isVisibleSplash: false,
             previousCurrent: false,
         };
@@ -308,7 +313,13 @@ export default class App extends Component {
                                         )}
                                     />
                                     <Route path='/unlocks' component={() => (
-                                            <Unlocks />
+                                            <Unlocks 
+                                                progress={this.state.unlockProgress}
+                                                days={this.state.dayUnlocks}
+                                                streaks={this.state.streaksUnlocks}
+                                                termination={this.state.terminationUnlocks}
+                                                friends={this.state.friendUnlocks}
+                                            />
                                         )} 
                                     />
                                 </Switch>

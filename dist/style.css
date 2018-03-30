@@ -491,4 +491,28 @@ li {
     font-size: 25pt;
 }
 
+.unlock-container {
+    border-bottom: 1px solid lightgrey;
+}
+
+.unlock-item-container {
+    width: 100%;
+    justify-content: space-around;
+    padding: 5px;
+    height: 40px;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.unlock-item {
+    font-size: 14pt;
+    width: 50px;
+}
+
+.unlock-title {
+    padding: 5px;
+    font-size: 18pt;
+    text-align: center;
+    width: 100%;
+    border-bottom: 1px solid lightgrey;
+}
 
