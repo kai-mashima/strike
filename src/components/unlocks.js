@@ -5,6 +5,37 @@ import strikeLogo from '../assets/strikeLogo.png';
 
 export default class Unlocks extends Component {
     render() {
+
+        let streakRender = this.props.streaks.map((unlock, index) => {
+            let completed = false; 
+            if (this.props.progress.streaks >= unlock.goal) {
+                completed = true;
+            }
+            
+            return (
+                <div className='col-item row-container unlock-item-container' key={index}>
+                    <span className='row-item unlock-item'>{completed ? emoji.emojify(`:${unlock.emoji}:`) : emoji.emojify(':lock:')}</span>
+                    <span className='row-item unlock-item'>{this.props.progress.streaks > unlock.goal ? unlock.goal : this.props.progress.streaks}</span>
+                    <span className='row-item unlock-item'>{unlock.goal}</span>
+                </div>
+            );
+        });
+
+        let daysRender =  this.props.days.map((unlock, index) => {
+            let completed = false;
+            if (this.props.progress.days >= unlock.goal) {
+                completed = true;
+            }
+
+            return (
+                <div className='col-item row-container unlock-item-container' key={index}>
+                    <span className='row-item unlock-item'>{completed ? emoji.emojify(`:${unlock.emoji}:`) : emoji.emojify(':lock:')}</span>
+                    <span className='row-item unlock-item'>{completed ? unlock.goal : this.props.progress.days}</span>
+                    <span className='row-item unlock-item'>{unlock.goal}</span>
+                </div>
+            );
+        });
+
         return (
             <div>
                 <div className='main'>
@@ -21,27 +52,11 @@ export default class Unlocks extends Component {
                         <div className='col-container '>
                             <div className='col-item col-container unlock-container'>
                                 <span className='unlock-title'>Streaks</span>
-                                {
-                                    this.props.streaks.map(unlock => (
-                                        <div className='col-item row-container unlock-item-container'>
-                                            <span className='row-item unlock-item'>{emoji.emojify(`:${unlock.emoji}:`)}</span>
-                                            <span className='row-item unlock-item'>{this.props.progress.days}</span>
-                                            <span className='row-item unlock-item'>{unlock.goal}</span>
-                                        </div>
-                                    ))
-                                }
+                                {streakRender}
                             </div>
                             <div className='col-item col-container unlock-container'>
                                 <span className='unlock-title'>Days</span>
-                                {
-                                    this.props.days.map(unlock => (
-                                        <div className='col-item row-container unlock-item-container'>
-                                            <span className='row-item unlock-item'>{emoji.emojify(`:${unlock.emoji}:`)}</span>
-                                            <span className='row-item unlock-item'>{this.props.progress.days}</span>
-                                            <span className='row-item unlock-item'>{unlock.goal}</span>
-                                        </div>
-                                    ))
-                                }
+                                {daysRender}
                             </div>
                         </div>
                     </div>

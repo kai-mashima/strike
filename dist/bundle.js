@@ -55885,6 +55885,60 @@ var Unlocks = function (_Component) {
         value: function render() {
             var _this2 = this;
 
+            var streakRender = this.props.streaks.map(function (unlock, index) {
+                var completed = false;
+                if (_this2.props.progress.streaks >= unlock.goal) {
+                    completed = true;
+                }
+
+                return _react2.default.createElement(
+                    'div',
+                    { className: 'col-item row-container unlock-item-container', key: index },
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'row-item unlock-item' },
+                        completed ? _nodeEmoji2.default.emojify(':' + unlock.emoji + ':') : _nodeEmoji2.default.emojify(':lock:')
+                    ),
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'row-item unlock-item' },
+                        _this2.props.progress.streaks > unlock.goal ? unlock.goal : _this2.props.progress.streaks
+                    ),
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'row-item unlock-item' },
+                        unlock.goal
+                    )
+                );
+            });
+
+            var daysRender = this.props.days.map(function (unlock, index) {
+                var completed = false;
+                if (_this2.props.progress.days >= unlock.goal) {
+                    completed = true;
+                }
+
+                return _react2.default.createElement(
+                    'div',
+                    { className: 'col-item row-container unlock-item-container', key: index },
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'row-item unlock-item' },
+                        completed ? _nodeEmoji2.default.emojify(':' + unlock.emoji + ':') : _nodeEmoji2.default.emojify(':lock:')
+                    ),
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'row-item unlock-item' },
+                        completed ? unlock.goal : _this2.props.progress.days
+                    ),
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'row-item unlock-item' },
+                        unlock.goal
+                    )
+                );
+            });
+
             return _react2.default.createElement(
                 'div',
                 null,
@@ -55916,27 +55970,7 @@ var Unlocks = function (_Component) {
                                     { className: 'unlock-title' },
                                     'Streaks'
                                 ),
-                                this.props.streaks.map(function (unlock) {
-                                    return _react2.default.createElement(
-                                        'div',
-                                        { className: 'col-item row-container unlock-item-container' },
-                                        _react2.default.createElement(
-                                            'span',
-                                            { className: 'row-item unlock-item' },
-                                            _nodeEmoji2.default.emojify(':' + unlock.emoji + ':')
-                                        ),
-                                        _react2.default.createElement(
-                                            'span',
-                                            { className: 'row-item unlock-item' },
-                                            _this2.props.progress.days
-                                        ),
-                                        _react2.default.createElement(
-                                            'span',
-                                            { className: 'row-item unlock-item' },
-                                            unlock.goal
-                                        )
-                                    );
-                                })
+                                streakRender
                             ),
                             _react2.default.createElement(
                                 'div',
@@ -55946,27 +55980,7 @@ var Unlocks = function (_Component) {
                                     { className: 'unlock-title' },
                                     'Days'
                                 ),
-                                this.props.days.map(function (unlock) {
-                                    return _react2.default.createElement(
-                                        'div',
-                                        { className: 'col-item row-container unlock-item-container' },
-                                        _react2.default.createElement(
-                                            'span',
-                                            { className: 'row-item unlock-item' },
-                                            _nodeEmoji2.default.emojify(':' + unlock.emoji + ':')
-                                        ),
-                                        _react2.default.createElement(
-                                            'span',
-                                            { className: 'row-item unlock-item' },
-                                            _this2.props.progress.days
-                                        ),
-                                        _react2.default.createElement(
-                                            'span',
-                                            { className: 'row-item unlock-item' },
-                                            unlock.goal
-                                        )
-                                    );
-                                })
+                                daysRender
                             )
                         )
                     )
