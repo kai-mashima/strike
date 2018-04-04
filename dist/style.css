@@ -11,6 +11,7 @@ li {
 .large-font {
     font-size: 25px;
     font-weight: bold;
+    padding: 5px;
 }
 
 .col-container {
@@ -291,6 +292,7 @@ li {
 }
 
 .streaks-item {
+    height: 11%;
     flex: 0 1 auto;
     border-bottom: 1px solid lightgrey;
     padding: 5px;
@@ -318,6 +320,7 @@ li {
 }
 
 .glyphicon.streak-item-glyph::before {
+    padding: 2px;
     font-size: 20pt;
 }
 
@@ -377,6 +380,7 @@ li {
 }
 
 .friends-item {
+    height: 11%;
     flex: 0 1 auto;
     border-bottom: 1px solid lightgrey;
     padding: 5px;
@@ -419,6 +423,7 @@ li {
 }
 
 .profile-content {
+    font-size: 14pt;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -433,6 +438,7 @@ li {
 
 .profile-user-img {
     margin-top: 50px;
+    margin-bottom: 5px;
     height: 100px;
     width: 100px;
     border: 1px solid black;
@@ -486,7 +492,7 @@ li {
 }
 
 .glyphicon::before{
-    padding-left: 2px;
+    margin-left: 1px;
     color: black;
     font-size: 25pt;
 }
