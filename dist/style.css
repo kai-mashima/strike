@@ -529,3 +529,18 @@ li {
     margin-top: 5px;
     width: 100px;
 }
+
+.unlock-subtitle-container {
+    justify-content: space-around;
+    border-bottom: 1px solid lightgrey;
+}
+
+.unlock-subtitle-item {
+    font-size: 8pt;
+    color: #808080;
+    width: 50px;
+}
+
+
+
+

@@ -55970,6 +55970,25 @@ var Unlocks = function (_Component) {
                                     { className: 'unlock-title' },
                                     'Streaks'
                                 ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'row-container unlock-subtitle-container' },
+                                    _react2.default.createElement(
+                                        'span',
+                                        { className: 'row-item unlock-subtitle-item' },
+                                        'Emoji'
+                                    ),
+                                    _react2.default.createElement(
+                                        'span',
+                                        { className: 'row-item unlock-subtitle-item' },
+                                        'Progress'
+                                    ),
+                                    _react2.default.createElement(
+                                        'span',
+                                        { className: 'row-item unlock-subtitle-item' },
+                                        'Goal'
+                                    )
+                                ),
                                 streakRender
                             ),
                             _react2.default.createElement(
@@ -55979,6 +55998,25 @@ var Unlocks = function (_Component) {
                                     'span',
                                     { className: 'unlock-title' },
                                     'Days'
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'row-container unlock-subtitle-container' },
+                                    _react2.default.createElement(
+                                        'span',
+                                        { className: 'row-item unlock-subtitle-item' },
+                                        'Emoji'
+                                    ),
+                                    _react2.default.createElement(
+                                        'span',
+                                        { className: 'row-item unlock-subtitle-item' },
+                                        'Progress'
+                                    ),
+                                    _react2.default.createElement(
+                                        'span',
+                                        { className: 'row-item unlock-subtitle-item' },
+                                        'Goal'
+                                    )
                                 ),
                                 daysRender
                             )

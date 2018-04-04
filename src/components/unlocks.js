@@ -52,10 +52,20 @@ export default class Unlocks extends Component {
                         <div className='col-container '>
                             <div className='col-item col-container unlock-container'>
                                 <span className='unlock-title'>Streaks</span>
+                                <div className='row-container unlock-subtitle-container'>
+                                    <span className='row-item unlock-subtitle-item'>Emoji</span>
+                                    <span className='row-item unlock-subtitle-item'>Progress</span>
+                                    <span className='row-item unlock-subtitle-item'>Goal</span>
+                                </div>
                                 {streakRender}
                             </div>
                             <div className='col-item col-container unlock-container'>
                                 <span className='unlock-title'>Days</span>
+                                <div className='row-container unlock-subtitle-container'>
+                                    <span className='row-item unlock-subtitle-item'>Emoji</span>
+                                    <span className='row-item unlock-subtitle-item'>Progress</span>
+                                    <span className='row-item unlock-subtitle-item'>Goal</span>
+                                </div>
                                 {daysRender}
                             </div>
                         </div>
