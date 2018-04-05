@@ -122,7 +122,7 @@ export default class Streaks extends Component {
         );
         if (this.props.streaks.length != 0) {
             streaksRender = this.props.streaks.map((streak, index) => (
-                <Streak key={index} streak={streak} stokeStreak={this.props.stokeStreak} userID={this.props.userID}/>
+                <Streak unlocks={this.props.unlocks} key={index} streak={streak} stokeStreak={this.props.stokeStreak} userID={this.props.userID}/>
             ));
         }
 

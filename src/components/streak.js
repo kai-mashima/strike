@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import {Modal} from 'react-bootstrap';
+import emoji from 'node-emoji';
 
 export default class Streak extends Component {
     constructor(props){
@@ -10,12 +11,12 @@ export default class Streak extends Component {
         this.toggleStokeModal = this.toggleStokeModal.bind(this);
         this.handleInitialStoke = this.handleInitialStoke.bind(this);
         this.handleConfirmationStoke = this.handleConfirmationStoke.bind(this);
-        this.handleMessageInput = this.handleMessageInput.bind(this);
+        this.handleEmojiClick = this.handleEmojiClick.bind(this);
 
         this.state = {
             isVisibleInfo: false,
             isVisibleStoke: false,
-            message: '',
+            message: [],
         }
     }
 
@@ -32,12 +33,6 @@ export default class Streak extends Component {
         });
     }
 
-    handleMessageInput(e) {
-        this.setState({
-            message: e.target.value
-        });
-    }
-
     //stoke a streak and toggle modal
     handleInitialStoke() {
         this.toggleStokeModal();
@@ -47,6 +42,19 @@ export default class Streak extends Component {
         this.props.stokeStreak(this.props.streak.id, this.props.userID, this.props.streak.friendID, this.state.message);
         this.toggleStokeModal();
         this.toggleInfoModal();
+    }
+
+    handleEmojiClick(e) {
+        let emojiCode = e.target.id;
+        console.log(emojiCode);
+        let message = this.state.message.slice();
+        message.push(emojiCode);
+
+        console.log(message);
+        
+        this.setState({
+            message: message
+        });
     }
 
     render() {
@@ -71,7 +79,24 @@ export default class Streak extends Component {
                 </Modal.Header>
                 <Modal.Body>
                     <div className='col-container'>
-                        <input onChange={this.handleMessageInput} placeholder='Message...' />
+                        <div className='col-item col-container'>
+                            <div className='emoji-message row-container'>
+                                {
+                                    this.state.message.map((emojiCode, index) => (
+                                        <span className='row-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
+                                    ))
+                                }
+                            </div>
+                        </div>
+                        <div className='col-item row-container emoji-bank-container'>
+                            {
+                                this.props.unlocks.map((emojiCode, index) => (
+                                    <div key={index} onClick={this.handleEmojiClick} id={emojiCode} className='row-item emoji-bank-item'>
+                                        <span>{emoji.emojify(`:${emojiCode}:`)}</span>
+                                    </div>
+                                ))
+                            }
+                        </div>
                     </div>
                 </Modal.Body>
                 <Modal.Footer>

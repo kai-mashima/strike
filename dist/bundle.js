@@ -40117,6 +40117,7 @@ var App = function (_Component) {
             streaks: [],
             streaksInfo: [],
             unlockProgress: { days: 3, streaks: 2 },
+            unlockedEmojis: ['trident', 'point_up', 'two_hearts'],
             dayUnlocks: [{ emoji: '100', goal: 100 }, { emoji: '1234', goal: 4 }],
             streaksUnlocks: [{ emoji: 'point_up', goal: 1 }, { emoji: 'two_hearts', goal: 2 }, { emoji: 'trident', goal: 3 }],
             terminationUnlocks: [],
@@ -40222,7 +40223,8 @@ var App = function (_Component) {
                                         requests: _this2.state.streakRequestsInfo,
                                         acceptStreakRequest: _this2.acceptStreakRequest,
                                         rejectStreakRequest: _this2.rejectStreakRequest,
-                                        stokeStreak: _this2.stokeStreak
+                                        stokeStreak: _this2.stokeStreak,
+                                        unlocks: _this2.state.unlockedEmojis
                                     });
                                 }
                             }),
@@ -56273,7 +56275,7 @@ var Streaks = function (_Component) {
             );
             if (this.props.streaks.length != 0) {
                 streaksRender = this.props.streaks.map(function (streak, index) {
-                    return _react2.default.createElement(_streak2.default, { key: index, streak: streak, stokeStreak: _this5.props.stokeStreak, userID: _this5.props.userID });
+                    return _react2.default.createElement(_streak2.default, { unlocks: _this5.props.unlocks, key: index, streak: streak, stokeStreak: _this5.props.stokeStreak, userID: _this5.props.userID });
                 });
             }
 
@@ -56469,6 +56471,10 @@ var _reactDom = __webpack_require__(14);
 
 var _reactBootstrap = __webpack_require__(62);
 
+var _nodeEmoji = __webpack_require__(482);
+
+var _nodeEmoji2 = _interopRequireDefault(_nodeEmoji);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -56489,12 +56495,12 @@ var Streak = function (_Component) {
         _this.toggleStokeModal = _this.toggleStokeModal.bind(_this);
         _this.handleInitialStoke = _this.handleInitialStoke.bind(_this);
         _this.handleConfirmationStoke = _this.handleConfirmationStoke.bind(_this);
-        _this.handleMessageInput = _this.handleMessageInput.bind(_this);
+        _this.handleEmojiClick = _this.handleEmojiClick.bind(_this);
 
         _this.state = {
             isVisibleInfo: false,
             isVisibleStoke: false,
-            message: ''
+            message: []
         };
         return _this;
     }
@@ -56516,13 +56522,6 @@ var Streak = function (_Component) {
                 isVisibleStoke: !this.state.isVisibleStoke
             });
         }
-    }, {
-        key: 'handleMessageInput',
-        value: function handleMessageInput(e) {
-            this.setState({
-                message: e.target.value
-            });
-        }
 
         //stoke a streak and toggle modal
 
@@ -56539,8 +56538,24 @@ var Streak = function (_Component) {
             this.toggleInfoModal();
         }
     }, {
+        key: 'handleEmojiClick',
+        value: function handleEmojiClick(e) {
+            var emojiCode = e.target.id;
+            console.log(emojiCode);
+            var message = this.state.message.slice();
+            message.push(emojiCode);
+
+            console.log(message);
+
+            this.setState({
+                message: message
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
             var userRender = _react2.default.createElement('span', { className: 'streak-user-glyph glyphicon glyphicon-user' });
 
             var initialStokeBtnRender = !this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID ? _react2.default.createElement(
@@ -56584,7 +56599,36 @@ var Streak = function (_Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'col-container' },
-                        _react2.default.createElement('input', { onChange: this.handleMessageInput, placeholder: 'Message...' })
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'col-item col-container' },
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'emoji-message row-container' },
+                                this.state.message.map(function (emojiCode, index) {
+                                    return _react2.default.createElement(
+                                        'span',
+                                        { className: 'row-item' },
+                                        _nodeEmoji2.default.emojify(':' + emojiCode + ':')
+                                    );
+                                })
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'col-item row-container emoji-bank-container' },
+                            this.props.unlocks.map(function (emojiCode, index) {
+                                return _react2.default.createElement(
+                                    'div',
+                                    { key: index, onClick: _this2.handleEmojiClick, id: emojiCode, className: 'row-item emoji-bank-item' },
+                                    _react2.default.createElement(
+                                        'span',
+                                        null,
+                                        _nodeEmoji2.default.emojify(':' + emojiCode + ':')
+                                    )
+                                );
+                            })
+                        )
                     )
                 ),
                 _react2.default.createElement(

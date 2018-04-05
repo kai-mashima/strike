@@ -207,6 +207,7 @@ export default class App extends Component {
             streaks: [],
             streaksInfo: [],
             unlockProgress: {days: 3, streaks: 2,},
+            unlockedEmojis: ['trident', 'point_up', 'two_hearts'],
             dayUnlocks: [{emoji: '100', goal: 100}, {emoji: '1234', goal: 4}],
             streaksUnlocks: [{emoji: 'point_up', goal: 1}, {emoji: 'two_hearts', goal: 2}, {emoji: 'trident', goal: 3},],
             terminationUnlocks: [],
@@ -283,6 +284,7 @@ export default class App extends Component {
                                                 acceptStreakRequest={this.acceptStreakRequest}
                                                 rejectStreakRequest={this.rejectStreakRequest}
                                                 stokeStreak={this.stokeStreak}
+                                                unlocks={this.state.unlockedEmojis}
                                             />
                                         )}
                                     />
