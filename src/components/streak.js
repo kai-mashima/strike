@@ -29,7 +29,8 @@ export default class Streak extends Component {
 
     toggleStokeModal() {
         this.setState({
-            isVisibleStoke: !this.state.isVisibleStoke
+            isVisibleStoke: !this.state.isVisibleStoke,
+            message: [],
         });
     }
 
@@ -46,12 +47,10 @@ export default class Streak extends Component {
 
     handleEmojiClick(e) {
         let emojiCode = e.target.id;
-        console.log(emojiCode);
         let message = this.state.message.slice();
+
         message.push(emojiCode);
 
-        console.log(message);
-        
         this.setState({
             message: message
         });
@@ -78,22 +77,20 @@ export default class Streak extends Component {
                     <Modal.Title>Stoke Streak With {this.props.streak.friend}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className='col-container'>
-                        <div className='col-item col-container'>
-                            <div className='emoji-message row-container'>
-                                {
-                                    this.state.message.map((emojiCode, index) => (
-                                        <span className='row-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
-                                    ))
-                                }
-                            </div>
+                    <div className='col-container emoji-container'>
+                        <div className='col-item emoji-message row-container'>
+                            {
+                                this.state.message.map((emojiCode, index) => (
+                                    <span className='row-item emoji-message-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
+                                ))
+                            }
                         </div>
                         <div className='col-item row-container emoji-bank-container'>
                             {
                                 this.props.unlocks.map((emojiCode, index) => (
-                                    <div key={index} onClick={this.handleEmojiClick} id={emojiCode} className='row-item emoji-bank-item'>
-                                        <span>{emoji.emojify(`:${emojiCode}:`)}</span>
-                                    </div>
+                                    <span key={index} onClick={this.handleEmojiClick} id={emojiCode} className='row-item emoji-bank-item'>
+                                        {emoji.emojify(`:${emojiCode}:`)}
+                                    </span>
                                 ))
                             }
                         </div>
@@ -117,7 +114,11 @@ export default class Streak extends Component {
         if (this.props.streak.messages) {
             messagesRender = Object.values(this.props.streak.messages).map((message, index) => (
                 <div className='col-item' key={index}>
-                    <span>{message.message}</span>
+                    {
+                        message.message.map((emojiCode, index) => (
+                            <span className='row-item emoji-message-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
+                        ))
+                    }
                 </div>
             ));
         }

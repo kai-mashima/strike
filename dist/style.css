@@ -547,19 +547,35 @@ li {
     width: 50px;
 }
 
+.emoji-container {
+    justify-content: space-around;
+    align-items: center;
+}
+
 .emoji-bank-container {
     justify-content: space-around;
     flex-wrap: wrap;
+    margin: 5px;
 }
 
 .emoji-bank-item {
-
+    margin: 5px;
+    font-size: 20pt;
 }
 
 .emoji-message {
+    justify-content: center;
+    align-items: center;
+
+    margin: 5px;
+    font-size: 20pt;
     border: 1px solid grey;
-    height: 30px;
-    width: 150px;
+    height: 50px;
+    width: 200px;
+}
+
+.emoji-message-item {
+    padding: 5px;
 }
 
 

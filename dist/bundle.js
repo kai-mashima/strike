@@ -56519,7 +56519,8 @@ var Streak = function (_Component) {
         key: 'toggleStokeModal',
         value: function toggleStokeModal() {
             this.setState({
-                isVisibleStoke: !this.state.isVisibleStoke
+                isVisibleStoke: !this.state.isVisibleStoke,
+                message: []
             });
         }
 
@@ -56541,11 +56542,9 @@ var Streak = function (_Component) {
         key: 'handleEmojiClick',
         value: function handleEmojiClick(e) {
             var emojiCode = e.target.id;
-            console.log(emojiCode);
             var message = this.state.message.slice();
-            message.push(emojiCode);
 
-            console.log(message);
+            message.push(emojiCode);
 
             this.setState({
                 message: message
@@ -56598,34 +56597,26 @@ var Streak = function (_Component) {
                     null,
                     _react2.default.createElement(
                         'div',
-                        { className: 'col-container' },
+                        { className: 'col-container emoji-container' },
                         _react2.default.createElement(
                             'div',
-                            { className: 'col-item col-container' },
-                            _react2.default.createElement(
-                                'div',
-                                { className: 'emoji-message row-container' },
-                                this.state.message.map(function (emojiCode, index) {
-                                    return _react2.default.createElement(
-                                        'span',
-                                        { className: 'row-item' },
-                                        _nodeEmoji2.default.emojify(':' + emojiCode + ':')
-                                    );
-                                })
-                            )
+                            { className: 'col-item emoji-message row-container' },
+                            this.state.message.map(function (emojiCode, index) {
+                                return _react2.default.createElement(
+                                    'span',
+                                    { className: 'row-item emoji-message-item' },
+                                    _nodeEmoji2.default.emojify(':' + emojiCode + ':')
+                                );
+                            })
                         ),
                         _react2.default.createElement(
                             'div',
                             { className: 'col-item row-container emoji-bank-container' },
                             this.props.unlocks.map(function (emojiCode, index) {
                                 return _react2.default.createElement(
-                                    'div',
+                                    'span',
                                     { key: index, onClick: _this2.handleEmojiClick, id: emojiCode, className: 'row-item emoji-bank-item' },
-                                    _react2.default.createElement(
-                                        'span',
-                                        null,
-                                        _nodeEmoji2.default.emojify(':' + emojiCode + ':')
-                                    )
+                                    _nodeEmoji2.default.emojify(':' + emojiCode + ':')
                                 );
                             })
                         )
@@ -56669,11 +56660,13 @@ var Streak = function (_Component) {
                     return _react2.default.createElement(
                         'div',
                         { className: 'col-item', key: index },
-                        _react2.default.createElement(
-                            'span',
-                            null,
-                            message.message
-                        )
+                        message.message.map(function (emojiCode, index) {
+                            return _react2.default.createElement(
+                                'span',
+                                { className: 'row-item emoji-message-item' },
+                                _nodeEmoji2.default.emojify(':' + emojiCode + ':')
+                            );
+                        })
                     );
                 });
             }
