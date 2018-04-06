@@ -563,7 +563,7 @@ li {
     font-size: 20pt;
 }
 
-.emoji-message {
+.emoji-message-preview {
     justify-content: center;
     align-items: center;
 
@@ -574,10 +574,35 @@ li {
     width: 200px;
 }
 
+.messages-title {
+    border-bottom: 1px solid lightgrey;
+    font-size: 8pt;
+    color: #808080;
+    text-align: center;
+}
+
+.emoji-message {
+    height: 7%;
+    justify-content: flex-start;
+    align-items: center;
+    border-bottom: 1px solid lightgrey;
+    padding: 5px;
+}
+
 .emoji-message-item {
     padding: 5px;
 }
 
+.glyphicon.expiring::before {
+    padding: 2px;
+    font-size: 20pt;
+    color: #e60000;
+}
 
+.glyphicon.stoked::before {
+    padding: 2px;
+    font-size: 20pt;
+    color: #2eb82e;
+}
 
 

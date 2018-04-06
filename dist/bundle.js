@@ -56579,6 +56579,15 @@ var Streak = function (_Component) {
                 'Stoke'
             );
 
+            var expirationGlyphRender = _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time' });
+            if (!this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID) {
+                console.log('expiring');
+                expirationGlyphRender = _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time expiring' });
+            } else if (!this.props.streak.neutral && !this.props.streak.nextOwner) {
+                console.log('stoked');
+                expirationGlyphRender = _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time stoked' });
+            }
+
             var stokeModalRender = _react2.default.createElement(
                 _reactBootstrap.Modal,
                 { show: this.state.isVisibleStoke, onHide: this.toggleStokeModal },
@@ -56600,11 +56609,11 @@ var Streak = function (_Component) {
                         { className: 'col-container emoji-container' },
                         _react2.default.createElement(
                             'div',
-                            { className: 'col-item emoji-message row-container' },
+                            { className: 'col-item emoji-message-preview row-container' },
                             this.state.message.map(function (emojiCode, index) {
                                 return _react2.default.createElement(
                                     'span',
-                                    { className: 'row-item emoji-message-item' },
+                                    { key: index, className: 'row-item emoji-message-item' },
                                     _nodeEmoji2.default.emojify(':' + emojiCode + ':')
                                 );
                             })
@@ -56657,16 +56666,31 @@ var Streak = function (_Component) {
             );
             if (this.props.streak.messages) {
                 messagesRender = Object.values(this.props.streak.messages).map(function (message, index) {
+                    var messageSender = 'You';
+                    if (message.sender !== _this2.props.userID) {
+                        messageSender = _this2.props.streak.friend;
+                    }
+
                     return _react2.default.createElement(
                         'div',
-                        { className: 'col-item', key: index },
-                        message.message.map(function (emojiCode, index) {
-                            return _react2.default.createElement(
-                                'span',
-                                { className: 'row-item emoji-message-item' },
-                                _nodeEmoji2.default.emojify(':' + emojiCode + ':')
-                            );
-                        })
+                        { className: 'col-item row-container emoji-message', key: index },
+                        _react2.default.createElement(
+                            'span',
+                            { className: 'row-item emoji-message-item' },
+                            messageSender,
+                            ':'
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row-item emoji-message-item' },
+                            message.message.map(function (emojiCode, index) {
+                                return _react2.default.createElement(
+                                    'span',
+                                    { key: index, className: 'emoji-message-item' },
+                                    _nodeEmoji2.default.emojify(':' + emojiCode + ':')
+                                );
+                            })
+                        )
                     );
                 });
             }
@@ -56726,8 +56750,13 @@ var Streak = function (_Component) {
                             )
                         ),
                         _react2.default.createElement(
+                            'span',
+                            { className: 'messages-title' },
+                            'Messages'
+                        ),
+                        _react2.default.createElement(
                             'div',
-                            { className: 'col-item col-container' },
+                            { className: 'col-item emoji-messages-container' },
                             messagesRender
                         )
                     )
@@ -56800,7 +56829,7 @@ var Streak = function (_Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'streak-item' },
-                        _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time' }),
+                        expirationGlyphRender,
                         _react2.default.createElement(
                             'span',
                             null,

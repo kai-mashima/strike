@@ -71,6 +71,19 @@ export default class Streak extends Component {
             <span className='btn btn-default disabled'>Stoke</span>
         );
 
+        let expirationGlyphRender = <span className='streak-item-glyph glyphicon glyphicon-time'></span>
+        if (!this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID) {
+            console.log('expiring');
+            expirationGlyphRender = (
+                <span className='streak-item-glyph glyphicon glyphicon-time expiring'></span>
+            );
+        } else if (!this.props.streak.neutral && !this.props.streak.nextOwner) {
+            console.log('stoked');
+            expirationGlyphRender = (
+                <span className='streak-item-glyph glyphicon glyphicon-time stoked'></span>
+            );
+        }
+
         let stokeModalRender = (
             <Modal show={this.state.isVisibleStoke} onHide={this.toggleStokeModal}>
                 <Modal.Header>
@@ -78,10 +91,10 @@ export default class Streak extends Component {
                 </Modal.Header>
                 <Modal.Body>
                     <div className='col-container emoji-container'>
-                        <div className='col-item emoji-message row-container'>
+                        <div className='col-item emoji-message-preview row-container'>
                             {
                                 this.state.message.map((emojiCode, index) => (
-                                    <span className='row-item emoji-message-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
+                                    <span key={index} className='row-item emoji-message-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
                                 ))
                             }
                         </div>
@@ -112,15 +125,25 @@ export default class Streak extends Component {
 
         let messagesRender = <div className='center-text'><span>No messages</span></div>;
         if (this.props.streak.messages) {
-            messagesRender = Object.values(this.props.streak.messages).map((message, index) => (
-                <div className='col-item' key={index}>
-                    {
-                        message.message.map((emojiCode, index) => (
-                            <span className='row-item emoji-message-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
-                        ))
-                    }
-                </div>
-            ));
+            messagesRender = Object.values(this.props.streak.messages).map((message, index) => {
+                let messageSender = 'You';
+                if (message.sender !== this.props.userID) {
+                    messageSender = this.props.streak.friend;
+                }
+
+                return (
+                    <div className='col-item row-container emoji-message' key={index}>
+                        <span className='row-item emoji-message-item'>{messageSender}:</span>
+                        <div className='row-item emoji-message-item'>
+                            {
+                                message.message.map((emojiCode, index) => (
+                                    <span key={index} className='emoji-message-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
+                                ))
+                            }
+                        </div>
+                    </div>
+                );
+            });
         }
 
         let modalRender = (
@@ -141,7 +164,8 @@ export default class Streak extends Component {
                                 <span>Expirates In: {this.props.streak.currentExpirationTime} hours</span>
                             </div>
                         </div>
-                        <div className='col-item col-container'>
+                        <span className='messages-title'>Messages</span>
+                        <div className='col-item emoji-messages-container'>
                             {messagesRender}
                         </div>
                     </div>
@@ -178,7 +202,7 @@ export default class Streak extends Component {
                         <span>{this.props.streak.days}</span>
                     </div>
                     <div className='streak-item'>
-                        <span className='streak-item-glyph glyphicon glyphicon-time'></span>
+                        {expirationGlyphRender}
                         <span>{this.props.streak.currentExpirationTime}</span>
                     </div>
                 </div>
