@@ -1,29 +1,40 @@
 import firebase from 'firebase/app';
 
-//EmojiProgress
-    //UserID
-        //emoji
-            //progress: NUMBER
-            //goal: NUMBER
-            //unlock: BOOLEAN
-
 const startUnlocks = function(userID) {
     this.db.ref(`unlocks/${userID}`).set(newUnlocksObject);
 };
 
-const getUnlockedEmojis = function() {
-    //iterate over emojis
-        //grab emojis that are unlocked
-        //return array of unlocked emojis
-
+const getUnlockedEmojis = function(userID) {
+    return this.db.ref(`unlocks/${userID}`)
+    .once('value')
+    .then(snapshot => {
+        let unlocked = [];
+        if (snapshot.exists()) {
+            const unlocks = snapshot.val();
+            unlocks.map(category => {
+                category.map(emoji => {
+                    if (emoji.unlocked) {
+                        unlocked.push(emoji);
+                    }
+                });
+            });
+            return unlocked;
+        } else {
+            return unlocked;
+        }
+    }).catch(reason => {
+        console.log(reason);
+    });
 };
 
-const getUnlockProgress = function() {
+const checkForUnlockProgress = function(userID) {
     //call functions to check if any new progress has been made
         //number of streaks
+            // this.getNumberOfStreaks(userID);
         //total days
+            // this.getNumberOfTotalStreakDays(userID);
         //number of friends
-
+            // this.getNumberOfFriends(userID);
 };
 
 const newUnlocksObject = {
@@ -78,5 +89,8 @@ const newUnlocksObject = {
 };
 
 export {
-
+    startUnlocks,
+    getUnlockedEmojis,
+    checkForUnlockProgress,
+    newUnlocksObject,
 };
