@@ -38,13 +38,16 @@ const checkForUnlockProgress = function(userID) {
     .then(snapshot => {
         if (snapshot.exists()) {
             const streaksUnlocks = snapshot.val();
-            const numberOfStreaks = streaksUnlocks.categoryProgress;
+            const numberOfStreaks = streaksUnlocks.progress;
             const emojiProgress = streaksUnlocks.emojis;
 
-            if (numberOfStreaks < currentNumberOfStreaks) {
+            if (currentNumberOfStreaks > numberOfStreaks) {
                 emojiProgress.map(emoji => {
-                    if (currentNumberOfStreaks >= emoji.goal) {
-                        this.db.ref(`unlocks/${userID}/streaks/emojis/`)
+                    if (currentNumberOfStreaks < emoji.goal ) {
+                        this.db.ref(`unlocks/${userID}/streaks/emojis/${emoji}/progress`).update(currentNumberOfStreaks);
+                    } else if (currentNumberOfStreaks >= emoji.goal) {
+                        this.db.ref(`unlocks/${userID}/streaks/emojis/${emoji}/progress`).update(emoji.goal);
+                        this.db.ref(`unlocks/${userID}/streaks/emojis/${emoji}/unlocked`).update(true);
                     }
                 });
             }
@@ -96,24 +99,21 @@ const checkForUnlockProgress = function(userID) {
 
 const newUnlocksObject = {
     streaks: 
-        categoryProgress: 0,
-        emojis: {
-            '1Streak': {
-                code: 'point_up',
+        progress: 0,
+        emojis: 
+            'point_up': {
                 description: '',
                 goal: 1,
                 progress: 0,
                 unlocked: false,
             }, 
-            '2Streaks': {
-                code: 'two_hearts',
+            'two_hearts': {
                 description: '',
                 goal: 2,
                 progress: 0,
                 unlocked: false,
-            }, 
-            '3Streaks': {
-                code: 'trident',
+            },
+            'trident': {
                 description: '',
                 goal: 3,
                 progress: 0,
@@ -122,13 +122,13 @@ const newUnlocksObject = {
         },
     },
     termination: {
-        categoryProgress: 0,
+        progress: 0,
         emojis: {
 
         },
     },
     days: {
-        categoryProgress: 0,
+        progress: 0,
         emojis: {
             '100Days': {
                 code: '100'
@@ -147,7 +147,7 @@ const newUnlocksObject = {
         },
     },
     friends: {
-        categoryProgress: 0,
+        progress: 0,
         emojis: {
 
         },
