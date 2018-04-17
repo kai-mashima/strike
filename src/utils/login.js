@@ -11,6 +11,7 @@ const loginUser = function(email, password) {
         this.getFriends(user.uid);
         this.getStreakRequests(user.uid);
         this.getStreaks(user.uid);
+        this.getUnlockedEmojis(user.uid);
         this.checkForDailyAllowance(user.uid);
         return true;
     }).catch(error => {

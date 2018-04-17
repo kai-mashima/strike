@@ -5,95 +5,95 @@ const startUnlocks = function(userID) {
 };
 
 const getUnlockedEmojis = function(userID) {
-    return this.db.ref(`unlocks/${userID}`)
-    .once('value')
-    .then(snapshot => {
-        let unlocked = [];
-        if (snapshot.exists()) {
-            const unlocks = snapshot.val();
-            unlocks.map(category => {
-                category.map(emoji => {
-                    if (emoji.unlocked) {
-                        unlocked.push(emoji);
-                    }
-                });
-            });
-            return unlocked;
-        } else {
-            return unlocked;
-        }
-    }).catch(reason => {
-        console.log(reason);
-    });
-};
-
-const checkForUnlockProgress = function(userID) {
     const currentNumberOfStreaks = this.getNumberOfStreaks(userID);
     const currentTotalDays = this.getNumberOfTotalStreakDays(userID);
     const currentNumberOfFriends = this.getNumberOfFriends(userID);
-    // const currentTerminationNumber 
 
-    this.db.ref(`unlocks/${userID}/streaks/`)
-    .once('value')
-    .then(snapshot => {
-        if (snapshot.exists()) {
-            const streaksUnlocks = snapshot.val();
-            const numberOfStreaks = streaksUnlocks.progress;
-            const emojiProgress = streaksUnlocks.emojis;
-
-            if (currentNumberOfStreaks > numberOfStreaks) {
-                emojiProgress.map(emoji => {
-                    if (currentNumberOfStreaks < emoji.goal ) {
-                        this.db.ref(`unlocks/${userID}/streaks/emojis/${emoji}/progress`).update(currentNumberOfStreaks);
-                    } else if (currentNumberOfStreaks >= emoji.goal) {
-                        this.db.ref(`unlocks/${userID}/streaks/emojis/${emoji}/progress`).update(emoji.goal);
-                        this.db.ref(`unlocks/${userID}/streaks/emojis/${emoji}/unlocked`).update(true);
-                    }
+    this.checkForUnlockProgress(userID, currentNumberOfStreaks, currentTotalDays, currentNumberOfFriends).then(() => {
+        this.db.ref(`unlocks/${userID}`)
+        .once('value')
+        .then(snapshot => {
+            let unlocked = [];
+            if (snapshot.exists()) {
+                const unlocks = Object.keys(snapshot.val());
+                unlocks.map(category => {
+                    const categoryUnlocks = [];
+                    category.map(emoji => {
+                        if (emoji.unlocked) {
+                            unlocked.push(emoji);
+                            categoryUnlocks.push({emoji: emoji, goal: emoji.goal});
+                        }
+                    });
+                    this.setState({
+                        `${category}Unlocks`: categoryUnlocks 
+                    });
+                });
+                const progress = {
+                    streaks: currentNumberOfStreaks,
+                    days: currentTotalDays,
+                    friends: currentNumberOfFriends,
+                };
+                this.setState({
+                    unlockedEmojis: unlocked,
+                    unlockProgress: progress,
                 });
             }
-        } else {
-            throw 'Check for Unlock Progress: No streak category progress found';
-        }
-    }).catch(reason => {
-        console.log(reason);
-    });
+        }).catch(reason => {
+            console.log(reason);
+        });
+    })
+};
 
-    this.db.ref(`unlocks/${userID}/days/categoryProgress`)
+const checkForUnlockProgress = function(userID, currentNumberOfStreaks, currentTotalDays, currentNumberOfFriends) {
+    this.db.ref(`unlocks/${userID}`)
     .once('value')
     .then(snapshot => {
         if (snapshot.exists()) {
-            const totalDays = snapshot.val();
+            const categories = Object.keys(snapshot.val());
+                categories.map(category => {
+                let currentCategoryCount = 0;
+                if (category === 'streaks') {
+                    currentCategoryCount = currentNumberOfStreaks;
+                } else if (category === 'days') {
+                    currentCategoryCount = currentTotalDays;
+                } else if (category === 'friends') {
+                    currentCategoryCount = currentNumberOfFriends;
+                } else if (category === 'termination') {
+                    // currentCategoryCount = 
+                }
+                this.db.ref(`unlocks/${userID}/${category}/`)
+                .once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const unlocks = snapshot.val();
+                        const numberOfUnlocks = unlocks.progress;
+                        const emojiProgress = Object.keys(unlocks.emojis);
 
+                        if (Object.keys(emojiProgress).length !== 0 && emojiProgress.constructor === Object) {
+                            if (currentCategoryCount > numberOfUnlocks) {
+                                Object.keys(emojiProgress).map(emoji => {
+                                    if (currentCategoryCount < emoji.goal ) {
+                                        this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}/progress`).update(currentCategoryCount);
+                                    } else if (currentCategoryCount >= emoji.goal) {
+                                        this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}/progress`).update(emoji.goal);
+                                        this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}/unlocked`).update(true);
+                                    }
+                                });
+                            }
+                        }
+                    } else {
+                        throw `Check for Unlock Progress: No ${category} category progress found`;
+                    }
+                }).catch(reason => {
+                    console.log(reason);
+                });
+            });
         } else {
-            throw 'Check for Unlock Progress: No days category progress found';
+            throw 'Check for Unlock Progress: No unlocks found for this user ID';
         }
     }).catch(reason => {
         console.log(reason);
     });
-
-    this.db.ref(`unlocks/${userID}/friends/categoryProgress`)
-    .once('value')
-    .then(snapshot => {
-        if (snapshot.exists()) {
-            const numberOfFriends = snapshot.val();
-
-        } else {
-            throw 'Check for Unlock Progress: No friends category progress found';
-        }
-    }).catch(reason => {
-        console.log(reason);
-    });
-
-    // this.db.ref(`unlocks/${userID}/termination/categoryProgress`)
-    // .once('value')
-    // .then(snapshot => {
-    //     if (snapshot.exists()) {
-    //         const termination = snapshat.val();
-
-    //     }
-    // }).catch(reason => {
-    //     console.log(reason);
-    // });
 
 };
 

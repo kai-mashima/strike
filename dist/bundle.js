@@ -66113,10 +66113,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Unlocks = function (_Component) {
     _inherits(Unlocks, _Component);
 
-    function Unlocks() {
+    function Unlocks(props) {
         _classCallCheck(this, Unlocks);
 
-        return _possibleConstructorReturn(this, (Unlocks.__proto__ || Object.getPrototypeOf(Unlocks)).apply(this, arguments));
+        var _this = _possibleConstructorReturn(this, (Unlocks.__proto__ || Object.getPrototypeOf(Unlocks)).call(this, props));
+
+        _this.state = {};
+        return _this;
     }
 
     _createClass(Unlocks, [{
@@ -68515,6 +68518,7 @@ var loginUser = function loginUser(email, password) {
         _this.getFriends(user.uid);
         _this.getStreakRequests(user.uid);
         _this.getStreaks(user.uid);
+        _this.getUnlockedEmojis(user.uid);
         _this.checkForDailyAllowance(user.uid);
         return true;
     }).catch(function (error) {

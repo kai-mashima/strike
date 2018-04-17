@@ -4,8 +4,15 @@ import emoji from 'node-emoji';
 import strikeLogo from '../assets/strikeLogo.png';
 
 export default class Unlocks extends Component {
-    render() {
+    constructor(props) {
+        super(props);
 
+        this.state = {
+
+        };
+    }
+
+    render() {
         let streakRender = this.props.streaks.map((unlock, index) => {
             let completed = false; 
             if (this.props.progress.streaks >= unlock.goal) {
