@@ -194,8 +194,7 @@ const checkForDailyAllowance = function(userID) {
         }
 
         const numberOfPayments = this.convertPastTimestampToDays(lastChecked);
-
-        //fix to check for each allowance every 24 hours 
+ 
         this.calculateDailyAllowance(user, userID).then(payment => {
             const payments = payment * numberOfPayments;
 

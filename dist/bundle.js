@@ -40023,6 +40023,8 @@ var _friendRequests = __webpack_require__(479);
 
 var _friends3 = __webpack_require__(480);
 
+var _unlocks3 = __webpack_require__(485);
+
 var _streaks3 = __webpack_require__(481);
 
 var _streakRequests = __webpack_require__(482);
@@ -40092,6 +40094,11 @@ var App = function (_Component) {
         _this.removeFriend = _friends3.removeFriend.bind(_this);
         _this.searchUsers = _friends3.searchUsers.bind(_this);
 
+        //unlocks
+        _this.startUnlocks = _unlocks3.startUnlocks.bind(_this);
+        _this.getUnlockedEmojis = _unlocks3.getUnlockedEmojis.bind(_this);
+        _this.checkForUnlockProgress = _unlocks3.checkForUnlockProgress.bind(_this);
+
         //streakRequests
         _this.sendStreakRequest = _streakRequests.sendStreakRequest.bind(_this);
         _this.streakRequestAction = _streakRequests.streakRequestAction.bind(_this);
@@ -40146,12 +40153,16 @@ var App = function (_Component) {
             streakRequestsInfo: [],
             streaks: [],
             streaksInfo: [],
-            unlockProgress: { days: 3, streaks: 2 },
-            unlockedEmojis: ['trident', 'point_up', 'two_hearts'],
-            dayUnlocks: [{ emoji: '100', goal: 100 }, { emoji: '1234', goal: 4 }],
-            streaksUnlocks: [{ emoji: 'point_up', goal: 1 }, { emoji: 'two_hearts', goal: 2 }, { emoji: 'trident', goal: 3 }],
+            unlockProgress: {},
+            unlockedEmojis: [],
+            dayUnlocks: [],
+            streaksUnlocks: [],
+            friendsUnlocks: [],
             terminationUnlocks: [],
-            friendUnlocks: [],
+            // unlockProgress: {days: 3, streaks: 2,},
+            // unlockedEmojis: ['trident', 'point_up', 'two_hearts'],
+            // dayUnlocks: [{emoji: '100', goal: 100}, {emoji: '1234', goal: 4}],
+            // streaksUnlocks: [{emoji: 'point_up', goal: 1}, {emoji: 'two_hearts', goal: 2}, {emoji: 'trident', goal: 3},],
             isVisibleSplash: false,
             previousCurrent: false
         };
@@ -40286,6 +40297,8 @@ var App = function (_Component) {
                             }),
                             _react2.default.createElement(_reactRouterDom.Route, { path: '/unlocks', component: function component() {
                                     return _react2.default.createElement(_unlocks2.default, {
+                                        user: _this2.state.userID,
+                                        getUnlocks: _this2.getUnlockedEmojis,
                                         progress: _this2.state.unlockProgress,
                                         days: _this2.state.dayUnlocks,
                                         streaks: _this2.state.streaksUnlocks,
@@ -66122,6 +66135,11 @@ var Unlocks = function (_Component) {
         return _this;
     }
 
+    // componentDidMount() {
+    //     this.props.getUnlocks(this.props.user);
+    //     console.log('Get Unlocks during component mounting');
+    // }
+
     _createClass(Unlocks, [{
         key: 'render',
         value: function render() {
@@ -67641,7 +67659,6 @@ var checkForDailyAllowance = function checkForDailyAllowance(userID) {
 
         var numberOfPayments = _this5.convertPastTimestampToDays(lastChecked);
 
-        //fix to check for each allowance every 24 hours 
         _this5.calculateDailyAllowance(user, userID).then(function (payment) {
             var payments = payment * numberOfPayments;
 
@@ -68617,6 +68634,7 @@ var signupUser = function signupUser(email, password) {
         _this5.getFriends(user.uid);
         _this5.getStreaks(user.uid);
         _this5.getStreakRequests(user.uid);
+        _this5.startUnlocks(user.uid);
     }).catch(function (error) {
         var errorCode = error.code;
         var errorMessage = error.message;
@@ -68833,6 +68851,199 @@ exports.convertPastTimestampToDays = convertPastTimestampToDays;
 exports.convertFutureTimestampToHours = convertFutureTimestampToHours;
 exports.convertTimeDifferenceToDays = convertTimeDifferenceToDays;
 exports.getDate = getDate;
+
+/***/ }),
+/* 485 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.newUnlocksObject = exports.checkForUnlockProgress = exports.getUnlockedEmojis = exports.startUnlocks = undefined;
+
+var _app = __webpack_require__(29);
+
+var _app2 = _interopRequireDefault(_app);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var startUnlocks = function startUnlocks(userID) {
+    this.db.ref('unlocks/' + userID).set(newUnlocksObject);
+};
+
+var getUnlockedEmojis = function getUnlockedEmojis(userID) {
+    var _this = this;
+
+    var currentNumberOfStreaks = 0;
+    var currentTotalDays = 0;
+    var currentNumberOfFriends = 0;
+
+    var streaks = this.getNumberOfStreaks(userID);
+    var days = this.getNumberOfTotalStreakDays(userID);
+    var friends = this.getNumberOfFriends(userID);
+
+    Promise.all([streaks, days, friends]).then(function (results) {
+        currentNumberOfStreaks = results[0];
+        currentTotalDays = results[1];
+        currentNumberOfFriends = results[2];
+    }).then(function () {
+        _this.checkForUnlockProgress(userID, currentNumberOfStreaks, currentTotalDays, currentNumberOfFriends).then(function (result) {
+            _this.db.ref('unlocks/' + userID).once('value').then(function (snapshot) {
+                var unlocked = [];
+                if (snapshot.exists()) {
+                    var unlocksInfo = snapshot.val();
+                    var unlocks = Object.keys(unlocksInfo);
+                    unlocks.map(function (category) {
+                        console.log(unlocksInfo);
+                        var categoryUnlocks = [];
+                        unlocksInfo['' + category].map(function (emoji) {
+                            if (emoji.unlocked) {
+                                unlocked.push(emoji);
+                                categoryUnlocks.push({ emoji: emoji, goal: emoji.goal });
+                            }
+                        });
+                        var categoryUnlocksObject = {};
+                        categoryUnlocksObject[category + 'Unlocks'] = categoryUnlocks;
+                        _this.setState(categoryUnlocksObject);
+                    });
+                    var progress = {
+                        streaks: currentNumberOfStreaks,
+                        days: currentTotalDays,
+                        friends: currentNumberOfFriends
+                    };
+                    _this.setState({
+                        unlockedEmojis: unlocked,
+                        unlockProgress: progress
+                    });
+                }
+            }).catch(function (reason) {
+                console.log(reason);
+            });
+        });
+    });
+};
+
+var checkForUnlockProgress = function checkForUnlockProgress(userID, currentNumberOfStreaks, currentTotalDays, currentNumberOfFriends) {
+    var _this2 = this;
+
+    return this.db.ref('unlocks/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var categoryInfo = snapshot.val();
+            var categories = Object.keys(categoryInfo);
+            categories.map(function (category) {
+                var unlocks = categoryInfo['' + category];
+                var numberOfUnlocks = unlocks.progress;
+                var emojiProgress = unlocks.emojis;
+                var currentCategoryCount = 0;
+
+                if (category === 'streaks') {
+                    currentCategoryCount = currentNumberOfStreaks;
+                } else if (category === 'days') {
+                    currentCategoryCount = currentTotalDays;
+                } else if (category === 'friends') {
+                    currentCategoryCount = currentNumberOfFriends;
+                } else if (category === 'termination') {
+                    // currentCategoryCount = 
+                }
+
+                if (Object.keys(emojiProgress).length !== 0) {
+                    if (currentCategoryCount > numberOfUnlocks) {
+                        _this2.db.ref('unlocks/' + userID + '/' + category).update({ progress: currentCategoryCount });
+                        Object.keys(emojiProgress).map(function (emoji) {
+                            if (currentCategoryCount < emojiProgress[emoji].goal) {
+                                _this2.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ progress: currentCategoryCount });
+                            } else {
+                                _this2.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ progress: emojiProgress[emoji].goal });
+                                _this2.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ unlocked: true });
+                            }
+                        });
+                    }
+                }
+            });
+            return true;
+        } else {
+            throw 'Check for Unlock Progress: No unlocks found for this user ID';
+            return false;
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
+var newUnlocksObject = {
+    streaks: {
+        progress: 0,
+        emojis: {
+            'point_up': {
+                description: '',
+                goal: 1,
+                progress: 0,
+                unlocked: false
+            },
+            'two_hearts': {
+                description: '',
+                goal: 2,
+                progress: 0,
+                unlocked: false
+            },
+            'trident': {
+                description: '',
+                goal: 3,
+                progress: 0,
+                unlocked: false
+            }
+        }
+    },
+    termination: {
+        progress: 0,
+        emojis: {
+            'sos': {
+                description: '',
+                goal: 1,
+                progress: 0,
+                unlocked: false
+            }
+        }
+    },
+    days: {
+        progress: 0,
+        emojis: {
+            '100Days': {
+                code: '100',
+                description: '',
+                goal: 100,
+                progress: 0,
+                unlocked: false
+            },
+            '4Days': {
+                code: '1234',
+                description: '',
+                goal: 4,
+                progress: 0,
+                unlocked: false
+            }
+        }
+    },
+    friends: {
+        progress: 0,
+        emojis: {
+            'v': {
+                description: '',
+                goal: 1,
+                progress: 0,
+                unlocked: false
+            }
+        }
+    }
+};
+
+exports.startUnlocks = startUnlocks;
+exports.getUnlockedEmojis = getUnlockedEmojis;
+exports.checkForUnlockProgress = checkForUnlockProgress;
+exports.newUnlocksObject = newUnlocksObject;
 
 /***/ })
 /******/ ]);

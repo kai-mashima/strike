@@ -55,6 +55,12 @@ import {
     searchUsers,
 } from './utils/friends.js';
 import {
+    startUnlocks,
+    getUnlockedEmojis,
+    checkForUnlockProgress,
+    newUnlocksObject,
+} from './utils/unlocks.js';
+import {
     startStreak,
     getStreaks,
     streakToInfo,
@@ -152,6 +158,11 @@ export default class App extends Component {
         this.removeFriend = removeFriend.bind(this);
         this.searchUsers = searchUsers.bind(this);
 
+        //unlocks
+        this.startUnlocks = startUnlocks.bind(this);
+        this.getUnlockedEmojis = getUnlockedEmojis.bind(this);
+        this.checkForUnlockProgress = checkForUnlockProgress.bind(this);
+
         //streakRequests
         this.sendStreakRequest = sendStreakRequest.bind(this);
         this.streakRequestAction = streakRequestAction.bind(this);
@@ -206,12 +217,16 @@ export default class App extends Component {
             streakRequestsInfo: [],
             streaks: [],
             streaksInfo: [],
-            unlockProgress: {days: 3, streaks: 2,},
-            unlockedEmojis: ['trident', 'point_up', 'two_hearts'],
-            dayUnlocks: [{emoji: '100', goal: 100}, {emoji: '1234', goal: 4}],
-            streaksUnlocks: [{emoji: 'point_up', goal: 1}, {emoji: 'two_hearts', goal: 2}, {emoji: 'trident', goal: 3},],
+            unlockProgress: {},
+            unlockedEmojis: [],
+            dayUnlocks: [],
+            streaksUnlocks: [],
+            friendsUnlocks: [],
             terminationUnlocks: [],
-            friendUnlocks: [],
+            // unlockProgress: {days: 3, streaks: 2,},
+            // unlockedEmojis: ['trident', 'point_up', 'two_hearts'],
+            // dayUnlocks: [{emoji: '100', goal: 100}, {emoji: '1234', goal: 4}],
+            // streaksUnlocks: [{emoji: 'point_up', goal: 1}, {emoji: 'two_hearts', goal: 2}, {emoji: 'trident', goal: 3},],
             isVisibleSplash: false,
             previousCurrent: false,
         };
@@ -315,7 +330,9 @@ export default class App extends Component {
                                         )}
                                     />
                                     <Route path='/unlocks' component={() => (
-                                            <Unlocks 
+                                            <Unlocks
+                                                user={this.state.userID}
+                                                getUnlocks={this.getUnlockedEmojis}
                                                 progress={this.state.unlockProgress}
                                                 days={this.state.dayUnlocks}
                                                 streaks={this.state.streaksUnlocks}

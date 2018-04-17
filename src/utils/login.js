@@ -97,6 +97,7 @@ const signupUser = function(email, password, username = '', first = '', last = '
         this.getFriends(user.uid);
         this.getStreaks(user.uid);
         this.getStreakRequests(user.uid);
+        this.startUnlocks(user.uid);
     }).catch(error => {
         var errorCode = error.code;
         var errorMessage = error.message;
