@@ -296,6 +296,8 @@ export default class App extends Component {
                                                 rejectStreakRequest={this.rejectStreakRequest}
                                                 stokeStreak={this.stokeStreak}
                                                 unlocks={this.state.unlockedEmojis}
+                                                getStreaks={this.getStreaks}
+                                                getStreakRequests={this.getStreakRequests}
                                             />
                                         )}
                                     />

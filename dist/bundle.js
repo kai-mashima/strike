@@ -40261,7 +40261,9 @@ var App = function (_Component) {
                                         acceptStreakRequest: _this2.acceptStreakRequest,
                                         rejectStreakRequest: _this2.rejectStreakRequest,
                                         stokeStreak: _this2.stokeStreak,
-                                        unlocks: _this2.state.unlockedEmojis
+                                        unlocks: _this2.state.unlockedEmojis,
+                                        getStreaks: _this2.getStreaks,
+                                        getStreakRequests: _this2.getStreakRequests
                                     });
                                 }
                             }),
@@ -66426,6 +66428,8 @@ var Streaks = function (_Component) {
         key: 'handleRequestAcceptance',
         value: function handleRequestAcceptance(requestID, userID, friendID) {
             this.props.acceptStreakRequest(requestID, userID, friendID);
+            this.props.getStreakRequests(userID);
+            this.props.getStreaks(userID);
             this.toggleRequestsModal();
         }
 
@@ -66435,6 +66439,7 @@ var Streaks = function (_Component) {
         key: 'handleRequestRejection',
         value: function handleRequestRejection(requestID, userID, friendID) {
             this.props.rejectStreakRequest(requestID, userID, friendID);
+            this.props.getStreakRequests(userID);
             this.toggleRequestsModal();
         }
     }, {

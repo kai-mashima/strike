@@ -79,12 +79,15 @@ export default class Streaks extends Component {
     //accept streak request and toggle modal
     handleRequestAcceptance(requestID, userID, friendID) {
         this.props.acceptStreakRequest(requestID, userID, friendID);
+        this.props.getStreakRequests(userID);
+        this.props.getStreaks(userID);
         this.toggleRequestsModal();
     }
 
     //reject streak request and toggle modal
     handleRequestRejection(requestID, userID, friendID) {
         this.props.rejectStreakRequest(requestID, userID, friendID);
+        this.props.getStreakRequests(userID);
         this.toggleRequestsModal();
     }
 
