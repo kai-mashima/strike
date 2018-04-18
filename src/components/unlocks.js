@@ -12,11 +12,6 @@ export default class Unlocks extends Component {
         };
     }
 
-    // componentDidMount() {
-    //     this.props.getUnlocks(this.props.user);
-    //     console.log('Get Unlocks during component mounting');
-    // }
-
     render() {
         let streakRender = this.props.streaks.map((unlock, index) => {
             let completed = false; 

@@ -43,32 +43,29 @@ const getUnlockedEmojis = function(userID) {
                     } else if (category === 'termination') {
                         currentCategoryCount = currentNumberOfTerminatedStreaks;
                     }
+                    // if (currentCategoryCount > numberOfUnlocks) {
+                        const categoryUnlocks = [];
 
-                    if (Object.keys(emojiProgress).length !== 0) {
-                        if (currentCategoryCount > numberOfUnlocks) {
-                            const categoryUnlocks = [];
+                        this.db.ref(`unlocks/${userID}/${category}`).update({progress: currentCategoryCount});
 
-                            this.db.ref(`unlocks/${userID}/${category}`).update({progress: currentCategoryCount});
+                        Object.keys(emojiProgress).map(emoji => {
+                            if (currentCategoryCount < emojiProgress[emoji].goal) {
+                                this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({progress: currentCategoryCount});
+                            } else {
+                                this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({progress: emojiProgress[emoji].goal});
+                                this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({unlocked: true});
+                                unlocked.push(emoji);
+                                categoryUnlocks.push({emoji: emoji, goal: emoji.goal});
+                                console.log('here')
+                            }
+                        });
 
-                            Object.keys(emojiProgress).map(emoji => {
-                                if (currentCategoryCount < emojiProgress[emoji].goal) {
-                                    this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({progress: currentCategoryCount});
-                                } else {
-                                    this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({progress: emojiProgress[emoji].goal});
-                                    this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({unlocked: true});
-                                }
-
-                                if (emojiProgress[emoji].unlocked) {
-                                    unlocked.push(emoji);
-                                    categoryUnlocks.push({emoji: emoji, goal: emoji.goal});
-                                }
-                            });
-
-                            const categoryUnlocksObject = {};
-                            categoryUnlocksObject[`${category}Unlocks`] = categoryUnlocks;
-                            this.setState(categoryUnlocksObject);
-                        }
-                    }
+                        const categoryUnlocksObject = {};
+                        categoryUnlocksObject[`${category}Unlocks`] = categoryUnlocks;
+                        console.log(categoryUnlocksObject);
+                        this.setState(categoryUnlocksObject);
+                    // }
+                    
                 });
 
                 const progress = {

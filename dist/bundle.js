@@ -66133,11 +66133,6 @@ var Unlocks = function (_Component) {
         return _this;
     }
 
-    // componentDidMount() {
-    //     this.props.getUnlocks(this.props.user);
-    //     console.log('Get Unlocks during component mounting');
-    // }
-
     _createClass(Unlocks, [{
         key: 'render',
         value: function render() {
@@ -68929,32 +68924,28 @@ var getUnlockedEmojis = function getUnlockedEmojis(userID) {
                     } else if (category === 'termination') {
                         currentCategoryCount = currentNumberOfTerminatedStreaks;
                     }
+                    // if (currentCategoryCount > numberOfUnlocks) {
+                    var categoryUnlocks = [];
 
-                    if (Object.keys(emojiProgress).length !== 0) {
-                        if (currentCategoryCount > numberOfUnlocks) {
-                            var categoryUnlocks = [];
+                    _this.db.ref('unlocks/' + userID + '/' + category).update({ progress: currentCategoryCount });
 
-                            _this.db.ref('unlocks/' + userID + '/' + category).update({ progress: currentCategoryCount });
-
-                            Object.keys(emojiProgress).map(function (emoji) {
-                                if (currentCategoryCount < emojiProgress[emoji].goal) {
-                                    _this.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ progress: currentCategoryCount });
-                                } else {
-                                    _this.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ progress: emojiProgress[emoji].goal });
-                                    _this.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ unlocked: true });
-                                }
-
-                                if (emojiProgress[emoji].unlocked) {
-                                    unlocked.push(emoji);
-                                    categoryUnlocks.push({ emoji: emoji, goal: emoji.goal });
-                                }
-                            });
-
-                            var categoryUnlocksObject = {};
-                            categoryUnlocksObject[category + 'Unlocks'] = categoryUnlocks;
-                            _this.setState(categoryUnlocksObject);
+                    Object.keys(emojiProgress).map(function (emoji) {
+                        if (currentCategoryCount < emojiProgress[emoji].goal) {
+                            _this.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ progress: currentCategoryCount });
+                        } else {
+                            _this.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ progress: emojiProgress[emoji].goal });
+                            _this.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ unlocked: true });
+                            unlocked.push(emoji);
+                            categoryUnlocks.push({ emoji: emoji, goal: emoji.goal });
+                            console.log('here');
                         }
-                    }
+                    });
+
+                    var categoryUnlocksObject = {};
+                    categoryUnlocksObject[category + 'Unlocks'] = categoryUnlocks;
+                    console.log(categoryUnlocksObject);
+                    _this.setState(categoryUnlocksObject);
+                    // }
                 });
 
                 var progress = {
