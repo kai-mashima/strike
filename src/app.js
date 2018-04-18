@@ -56,6 +56,7 @@ import {
 } from './utils/friends.js';
 import {
     startUnlocks,
+    loadEmojiBank,
     getUnlockedEmojis,
     newUnlocksObject,
 } from './utils/unlocks.js';
@@ -161,6 +162,7 @@ export default class App extends Component {
 
         //unlocks
         this.startUnlocks = startUnlocks.bind(this);
+        this.loadEmojiBank = loadEmojiBank.bind(this);
         this.getUnlockedEmojis = getUnlockedEmojis.bind(this);
 
         //streakRequests
@@ -217,6 +219,7 @@ export default class App extends Component {
             streakRequestsInfo: [],
             streaks: [],
             streaksInfo: [],
+            emojis: [],
             unlockProgress: {},
             unlockedEmojis: [],
             dayUnlocks: [],
@@ -331,6 +334,7 @@ export default class App extends Component {
                                             <Unlocks
                                                 user={this.state.userID}
                                                 getUnlocks={this.getUnlockedEmojis}
+                                                emojis={this.state.emojis}
                                                 progress={this.state.unlockProgress}
                                                 days={this.state.dayUnlocks}
                                                 streaks={this.state.streaksUnlocks}

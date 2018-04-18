@@ -4,6 +4,12 @@ const startUnlocks = function(userID) {
     this.db.ref(`unlocks/${userID}`).set(newUnlocksObject);
 };
 
+const loadEmojiBank = function() {
+    this.setState({
+        emojis: newUnlocksObject
+    });
+};
+
 const getUnlockedEmojis = function(userID) {
     let currentNumberOfStreaks = 0;
     let currentTotalDays = 0;
@@ -15,7 +21,7 @@ const getUnlockedEmojis = function(userID) {
     const friends = this.getNumberOfFriends(userID);
     const terminated = this.getNumberOfTerminatedStreaks(userID);
 
-    Promise.all([streaks, days, friends]).then(results => {
+    Promise.all([streaks, days, friends, terminated]).then(results => {
         currentNumberOfStreaks = results[0];
         currentTotalDays = results[1];
         currentNumberOfFriends = results[2];
@@ -43,29 +49,25 @@ const getUnlockedEmojis = function(userID) {
                     } else if (category === 'termination') {
                         currentCategoryCount = currentNumberOfTerminatedStreaks;
                     }
-                    // if (currentCategoryCount > numberOfUnlocks) {
-                        const categoryUnlocks = [];
-
-                        this.db.ref(`unlocks/${userID}/${category}`).update({progress: currentCategoryCount});
-
-                        Object.keys(emojiProgress).map(emoji => {
-                            if (currentCategoryCount < emojiProgress[emoji].goal) {
-                                this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({progress: currentCategoryCount});
-                            } else {
-                                this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({progress: emojiProgress[emoji].goal});
-                                this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({unlocked: true});
-                                unlocked.push(emoji);
-                                categoryUnlocks.push({emoji: emoji, goal: emoji.goal});
-                                console.log('here')
-                            }
-                        });
-
-                        const categoryUnlocksObject = {};
-                        categoryUnlocksObject[`${category}Unlocks`] = categoryUnlocks;
-                        console.log(categoryUnlocksObject);
-                        this.setState(categoryUnlocksObject);
-                    // }
                     
+                    const categoryUnlocks = [];
+
+                    this.db.ref(`unlocks/${userID}/${category}`).update({progress: currentCategoryCount});
+
+                    Object.keys(emojiProgress).map(emoji => {
+                        if (currentCategoryCount < emojiProgress[emoji].goal) {
+                            this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({progress: currentCategoryCount});
+                        } else {
+                            this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({progress: emojiProgress[emoji].goal});
+                            this.db.ref(`unlocks/${userID}/${category}/emojis/${emoji}`).update({unlocked: true});
+                            unlocked.push(emoji);
+                            categoryUnlocks.push({emoji: emoji, goal: emojiProgress[emoji].goal});
+                        }
+                    });
+
+                    const categoryUnlocksObject = {};
+                    categoryUnlocksObject[`${category}Unlocks`] = categoryUnlocks;
+                    this.setState(categoryUnlocksObject);
                 });
 
                 const progress = {
@@ -157,6 +159,7 @@ const newUnlocksObject = {
 
 export {
     startUnlocks,
+    loadEmojiBank,
     getUnlockedEmojis,
     newUnlocksObject,
 };

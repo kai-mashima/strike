@@ -13,6 +13,7 @@ const loginUser = function(email, password) {
         this.getStreaks(user.uid);
         this.getUnlockedEmojis(user.uid);
         this.checkForDailyAllowance(user.uid);
+        this.loadEmojiBank();
         return true;
     }).catch(error => {
         console.log(`User Login Error: ${error.code}: ${error.message}`);

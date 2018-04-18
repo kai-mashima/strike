@@ -13,32 +13,51 @@ export default class Unlocks extends Component {
     }
 
     render() {
-        let streakRender = this.props.streaks.map((unlock, index) => {
-            let completed = false; 
-            if (this.props.progress.streaks >= unlock.goal) {
-                completed = true;
-            }
-            
+        const bank = this.props.emojis;
+
+        const streaksInfo = bank.streaks.emojis;
+        const streaks = Object.keys(streaksInfo);
+        const streakProgress = this.props.progress.streaks;
+
+        let streakRender = streaks.map((unlock, index) => {
+            let completed = streakProgress >= streaksInfo[unlock].goal ? true : false;
             return (
                 <div className='col-item row-container unlock-item-container' key={index}>
-                    <span className='row-item unlock-item'>{completed ? emoji.emojify(`:${unlock.emoji}:`) : emoji.emojify(':lock:')}</span>
-                    <span className='row-item unlock-item'>{this.props.progress.streaks > unlock.goal ? unlock.goal : this.props.progress.streaks}</span>
-                    <span className='row-item unlock-item'>{unlock.goal}</span>
+                    <span className='row-item unlock-item'>{completed ? emoji.emojify(`:${unlock}:`) : emoji.emojify(':lock:')}</span>
+                    <span className='row-item unlock-item'>{streakProgress}</span>
+                    <span className='row-item unlock-item'>{streaksInfo[unlock].goal}</span>
                 </div>
             );
         });
 
-        let daysRender =  this.props.days.map((unlock, index) => {
-            let completed = false;
-            if (this.props.progress.days >= unlock.goal) {
-                completed = true;
-            }
+        const daysInfo = bank.days.emojis;
+        const days = Object.keys(daysInfo);
+        const daysProgress = this.props.progress.days;
+
+        let daysRender =  days.map((unlock, index) => {
+            let completed = daysProgress >= daysInfo[unlock].goal ? true : false;
 
             return (
                 <div className='col-item row-container unlock-item-container' key={index}>
-                    <span className='row-item unlock-item'>{completed ? emoji.emojify(`:${unlock.emoji}:`) : emoji.emojify(':lock:')}</span>
-                    <span className='row-item unlock-item'>{completed ? unlock.goal : this.props.progress.days}</span>
-                    <span className='row-item unlock-item'>{unlock.goal}</span>
+                    <span className='row-item unlock-item'>{completed ? emoji.emojify(`:${unlock}:`) : emoji.emojify(':lock:')}</span>
+                    <span className='row-item unlock-item'>{daysProgress}</span>
+                    <span className='row-item unlock-item'>{daysInfo[unlock].goal}</span>
+                </div>
+            );
+        });
+
+        const friendsInfo = bank.friends.emojis;
+        const friends = Object.keys(friendsInfo);
+        const friendsProgress = this.props.progress.friends;
+
+        let friendsRender = friends.map((unlock, index) => {
+            let completed = friendsProgress >= friendsInfo[unlock].goal ? true : false;
+
+            return (
+                <div className='col-item row-container unlock-item-container' key={index}>
+                    <span className='row-item unlock-item'>{completed ? emoji.emojify(`:${unlock}:`) : emoji.emojify(':lock:')}</span>
+                    <span className='row-item unlock-item'>{friendsProgress}</span>
+                    <span className='row-item unlock-item'>{friendsInfo[unlock].goal}</span>
                 </div>
             );
         });
@@ -74,6 +93,15 @@ export default class Unlocks extends Component {
                                     <span className='row-item unlock-subtitle-item'>Goal</span>
                                 </div>
                                 {daysRender}
+                            </div>
+                            <div className='col-item col-container unlock-container'>
+                                <span className='unlock-title'>Friends</span>
+                                <div className='row-container unlock-subtitle-container'>
+                                    <span className='row-item unlock-subtitle-item'>Emoji</span>
+                                    <span className='row-item unlock-subtitle-item'>Progress</span>
+                                    <span className='row-item unlock-subtitle-item'>Goal</span>
+                                </div>
+                                {friendsRender}
                             </div>
                         </div>
                     </div>
