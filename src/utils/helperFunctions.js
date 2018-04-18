@@ -127,6 +127,22 @@ const getNumberOfStreaks = function(userID) {
     });
 };
 
+const getNumberOfTerminatedStreaks = function(userID) {
+    return this.db.ref(`terminatedStreakOwners/${userID}`)
+    .once('value')
+    .then(snapshot => {
+        if (snapshot.exists()) {
+            const terminatedStreaks = snapshot.val();
+            const numberOfTerminatedStreaks = Object.keys(terminatedStreaks).length;
+            return numberOfTerminatedStreaks;
+        } else {
+            return 0;
+        }
+    }).catch(reason => {
+        console.log(reason);
+    });
+};
+
 const convertPastTimestampToDays = function(timestamp) {
     const date = new Date();
     const now = date.getTime();
@@ -160,6 +176,7 @@ export {
     getNumberOfFriends,
     getNumberOfTotalStreakDays,
     getNumberOfStreaks,
+    getNumberOfTerminatedStreaks,
     convertPastTimestampToDays,
     convertFutureTimestampToHours,
     convertTimeDifferenceToDays,

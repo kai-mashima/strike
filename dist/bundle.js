@@ -40069,6 +40069,7 @@ var App = function (_Component) {
         _this.getUser = _helperFunctions.getUser.bind(_this);
         _this.getNumberOfFriends = _helperFunctions.getNumberOfFriends.bind(_this);
         _this.getNumberOfStreaks = _helperFunctions.getNumberOfStreaks.bind(_this);
+        _this.getNumberOfTerminatedStreaks = _helperFunctions.getNumberOfTerminatedStreaks.bind(_this);
 
         //login|signup|setup
         _this.loginUser = _login3.loginUser.bind(_this);
@@ -40097,7 +40098,6 @@ var App = function (_Component) {
         //unlocks
         _this.startUnlocks = _unlocks3.startUnlocks.bind(_this);
         _this.getUnlockedEmojis = _unlocks3.getUnlockedEmojis.bind(_this);
-        _this.checkForUnlockProgress = _unlocks3.checkForUnlockProgress.bind(_this);
 
         //streakRequests
         _this.sendStreakRequest = _streakRequests.sendStreakRequest.bind(_this);
@@ -40159,10 +40159,6 @@ var App = function (_Component) {
             streaksUnlocks: [],
             friendsUnlocks: [],
             terminationUnlocks: [],
-            // unlockProgress: {days: 3, streaks: 2,},
-            // unlockedEmojis: ['trident', 'point_up', 'two_hearts'],
-            // dayUnlocks: [{emoji: '100', goal: 100}, {emoji: '1234', goal: 4}],
-            // streaksUnlocks: [{emoji: 'point_up', goal: 1}, {emoji: 'two_hearts', goal: 2}, {emoji: 'trident', goal: 3},],
             isVisibleSplash: false,
             previousCurrent: false
         };
@@ -68692,7 +68688,7 @@ exports.addNewUser = addNewUser;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.getDate = exports.convertTimeDifferenceToDays = exports.convertFutureTimestampToHours = exports.convertPastTimestampToDays = exports.getNumberOfStreaks = exports.getNumberOfTotalStreakDays = exports.getNumberOfFriends = exports.getUser = exports.getTerminatedStreak = exports.getStreak = exports.getUsername = undefined;
+exports.getDate = exports.convertTimeDifferenceToDays = exports.convertFutureTimestampToHours = exports.convertPastTimestampToDays = exports.getNumberOfTerminatedStreaks = exports.getNumberOfStreaks = exports.getNumberOfTotalStreakDays = exports.getNumberOfFriends = exports.getUser = exports.getTerminatedStreak = exports.getStreak = exports.getUsername = undefined;
 
 var _app = __webpack_require__(29);
 
@@ -68815,6 +68811,20 @@ var getNumberOfStreaks = function getNumberOfStreaks(userID) {
     });
 };
 
+var getNumberOfTerminatedStreaks = function getNumberOfTerminatedStreaks(userID) {
+    return this.db.ref('terminatedStreakOwners/' + userID).once('value').then(function (snapshot) {
+        if (snapshot.exists()) {
+            var terminatedStreaks = snapshot.val();
+            var numberOfTerminatedStreaks = Object.keys(terminatedStreaks).length;
+            return numberOfTerminatedStreaks;
+        } else {
+            return 0;
+        }
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+};
+
 var convertPastTimestampToDays = function convertPastTimestampToDays(timestamp) {
     var date = new Date();
     var now = date.getTime();
@@ -68847,6 +68857,7 @@ exports.getUser = getUser;
 exports.getNumberOfFriends = getNumberOfFriends;
 exports.getNumberOfTotalStreakDays = getNumberOfTotalStreakDays;
 exports.getNumberOfStreaks = getNumberOfStreaks;
+exports.getNumberOfTerminatedStreaks = getNumberOfTerminatedStreaks;
 exports.convertPastTimestampToDays = convertPastTimestampToDays;
 exports.convertFutureTimestampToHours = convertFutureTimestampToHours;
 exports.convertTimeDifferenceToDays = convertTimeDifferenceToDays;
@@ -68862,7 +68873,7 @@ exports.getDate = getDate;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.newUnlocksObject = exports.checkForUnlockProgress = exports.getUnlockedEmojis = exports.startUnlocks = undefined;
+exports.newUnlocksObject = exports.getUnlockedEmojis = exports.startUnlocks = undefined;
 
 var _app = __webpack_require__(29);
 
@@ -68880,96 +68891,84 @@ var getUnlockedEmojis = function getUnlockedEmojis(userID) {
     var currentNumberOfStreaks = 0;
     var currentTotalDays = 0;
     var currentNumberOfFriends = 0;
+    var currentNumberOfTerminatedStreaks = 0;
 
     var streaks = this.getNumberOfStreaks(userID);
     var days = this.getNumberOfTotalStreakDays(userID);
     var friends = this.getNumberOfFriends(userID);
+    var terminated = this.getNumberOfTerminatedStreaks(userID);
 
     Promise.all([streaks, days, friends]).then(function (results) {
         currentNumberOfStreaks = results[0];
         currentTotalDays = results[1];
         currentNumberOfFriends = results[2];
+        currentNumberOfTerminatedStreaks = results[3];
     }).then(function () {
-        _this.checkForUnlockProgress(userID, currentNumberOfStreaks, currentTotalDays, currentNumberOfFriends).then(function (result) {
-            _this.db.ref('unlocks/' + userID).once('value').then(function (snapshot) {
+        _this.db.ref('unlocks/' + userID).once('value').then(function (snapshot) {
+            if (snapshot.exists()) {
+                var categoryInfo = snapshot.val();
+                var categories = Object.keys(categoryInfo);
                 var unlocked = [];
-                if (snapshot.exists()) {
-                    var unlocksInfo = snapshot.val();
-                    var unlocks = Object.keys(unlocksInfo);
-                    unlocks.map(function (category) {
-                        console.log(unlocksInfo);
-                        var categoryUnlocks = [];
-                        unlocksInfo['' + category].map(function (emoji) {
-                            if (emoji.unlocked) {
-                                unlocked.push(emoji);
-                                categoryUnlocks.push({ emoji: emoji, goal: emoji.goal });
-                            }
-                        });
-                        var categoryUnlocksObject = {};
-                        categoryUnlocksObject[category + 'Unlocks'] = categoryUnlocks;
-                        _this.setState(categoryUnlocksObject);
-                    });
-                    var progress = {
-                        streaks: currentNumberOfStreaks,
-                        days: currentTotalDays,
-                        friends: currentNumberOfFriends
-                    };
-                    _this.setState({
-                        unlockedEmojis: unlocked,
-                        unlockProgress: progress
-                    });
-                }
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-        });
-    });
-};
+                categories.map(function (category) {
+                    var unlocks = categoryInfo['' + category];
+                    var numberOfUnlocks = unlocks.progress;
+                    var emojiProgress = unlocks.emojis;
+                    var currentCategoryCount = 0;
 
-var checkForUnlockProgress = function checkForUnlockProgress(userID, currentNumberOfStreaks, currentTotalDays, currentNumberOfFriends) {
-    var _this2 = this;
-
-    return this.db.ref('unlocks/' + userID).once('value').then(function (snapshot) {
-        if (snapshot.exists()) {
-            var categoryInfo = snapshot.val();
-            var categories = Object.keys(categoryInfo);
-            categories.map(function (category) {
-                var unlocks = categoryInfo['' + category];
-                var numberOfUnlocks = unlocks.progress;
-                var emojiProgress = unlocks.emojis;
-                var currentCategoryCount = 0;
-
-                if (category === 'streaks') {
-                    currentCategoryCount = currentNumberOfStreaks;
-                } else if (category === 'days') {
-                    currentCategoryCount = currentTotalDays;
-                } else if (category === 'friends') {
-                    currentCategoryCount = currentNumberOfFriends;
-                } else if (category === 'termination') {
-                    // currentCategoryCount = 
-                }
-
-                if (Object.keys(emojiProgress).length !== 0) {
-                    if (currentCategoryCount > numberOfUnlocks) {
-                        _this2.db.ref('unlocks/' + userID + '/' + category).update({ progress: currentCategoryCount });
-                        Object.keys(emojiProgress).map(function (emoji) {
-                            if (currentCategoryCount < emojiProgress[emoji].goal) {
-                                _this2.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ progress: currentCategoryCount });
-                            } else {
-                                _this2.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ progress: emojiProgress[emoji].goal });
-                                _this2.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ unlocked: true });
-                            }
-                        });
+                    if (category === 'streaks') {
+                        currentCategoryCount = currentNumberOfStreaks;
+                    } else if (category === 'days') {
+                        currentCategoryCount = currentTotalDays;
+                    } else if (category === 'friends') {
+                        currentCategoryCount = currentNumberOfFriends;
+                    } else if (category === 'termination') {
+                        currentCategoryCount = currentNumberOfTerminatedStreaks;
                     }
-                }
-            });
-            return true;
-        } else {
-            throw 'Check for Unlock Progress: No unlocks found for this user ID';
-            return false;
-        }
-    }).catch(function (reason) {
-        console.log(reason);
+
+                    if (Object.keys(emojiProgress).length !== 0) {
+                        if (currentCategoryCount > numberOfUnlocks) {
+                            var categoryUnlocks = [];
+
+                            _this.db.ref('unlocks/' + userID + '/' + category).update({ progress: currentCategoryCount });
+
+                            Object.keys(emojiProgress).map(function (emoji) {
+                                if (currentCategoryCount < emojiProgress[emoji].goal) {
+                                    _this.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ progress: currentCategoryCount });
+                                } else {
+                                    _this.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ progress: emojiProgress[emoji].goal });
+                                    _this.db.ref('unlocks/' + userID + '/' + category + '/emojis/' + emoji).update({ unlocked: true });
+                                }
+
+                                if (emojiProgress[emoji].unlocked) {
+                                    unlocked.push(emoji);
+                                    categoryUnlocks.push({ emoji: emoji, goal: emoji.goal });
+                                }
+                            });
+
+                            var categoryUnlocksObject = {};
+                            categoryUnlocksObject[category + 'Unlocks'] = categoryUnlocks;
+                            _this.setState(categoryUnlocksObject);
+                        }
+                    }
+                });
+
+                var progress = {
+                    streaks: currentNumberOfStreaks,
+                    days: currentTotalDays,
+                    friends: currentNumberOfFriends,
+                    terminated: currentNumberOfTerminatedStreaks
+                };
+
+                _this.setState({
+                    unlockedEmojis: unlocked,
+                    unlockProgress: progress
+                });
+            } else {
+                throw 'Check for Unlock Progress: No unlocks found for this user ID';
+            }
+        }).catch(function (reason) {
+            console.log(reason);
+        });
     });
 };
 
@@ -69042,7 +69041,6 @@ var newUnlocksObject = {
 
 exports.startUnlocks = startUnlocks;
 exports.getUnlockedEmojis = getUnlockedEmojis;
-exports.checkForUnlockProgress = checkForUnlockProgress;
 exports.newUnlocksObject = newUnlocksObject;
 
 /***/ })

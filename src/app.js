@@ -57,7 +57,6 @@ import {
 import {
     startUnlocks,
     getUnlockedEmojis,
-    checkForUnlockProgress,
     newUnlocksObject,
 } from './utils/unlocks.js';
 import {
@@ -103,6 +102,7 @@ import {
     getNumberOfFriends,
     getNumberOfTotalStreakDays,
     getNumberOfStreaks,
+    getNumberOfTerminatedStreaks,
     convertPastTimestampToDays,
     convertFutureTimestampToHours,
     convertTimeDifferenceToDays,
@@ -133,6 +133,7 @@ export default class App extends Component {
         this.getUser = getUser.bind(this);
         this.getNumberOfFriends = getNumberOfFriends.bind(this);
         this.getNumberOfStreaks = getNumberOfStreaks.bind(this);
+        this.getNumberOfTerminatedStreaks = getNumberOfTerminatedStreaks.bind(this);
 
         //login|signup|setup
         this.loginUser = loginUser.bind(this);
@@ -161,7 +162,6 @@ export default class App extends Component {
         //unlocks
         this.startUnlocks = startUnlocks.bind(this);
         this.getUnlockedEmojis = getUnlockedEmojis.bind(this);
-        this.checkForUnlockProgress = checkForUnlockProgress.bind(this);
 
         //streakRequests
         this.sendStreakRequest = sendStreakRequest.bind(this);
@@ -223,10 +223,6 @@ export default class App extends Component {
             streaksUnlocks: [],
             friendsUnlocks: [],
             terminationUnlocks: [],
-            // unlockProgress: {days: 3, streaks: 2,},
-            // unlockedEmojis: ['trident', 'point_up', 'two_hearts'],
-            // dayUnlocks: [{emoji: '100', goal: 100}, {emoji: '1234', goal: 4}],
-            // streaksUnlocks: [{emoji: 'point_up', goal: 1}, {emoji: 'two_hearts', goal: 2}, {emoji: 'trident', goal: 3},],
             isVisibleSplash: false,
             previousCurrent: false,
         };
