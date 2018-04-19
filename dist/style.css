@@ -292,7 +292,7 @@ li {
 }
 
 .streaks-item {
-    height: 11%;
+    height: 13%;
     flex: 0 1 auto;
     border-bottom: 1px solid lightgrey;
     padding: 5px;
@@ -380,7 +380,7 @@ li {
 }
 
 .friends-item {
-    height: 11%;
+    height: 13%;
     flex: 0 1 auto;
     border-bottom: 1px solid lightgrey;
     padding: 5px;

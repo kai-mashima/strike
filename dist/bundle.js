@@ -65208,9 +65208,13 @@ var History = function (_Component) {
                         'div',
                         { className: 'content' },
                         _react2.default.createElement(
-                            'p',
-                            null,
-                            'History'
+                            'div',
+                            { className: 'center-text col-container floating-div' },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'col-item' },
+                                'No History'
+                            )
                         )
                     )
                 )
