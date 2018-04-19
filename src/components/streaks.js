@@ -61,7 +61,7 @@ export default class Streaks extends Component {
             this.setState({
                 isVisibleError: false
             });
-        }, 2000);
+        }, 3000);
     }
 
     //initiate streak request process and toggle modal
@@ -159,7 +159,7 @@ export default class Streaks extends Component {
                                         </div>
                                     </Modal.Body>
                                     <Modal.Footer>
-                                        <span onClick={this.toggleNewStreakModal}>Close</span>
+                                        <span className='btn btn-danger' onClick={this.toggleNewStreakModal}>Close</span>
                                     </Modal.Footer>
                                 </Modal>
                                 <Modal show={this.state.isVisibleConfirmation}>
@@ -196,7 +196,7 @@ export default class Streaks extends Component {
                                         </div>
                                     </Modal.Body>
                                     <Modal.Footer>
-                                        <span onClick={this.toggleRequestsModal}>Close</span>
+                                        <span className='btn btn-danger' onClick={this.toggleRequestsModal}>Close</span>
                                     </Modal.Footer>
                                 </Modal>
                             </div>

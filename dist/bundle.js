@@ -65575,7 +65575,7 @@ var Friends = function (_Component) {
                                         null,
                                         _react2.default.createElement(
                                             'span',
-                                            { onClick: this.toggleAddFriendModal },
+                                            { className: 'btn btn-danger', onClick: this.toggleAddFriendModal },
                                             'Close'
                                         )
                                     )
@@ -65642,7 +65642,7 @@ var Friends = function (_Component) {
                                         null,
                                         _react2.default.createElement(
                                             'span',
-                                            { onClick: this.toggleFriendRequestModal },
+                                            { className: 'btn btn-danger', onClick: this.toggleFriendRequestModal },
                                             'Close'
                                         )
                                     )
@@ -65784,8 +65784,7 @@ var Friend = function (_Component) {
                             ' from your friends list.'
                         )
                     )
-                ),
-                _react2.default.createElement(_reactBootstrap.Modal.Footer, null)
+                )
             );
 
             var infoModalRender = _react2.default.createElement(
@@ -66462,7 +66461,7 @@ var Streaks = function (_Component) {
                 _this3.setState({
                     isVisibleError: false
                 });
-            }, 2000);
+            }, 3000);
         }
 
         //initiate streak request process and toggle modal
@@ -66653,7 +66652,7 @@ var Streaks = function (_Component) {
                                         null,
                                         _react2.default.createElement(
                                             'span',
-                                            { onClick: this.toggleNewStreakModal },
+                                            { className: 'btn btn-danger', onClick: this.toggleNewStreakModal },
                                             'Close'
                                         )
                                     )
@@ -66742,7 +66741,7 @@ var Streaks = function (_Component) {
                                         null,
                                         _react2.default.createElement(
                                             'span',
-                                            { onClick: this.toggleRequestsModal },
+                                            { className: 'btn btn-danger', onClick: this.toggleRequestsModal },
                                             'Close'
                                         )
                                     )
@@ -67480,7 +67479,7 @@ var Signup = function (_Component) {
                             ),
                             _react2.default.createElement(
                                 'span',
-                                { className: 'btn btn-default', onClick: this.toggleSignup },
+                                { className: 'btn btn-danger', onClick: this.toggleSignup },
                                 'Close'
                             )
                         )

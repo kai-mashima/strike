@@ -57,8 +57,6 @@ export default class Friend extends Component {
                         <span>You have removed {this.props.friend.username} from your friends list.</span>
                     </div>
                 </Modal.Body>
-                <Modal.Footer>
-                </Modal.Footer>
             </Modal>
         );
 

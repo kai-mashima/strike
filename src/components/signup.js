@@ -88,7 +88,7 @@ export default class Signup extends Component {
                         </Modal.Body>
                         <Modal.Footer>
                             <span className='btn btn-success' onClick={this.handleSignup}>Sign Up</span>
-                            <span className='btn btn-default' onClick={this.toggleSignup}>Close</span>
+                            <span className='btn btn-danger' onClick={this.toggleSignup}>Close</span>
                         </Modal.Footer>
                     </Modal>
                 </div>

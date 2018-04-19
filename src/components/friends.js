@@ -189,7 +189,7 @@ export default class Friends extends Component {
                                         </div>
                                     </Modal.Body>
                                     <Modal.Footer>
-                                        <span onClick={this.toggleAddFriendModal}>Close</span>
+                                        <span className='btn btn-danger' onClick={this.toggleAddFriendModal}>Close</span>
                                     </Modal.Footer>
                                 </Modal>
                                 <Modal show={this.state.isVisibleConfirmation}>
@@ -218,7 +218,7 @@ export default class Friends extends Component {
                                         </div>
                                     </Modal.Body>
                                     <Modal.Footer>
-                                        <span onClick={this.toggleFriendRequestModal}>Close</span>
+                                        <span className='btn btn-danger' onClick={this.toggleFriendRequestModal}>Close</span>
                                     </Modal.Footer>
                                 </Modal>
                             </div>
