@@ -12,6 +12,7 @@ import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
 import emoji from 'node-emoji';
+import strikeLogo from './assets/strikeLogo.png';
 
 import { DB_CONFIG } from '../config/config.js';
 
@@ -264,10 +265,13 @@ export default class App extends Component {
         let splashScreen = (
             <Modal show={this.state.isVisibleSplash}>
                 <Modal.Header>
-                    <Modal.Title>Splash</Modal.Title>
+                    <Modal.Title>Welcome to Strike!</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <span>This is some information about the app.</span>
+                    <div className='col-container'>  
+                        <img src={strikeLogo} className='col-item login-logo'/>
+                        <span className='col-item'>The goal of the Strike application is to encourage users to maintain contact with their close friends, build a small group of close connections, and build up the amount of in-game currency they have and the number of streaks they maintain. These goals are meant to address some of the negative impacts of social media usage. The hope is that users will foster outside-of- game communication with the few friends they choose to add and keep in their in-game network. The platform is designed to be competitive and allow participants to have fun but also learn who they want to care about. </span>
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
                     <span onClick={this.toggleSplash}>Close</span>

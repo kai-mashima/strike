@@ -95,19 +95,19 @@ const newUnlocksObject = {
         progress: 0,
         emojis: {
             'point_up': {
-                description: '',
+                description: 'Have 1 active streak.',
                 goal: 1,
                 progress: 0,
                 unlocked: false,
             }, 
             'two_hearts': {
-                description: '',
+                description: 'Have 2 active streak.',
                 goal: 2,
                 progress: 0,
                 unlocked: false,
             },
             'trident': {
-                description: '',
+                description: 'Have 3 active streak.',
                 goal: 3,
                 progress: 0,
                 unlocked: false,
@@ -118,7 +118,7 @@ const newUnlocksObject = {
         progress: 0,
         emojis: {
            'sos': {
-                description: '',
+                description: 'Have 1 terminated streak.',
                 goal: 1,
                 progress: 0,
                 unlocked: false,
@@ -129,15 +129,13 @@ const newUnlocksObject = {
         progress: 0,
         emojis: {
             '100Days': {
-                code: '100',
-                description: '',
+                description: 'Have 100 combined days of all your active streak.',
                 goal: 100,
                 progress: 0,
                 unlocked: false,
             }, 
             '4Days': {
-                code: '1234',
-                description: '',
+                description: 'Have 4 combined days of all your active streak.',
                 goal: 4,
                 progress: 0,
                 unlocked: false,
@@ -148,7 +146,7 @@ const newUnlocksObject = {
         progress: 0,
         emojis: {
             'v': {
-                description: '',
+                description: 'Have 1 friend.',
                 goal: 1,
                 progress: 0,
                 unlocked: false,

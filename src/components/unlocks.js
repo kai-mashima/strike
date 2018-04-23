@@ -13,6 +13,7 @@ export default class Unlocks extends Component {
     }
 
     render() {
+
         const bank = this.props.emojis;
 
         const streaksInfo = bank.streaks.emojis;

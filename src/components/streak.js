@@ -185,7 +185,7 @@ export default class Streak extends Component {
                 </Modal.Footer>
             </Modal>
         );
-
+        
         return (
             <div>
                 {modalRender}
