@@ -66128,6 +66128,10 @@ var _strikeLogo = __webpack_require__(37);
 
 var _strikeLogo2 = _interopRequireDefault(_strikeLogo);
 
+var _unlock = __webpack_require__(486);
+
+var _unlock2 = _interopRequireDefault(_unlock);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -66151,7 +66155,6 @@ var Unlocks = function (_Component) {
     _createClass(Unlocks, [{
         key: 'render',
         value: function render() {
-
             var bank = this.props.emojis;
 
             var streaksInfo = bank.streaks.emojis;
@@ -66160,25 +66163,8 @@ var Unlocks = function (_Component) {
 
             var streakRender = streaks.map(function (unlock, index) {
                 var completed = streakProgress >= streaksInfo[unlock].goal ? true : false;
-                return _react2.default.createElement(
-                    'div',
-                    { className: 'col-item row-container unlock-item-container', key: index },
-                    _react2.default.createElement(
-                        'span',
-                        { className: 'row-item unlock-item' },
-                        completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:')
-                    ),
-                    _react2.default.createElement(
-                        'span',
-                        { className: 'row-item unlock-item' },
-                        streakProgress
-                    ),
-                    _react2.default.createElement(
-                        'span',
-                        { className: 'row-item unlock-item' },
-                        streaksInfo[unlock].goal
-                    )
-                );
+                var emoji = completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:');
+                return _react2.default.createElement(_unlock2.default, { description: streaksInfo[unlock].description, emoji: emoji, progress: streakProgress, goal: streaksInfo[unlock].goal, key: index });
             });
 
             var daysInfo = bank.days.emojis;
@@ -66187,26 +66173,8 @@ var Unlocks = function (_Component) {
 
             var daysRender = days.map(function (unlock, index) {
                 var completed = daysProgress >= daysInfo[unlock].goal ? true : false;
-
-                return _react2.default.createElement(
-                    'div',
-                    { className: 'col-item row-container unlock-item-container', key: index },
-                    _react2.default.createElement(
-                        'span',
-                        { className: 'row-item unlock-item' },
-                        completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:')
-                    ),
-                    _react2.default.createElement(
-                        'span',
-                        { className: 'row-item unlock-item' },
-                        daysProgress
-                    ),
-                    _react2.default.createElement(
-                        'span',
-                        { className: 'row-item unlock-item' },
-                        daysInfo[unlock].goal
-                    )
-                );
+                var emoji = completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:');
+                return _react2.default.createElement(_unlock2.default, { description: daysInfo[unlock].description, emoji: emoji, progress: daysProgress, goal: daysInfo[unlock].goal, key: index });
             });
 
             var friendsInfo = bank.friends.emojis;
@@ -66215,26 +66183,8 @@ var Unlocks = function (_Component) {
 
             var friendsRender = friends.map(function (unlock, index) {
                 var completed = friendsProgress >= friendsInfo[unlock].goal ? true : false;
-
-                return _react2.default.createElement(
-                    'div',
-                    { className: 'col-item row-container unlock-item-container', key: index },
-                    _react2.default.createElement(
-                        'span',
-                        { className: 'row-item unlock-item' },
-                        completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:')
-                    ),
-                    _react2.default.createElement(
-                        'span',
-                        { className: 'row-item unlock-item' },
-                        friendsProgress
-                    ),
-                    _react2.default.createElement(
-                        'span',
-                        { className: 'row-item unlock-item' },
-                        friendsInfo[unlock].goal
-                    )
-                );
+                var emoji = completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:');
+                return _react2.default.createElement(_unlock2.default, { description: friendsInfo[unlock].description, emoji: emoji, progress: friendsProgress, goal: friendsInfo[unlock].goal, key: index });
             });
 
             return _react2.default.createElement(
@@ -68208,13 +68158,13 @@ var newUnlocksObject = {
                 unlocked: false
             },
             'two_hearts': {
-                description: 'Have 2 active streak.',
+                description: 'Have 2 active streaks.',
                 goal: 2,
                 progress: 0,
                 unlocked: false
             },
             'trident': {
-                description: 'Have 3 active streak.',
+                description: 'Have 3 active streaks.',
                 goal: 3,
                 progress: 0,
                 unlocked: false
@@ -68236,13 +68186,13 @@ var newUnlocksObject = {
         progress: 0,
         emojis: {
             '100Days': {
-                description: 'Have 100 combined days of all your active streak.',
+                description: 'Have 100 combined days of all your active streaks.',
                 goal: 100,
                 progress: 0,
                 unlocked: false
             },
             '4Days': {
-                description: 'Have 4 combined days of all your active streak.',
+                description: 'Have 4 combined days of all your active streaks.',
                 goal: 4,
                 progress: 0,
                 unlocked: false
@@ -69115,6 +69065,134 @@ exports.convertPastTimestampToDays = convertPastTimestampToDays;
 exports.convertFutureTimestampToHours = convertFutureTimestampToHours;
 exports.convertTimeDifferenceToDays = convertTimeDifferenceToDays;
 exports.getDate = getDate;
+
+/***/ }),
+/* 486 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(14);
+
+var _reactBootstrap = __webpack_require__(30);
+
+var _nodeEmoji = __webpack_require__(83);
+
+var _nodeEmoji2 = _interopRequireDefault(_nodeEmoji);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Unlock = function (_Component) {
+    _inherits(Unlock, _Component);
+
+    function Unlock(props) {
+        _classCallCheck(this, Unlock);
+
+        var _this = _possibleConstructorReturn(this, (Unlock.__proto__ || Object.getPrototypeOf(Unlock)).call(this, props));
+
+        _this.toggleDescriptionModal = _this.toggleDescriptionModal.bind(_this);
+
+        _this.state = {
+            isVisible: false
+        };
+        return _this;
+    }
+
+    _createClass(Unlock, [{
+        key: 'toggleDescriptionModal',
+        value: function toggleDescriptionModal() {
+            this.setState({
+                isVisible: !this.state.isVisible
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var descriptionModalRender = _react2.default.createElement(
+                _reactBootstrap.Modal,
+                { show: this.state.isVisible, onHide: this.toggleDescriptionModal },
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Header,
+                    null,
+                    _react2.default.createElement(
+                        _reactBootstrap.Modal.Title,
+                        null,
+                        'Unlock Description: ',
+                        this.props.emoji
+                    )
+                ),
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Body,
+                    null,
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'row-container' },
+                        _react2.default.createElement(
+                            'span',
+                            null,
+                            this.props.description
+                        )
+                    )
+                ),
+                _react2.default.createElement(
+                    _reactBootstrap.Modal.Footer,
+                    null,
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'btn btn-danger', onClick: this.toggleDescriptionModal },
+                        'Close'
+                    )
+                )
+            );
+
+            return _react2.default.createElement(
+                'div',
+                null,
+                descriptionModalRender,
+                _react2.default.createElement(
+                    'div',
+                    { className: 'col-item row-container unlock-item-container', onClick: this.toggleDescriptionModal },
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'row-item unlock-item' },
+                        this.props.emoji
+                    ),
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'row-item unlock-item' },
+                        this.props.progress
+                    ),
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'row-item unlock-item' },
+                        this.props.goal
+                    )
+                )
+            );
+        }
+    }]);
+
+    return Unlock;
+}(_react.Component);
+
+exports.default = Unlock;
 
 /***/ })
 /******/ ]);

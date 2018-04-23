@@ -101,13 +101,13 @@ const newUnlocksObject = {
                 unlocked: false,
             }, 
             'two_hearts': {
-                description: 'Have 2 active streak.',
+                description: 'Have 2 active streaks.',
                 goal: 2,
                 progress: 0,
                 unlocked: false,
             },
             'trident': {
-                description: 'Have 3 active streak.',
+                description: 'Have 3 active streaks.',
                 goal: 3,
                 progress: 0,
                 unlocked: false,
@@ -129,13 +129,13 @@ const newUnlocksObject = {
         progress: 0,
         emojis: {
             '100Days': {
-                description: 'Have 100 combined days of all your active streak.',
+                description: 'Have 100 combined days of all your active streaks.',
                 goal: 100,
                 progress: 0,
                 unlocked: false,
             }, 
             '4Days': {
-                description: 'Have 4 combined days of all your active streak.',
+                description: 'Have 4 combined days of all your active streaks.',
                 goal: 4,
                 progress: 0,
                 unlocked: false,
