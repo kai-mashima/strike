@@ -9,7 +9,6 @@ export default class Unlocks extends Component {
         super(props);
 
         this.state = {
-
         };
     }
 
@@ -34,7 +33,7 @@ export default class Unlocks extends Component {
         const daysProgress = this.props.progress.days;
 
         let daysRender =  days.map((unlock, index) => {
-            let completed = daysProgress >= daysInfo[unlock].goal ? true : false;
+            const completed = daysProgress >= daysInfo[unlock].goal ? true : false;
             const emoji = completed ? Emoji.emojify(`:${unlock}:`) : Emoji.emojify(':lock:');
             const progress = daysProgress <= daysInfo[unlock].goal ? daysProgress : daysInfo[unlock].goal;
             return (
@@ -47,7 +46,7 @@ export default class Unlocks extends Component {
         const friendsProgress = this.props.progress.friends;
 
         let friendsRender = friends.map((unlock, index) => {
-            let completed = friendsProgress >= friendsInfo[unlock].goal ? true : false;
+            const completed = friendsProgress >= friendsInfo[unlock].goal ? true : false;
             const emoji = completed ? Emoji.emojify(`:${unlock}:`) : Emoji.emojify(':lock:');
             const progress = friendsProgress <= friendsInfo[unlock].goal ? friendsProgress : friendsInfo[unlock].goal;
             return (

@@ -90,6 +90,7 @@ import {
 } from './utils/streakRequests.js';
 import { 
     loginUser,
+    checkLogin,
     confirmLogin,
     signOut,
     getUserInfo,
@@ -139,6 +140,7 @@ export default class App extends Component {
 
         //login|signup|setup
         this.loginUser = loginUser.bind(this);
+        this.checkLogin = checkLogin.bind(this);
         this.getUserInfo = getUserInfo.bind(this);
         this.signOut = signOut.bind(this);
         this.confirmLogin = confirmLogin.bind(this);
@@ -207,9 +209,13 @@ export default class App extends Component {
         this.checkForDailyAllowance = checkForDailyAllowance.bind(this);
         this.calculateDailyAllowance = calculateDailyAllowance.bind(this);
 
+        this.checkLogin();
+
         //STATE
         this.state = {
             loggedIn: false,
+            isVisibleSplash: false,
+            previousCurrent: false,
             userID: '',
             user: {},
             friendRequestsInfo: [],
@@ -227,8 +233,6 @@ export default class App extends Component {
             streaksUnlocks: [],
             friendsUnlocks: [],
             terminationUnlocks: [],
-            isVisibleSplash: false,
-            previousCurrent: false,
         };
     }
 

@@ -1,23 +1,45 @@
 import firebase from 'firebase/app';
 
 const loginUser = function(email, password) {
-    return firebase.auth().signInWithEmailAndPassword(email, password)
-    .then(user => {
-        this.confirmLogin();
-        return user;
-    }).then(user => {
-        this.getUserInfo(user.uid);
-        this.getFriendRequests(user.uid);
-        this.getFriends(user.uid);
-        this.getStreakRequests(user.uid);
-        this.getStreaks(user.uid);
-        this.getUnlockedEmojis(user.uid);
-        this.checkForDailyAllowance(user.uid);
-        this.loadEmojiBank();
-        return true;
+    return firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+    .then(() => {
+        return firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(user => {
+            this.confirmLogin();
+            return user;
+        }).then(user => {
+            this.getUserInfo(user.uid);
+            this.getFriendRequests(user.uid);
+            this.getFriends(user.uid);
+            this.getStreakRequests(user.uid);
+            this.getStreaks(user.uid);
+            this.getUnlockedEmojis(user.uid);
+            this.checkForDailyAllowance(user.uid);
+            this.loadEmojiBank();
+            return true;
+        }).catch(error => {
+            console.log(`User Login Error: ${error.code}: ${error.message}`);
+            return false;
+        });
     }).catch(error => {
         console.log(`User Login Error: ${error.code}: ${error.message}`);
         return false;
+    });
+};
+
+const checkLogin = function() {
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            this.confirmLogin();
+            this.getUserInfo(user.uid);
+            this.getFriendRequests(user.uid);
+            this.getFriends(user.uid);
+            this.getStreakRequests(user.uid);
+            this.getStreaks(user.uid);
+            this.getUnlockedEmojis(user.uid);
+            this.checkForDailyAllowance(user.uid);
+            this.loadEmojiBank();        
+        }
     });
 };
 
@@ -131,6 +153,7 @@ const addNewUser = function(username = '', userID, first = '', last = '', email 
 
 export {
     loginUser,
+    checkLogin,
     getUserInfo,
     confirmLogin,
     signOut,
