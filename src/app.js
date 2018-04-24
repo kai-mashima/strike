@@ -270,7 +270,7 @@ export default class App extends Component {
                 <Modal.Body>
                     <div className='col-container'>  
                         <img src={strikeLogo} className='col-item login-logo'/>
-                        <span className='col-item'>The goal of the Strike application is to encourage users to maintain contact with their close friends, build a small group of close connections, and build up the amount of in-game currency they have and the number of streaks they maintain. These goals are meant to address some of the negative impacts of social media usage. The hope is that users will foster outside-of- game communication with the few friends they choose to add and keep in their in-game network. The platform is designed to be competitive and allow participants to have fun but also learn who they want to care about. </span>
+                        <span className='col-item'>The goal of the Strike application is to encourage users to maintain contact with their close friends, build a small group of close connections, and build up the amount of in-game currency they have and the number of streaks they maintain. These goals are meant to address some of the negative impacts of social media usage. The hope is that users will foster outside-of-game communication with the few friends they choose to add and keep in their in-game network. The platform is designed to be competitive and allow participants to have fun but also learn who they want to care about. </span>
                     </div>
                 </Modal.Body>
                 <Modal.Footer>

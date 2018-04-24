@@ -40229,7 +40229,7 @@ var App = function (_Component) {
                         _react2.default.createElement(
                             'span',
                             { className: 'col-item' },
-                            'The goal of the Strike application is to encourage users to maintain contact with their close friends, build a small group of close connections, and build up the amount of in-game currency they have and the number of streaks they maintain. These goals are meant to address some of the negative impacts of social media usage. The hope is that users will foster outside-of- game communication with the few friends they choose to add and keep in their in-game network. The platform is designed to be competitive and allow participants to have fun but also learn who they want to care about. '
+                            'The goal of the Strike application is to encourage users to maintain contact with their close friends, build a small group of close connections, and build up the amount of in-game currency they have and the number of streaks they maintain. These goals are meant to address some of the negative impacts of social media usage. The hope is that users will foster outside-of-game communication with the few friends they choose to add and keep in their in-game network. The platform is designed to be competitive and allow participants to have fun but also learn who they want to care about. '
                         )
                     )
                 ),
@@ -66833,24 +66833,30 @@ var Streak = function (_Component) {
         value: function render() {
             var _this2 = this;
 
+            var streak = this.props.streak;
+            var expiring = false;
+            if (streak.currentExpired && streak.currentOwner === this.props.userID) {
+                expiring = true;
+            }
+
             var userRender = _react2.default.createElement('span', { className: 'streak-user-glyph glyphicon glyphicon-user' });
 
-            var initialStokeBtnRender = !this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID ? _react2.default.createElement(
+            var initialStokeBtnRender = expiring ? _react2.default.createElement(
                 'span',
                 { onClick: this.handleInitialStoke, className: 'btn btn-success' },
                 'Stoke for $',
-                this.props.streak.stokePrice
+                streak.stokePrice
             ) : _react2.default.createElement(
                 'span',
                 { className: 'btn btn-default disabled' },
                 'Stoke'
             );
 
-            var confirmationStokeBtnRender = !this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID ? _react2.default.createElement(
+            var confirmationStokeBtnRender = expiring ? _react2.default.createElement(
                 'span',
                 { onClick: this.handleConfirmationStoke, className: 'btn btn-success' },
                 'Stoke for $',
-                this.props.streak.stokePrice
+                streak.stokePrice
             ) : _react2.default.createElement(
                 'span',
                 { className: 'btn btn-default disabled' },
@@ -66858,11 +66864,9 @@ var Streak = function (_Component) {
             );
 
             var expirationGlyphRender = _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time' });
-            if (!this.props.streak.neutral && this.props.streak.currentOwner === this.props.userID) {
-                console.log('expiring');
+            if (expiring) {
                 expirationGlyphRender = _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time expiring' });
-            } else if (!this.props.streak.neutral && !this.props.streak.nextOwner) {
-                console.log('stoked');
+            } else {
                 expirationGlyphRender = _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time stoked' });
             }
 
@@ -66876,7 +66880,7 @@ var Streak = function (_Component) {
                         _reactBootstrap.Modal.Title,
                         null,
                         'Stoke Streak With ',
-                        this.props.streak.friend
+                        streak.friend
                     )
                 ),
                 _react2.default.createElement(
@@ -66942,11 +66946,11 @@ var Streak = function (_Component) {
                     'No messages'
                 )
             );
-            if (this.props.streak.messages) {
-                messagesRender = Object.values(this.props.streak.messages).map(function (message, index) {
+            if (streak.messages) {
+                messagesRender = Object.values(streak.messages).map(function (message, index) {
                     var messageSender = 'You';
                     if (message.sender !== _this2.props.userID) {
-                        messageSender = _this2.props.streak.friend;
+                        messageSender = streak.friend;
                     }
 
                     return _react2.default.createElement(
@@ -66983,7 +66987,7 @@ var Streak = function (_Component) {
                         _reactBootstrap.Modal.Title,
                         null,
                         'Streak With ',
-                        this.props.streak.friend
+                        streak.friend
                     )
                 ),
                 _react2.default.createElement(
@@ -67002,7 +67006,7 @@ var Streak = function (_Component) {
                                     'span',
                                     null,
                                     'Value: $',
-                                    this.props.streak.value
+                                    streak.value
                                 )
                             ),
                             _react2.default.createElement(
@@ -67012,7 +67016,7 @@ var Streak = function (_Component) {
                                     'span',
                                     null,
                                     'Days: ',
-                                    this.props.streak.days
+                                    streak.days
                                 )
                             ),
                             _react2.default.createElement(
@@ -67022,7 +67026,7 @@ var Streak = function (_Component) {
                                     'span',
                                     null,
                                     'Expirates In: ',
-                                    this.props.streak.currentExpirationTime,
+                                    streak.currentExpirationTime,
                                     ' hours'
                                 )
                             )
@@ -67091,7 +67095,7 @@ var Streak = function (_Component) {
                         _react2.default.createElement(
                             'span',
                             null,
-                            this.props.streak.friend
+                            streak.friend
                         )
                     ),
                     _react2.default.createElement(
@@ -67101,7 +67105,7 @@ var Streak = function (_Component) {
                         _react2.default.createElement(
                             'span',
                             null,
-                            this.props.streak.days
+                            streak.days
                         )
                     ),
                     _react2.default.createElement(
@@ -67111,7 +67115,7 @@ var Streak = function (_Component) {
                         _react2.default.createElement(
                             'span',
                             null,
-                            this.props.streak.currentExpirationTime
+                            streak.currentExpirationTime
                         )
                     )
                 )
