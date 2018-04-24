@@ -66164,7 +66164,8 @@ var Unlocks = function (_Component) {
             var streakRender = streaks.map(function (unlock, index) {
                 var completed = streakProgress >= streaksInfo[unlock].goal ? true : false;
                 var emoji = completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:');
-                return _react2.default.createElement(_unlock2.default, { description: streaksInfo[unlock].description, emoji: emoji, progress: streakProgress, goal: streaksInfo[unlock].goal, key: index });
+                var progress = streakProgress <= streaksInfo[unlock].goal ? streakProgress : streaksInfo[unlock].goal;
+                return _react2.default.createElement(_unlock2.default, { description: streaksInfo[unlock].description, emoji: emoji, progress: progress, goal: streaksInfo[unlock].goal, key: index });
             });
 
             var daysInfo = bank.days.emojis;
@@ -66174,7 +66175,8 @@ var Unlocks = function (_Component) {
             var daysRender = days.map(function (unlock, index) {
                 var completed = daysProgress >= daysInfo[unlock].goal ? true : false;
                 var emoji = completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:');
-                return _react2.default.createElement(_unlock2.default, { description: daysInfo[unlock].description, emoji: emoji, progress: daysProgress, goal: daysInfo[unlock].goal, key: index });
+                var progress = daysProgress <= daysInfo[unlock].goal ? daysProgress : daysInfo[unlock].goal;
+                return _react2.default.createElement(_unlock2.default, { description: daysInfo[unlock].description, emoji: emoji, progress: progress, goal: daysInfo[unlock].goal, key: index });
             });
 
             var friendsInfo = bank.friends.emojis;
@@ -66184,7 +66186,8 @@ var Unlocks = function (_Component) {
             var friendsRender = friends.map(function (unlock, index) {
                 var completed = friendsProgress >= friendsInfo[unlock].goal ? true : false;
                 var emoji = completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:');
-                return _react2.default.createElement(_unlock2.default, { description: friendsInfo[unlock].description, emoji: emoji, progress: friendsProgress, goal: friendsInfo[unlock].goal, key: index });
+                var progress = friendsProgress <= friendsInfo[unlock].goal ? friendsProgress : friendsInfo[unlock].goal;
+                return _react2.default.createElement(_unlock2.default, { description: friendsInfo[unlock].description, emoji: emoji, progress: progress, goal: friendsInfo[unlock].goal, key: index });
             });
 
             return _react2.default.createElement(

@@ -23,8 +23,9 @@ export default class Unlocks extends Component {
         const streakRender = streaks.map((unlock, index) => {
             const completed = streakProgress >= streaksInfo[unlock].goal ? true : false;
             const emoji = completed ? Emoji.emojify(`:${unlock}:`) : Emoji.emojify(':lock:');
+            const progress = streakProgress <= streaksInfo[unlock].goal ? streakProgress : streaksInfo[unlock].goal;
             return (
-                <Unlock description={streaksInfo[unlock].description} emoji={emoji} progress={streakProgress} goal={streaksInfo[unlock].goal} key={index}/>
+                <Unlock description={streaksInfo[unlock].description} emoji={emoji} progress={progress} goal={streaksInfo[unlock].goal} key={index}/>
             );
         });
 
@@ -35,8 +36,9 @@ export default class Unlocks extends Component {
         let daysRender =  days.map((unlock, index) => {
             let completed = daysProgress >= daysInfo[unlock].goal ? true : false;
             const emoji = completed ? Emoji.emojify(`:${unlock}:`) : Emoji.emojify(':lock:');
+            const progress = daysProgress <= daysInfo[unlock].goal ? daysProgress : daysInfo[unlock].goal;
             return (
-                <Unlock description={daysInfo[unlock].description} emoji={emoji} progress={daysProgress} goal={daysInfo[unlock].goal} key={index}/>
+                <Unlock description={daysInfo[unlock].description} emoji={emoji} progress={progress} goal={daysInfo[unlock].goal} key={index}/>
             );
         });
 
@@ -47,8 +49,9 @@ export default class Unlocks extends Component {
         let friendsRender = friends.map((unlock, index) => {
             let completed = friendsProgress >= friendsInfo[unlock].goal ? true : false;
             const emoji = completed ? Emoji.emojify(`:${unlock}:`) : Emoji.emojify(':lock:');
+            const progress = friendsProgress <= friendsInfo[unlock].goal ? friendsProgress : friendsInfo[unlock].goal;
             return (
-                <Unlock description={friendsInfo[unlock].description} emoji={emoji} progress={friendsProgress} goal={friendsInfo[unlock].goal} key={index}/>
+                <Unlock description={friendsInfo[unlock].description} emoji={emoji} progress={progress} goal={friendsInfo[unlock].goal} key={index}/>
             );
         });
 
