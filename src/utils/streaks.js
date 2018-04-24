@@ -228,12 +228,12 @@ const checkForExpiredStreaks = function(streakID) {
                 this.db.ref(`streaks/${streakID}`).update({
                     neutral: true,
                 });
-
             } else if (!currentExpired && nextExpired) { //streak active | unstoked
                 
             } else if (currentExpired && nextExpired && !streak.terminated) { //streak terminated
-                this.streakTerminationDatabaseTransfer(streak, streakID);
-                this.streakTermination(streakID);
+                this.streakTermination(streakID).then(() => {
+                    this.streakTerminationDatabaseTransfer(streak, streakID);
+                });
             } else if (currentExpired && !nextExpired) { //streak transition
                 let currentExpirationDate = this.getDate24HoursAhead();
                 let currentExpirationTime = this.convertFutureTimestampToHours(currentExpirationDate)

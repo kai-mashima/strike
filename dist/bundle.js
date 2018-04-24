@@ -3040,7 +3040,7 @@ if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 
 var store = __webpack_require__(99)('wks');
 var uid = __webpack_require__(65);
-var Symbol = __webpack_require__(29).Symbol;
+var Symbol = __webpack_require__(28).Symbol;
 var USE_SYMBOL = typeof Symbol == 'function';
 
 var $exports = module.exports = function (name) {
@@ -3053,30 +3053,6 @@ $exports.store = store;
 
 /***/ }),
 /* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Copyright 2017 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-__webpack_require__(409);
-module.exports = __webpack_require__(57).default;
-
-
-/***/ }),
-/* 27 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3363,10 +3339,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var global = __webpack_require__(29);
+var global = __webpack_require__(28);
 var core = __webpack_require__(24);
 var ctx = __webpack_require__(93);
 var hide = __webpack_require__(39);
@@ -3430,7 +3406,7 @@ module.exports = $export;
 
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports) {
 
 // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
@@ -3442,7 +3418,7 @@ if (typeof __g == 'number') __g = global; // eslint-disable-line no-undef
 
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3453,6 +3429,30 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
 module.exports = exports['default'];
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+__webpack_require__(409);
+module.exports = __webpack_require__(57).default;
+
 
 /***/ }),
 /* 31 */
@@ -4118,7 +4118,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _inDOM = __webpack_require__(30);
+var _inDOM = __webpack_require__(29);
 
 var _inDOM2 = _interopRequireDefault(_inDOM);
 
@@ -8612,7 +8612,7 @@ module.exports = function (key) {
 /* 99 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var global = __webpack_require__(29);
+var global = __webpack_require__(28);
 var SHARED = '__core-js_shared__';
 var store = global[SHARED] || (global[SHARED] = {});
 module.exports = function (key) {
@@ -8753,7 +8753,7 @@ exports.f = __webpack_require__(25);
 /* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var global = __webpack_require__(29);
+var global = __webpack_require__(28);
 var core = __webpack_require__(24);
 var LIBRARY = __webpack_require__(104);
 var wksExt = __webpack_require__(107);
@@ -8939,7 +8939,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.animationEnd = exports.animationDelay = exports.animationTiming = exports.animationDuration = exports.animationName = exports.transitionEnd = exports.transitionDuration = exports.transitionDelay = exports.transitionTiming = exports.transitionProperty = exports.transform = undefined;
 
-var _inDOM = __webpack_require__(30);
+var _inDOM = __webpack_require__(29);
 
 var _inDOM2 = _interopRequireDefault(_inDOM);
 
@@ -9525,7 +9525,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _inDOM = __webpack_require__(30);
+var _inDOM = __webpack_require__(29);
 
 var _inDOM2 = _interopRequireDefault(_inDOM);
 
@@ -9562,7 +9562,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _inDOM = __webpack_require__(30);
+var _inDOM = __webpack_require__(29);
 
 var _inDOM2 = _interopRequireDefault(_inDOM);
 
@@ -12893,7 +12893,7 @@ module.exports = !__webpack_require__(41) && !__webpack_require__(50)(function (
 /***/ (function(module, exports, __webpack_require__) {
 
 var isObject = __webpack_require__(49);
-var document = __webpack_require__(29).document;
+var document = __webpack_require__(28).document;
 // typeof document.createElement is 'object' in old IE
 var is = isObject(document) && isObject(document.createElement);
 module.exports = function (it) {
@@ -12979,7 +12979,7 @@ __webpack_require__(159)(String, 'String', function (iterated) {
 "use strict";
 
 var LIBRARY = __webpack_require__(104);
-var $export = __webpack_require__(28);
+var $export = __webpack_require__(27);
 var redefine = __webpack_require__(160);
 var hide = __webpack_require__(39);
 var has = __webpack_require__(33);
@@ -14825,7 +14825,7 @@ exports.default = function (recalc) {
   return size;
 };
 
-var _inDOM = __webpack_require__(30);
+var _inDOM = __webpack_require__(29);
 
 var _inDOM2 = _interopRequireDefault(_inDOM);
 
@@ -39973,9 +39973,9 @@ var _reactRouter2 = _interopRequireDefault(_reactRouter);
 
 var _reactRouterDom = __webpack_require__(148);
 
-var _reactBootstrap = __webpack_require__(27);
+var _reactBootstrap = __webpack_require__(26);
 
-var _app = __webpack_require__(26);
+var _app = __webpack_require__(30);
 
 var _app2 = _interopRequireDefault(_app);
 
@@ -43554,7 +43554,7 @@ module.exports = __webpack_require__(24).Object.assign;
 /***/ (function(module, exports, __webpack_require__) {
 
 // 19.1.3.1 Object.assign(target, source)
-var $export = __webpack_require__(28);
+var $export = __webpack_require__(27);
 
 $export($export.S + $export.F, 'Object', { assign: __webpack_require__(267) });
 
@@ -43733,7 +43733,7 @@ module.exports = __webpack_require__(41) ? Object.defineProperties : function de
 /* 275 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var document = __webpack_require__(29).document;
+var document = __webpack_require__(28).document;
 module.exports = document && document.documentElement;
 
 
@@ -43761,7 +43761,7 @@ module.exports = Object.getPrototypeOf || function (O) {
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(278);
-var global = __webpack_require__(29);
+var global = __webpack_require__(28);
 var hide = __webpack_require__(39);
 var Iterators = __webpack_require__(54);
 var TO_STRING_TAG = __webpack_require__(25)('toStringTag');
@@ -43862,10 +43862,10 @@ module.exports = __webpack_require__(24).Symbol;
 "use strict";
 
 // ECMAScript 6 symbols shim
-var global = __webpack_require__(29);
+var global = __webpack_require__(28);
 var has = __webpack_require__(33);
 var DESCRIPTORS = __webpack_require__(41);
-var $export = __webpack_require__(28);
+var $export = __webpack_require__(27);
 var redefine = __webpack_require__(160);
 var META = __webpack_require__(284).KEY;
 var $fails = __webpack_require__(50);
@@ -44251,7 +44251,7 @@ module.exports = __webpack_require__(24).Object.setPrototypeOf;
 /***/ (function(module, exports, __webpack_require__) {
 
 // 19.1.3.19 Object.setPrototypeOf(O, proto)
-var $export = __webpack_require__(28);
+var $export = __webpack_require__(27);
 $export($export.S, 'Object', { setPrototypeOf: __webpack_require__(294).set });
 
 
@@ -44307,7 +44307,7 @@ module.exports = function create(P, D) {
 /* 297 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var $export = __webpack_require__(28);
+var $export = __webpack_require__(27);
 // 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
 $export($export.S, 'Object', { create: __webpack_require__(105) });
 
@@ -44649,7 +44649,7 @@ module.exports = __webpack_require__(24).Object.entries;
 /***/ (function(module, exports, __webpack_require__) {
 
 // https://github.com/tc39/proposal-object-values-entries
-var $export = __webpack_require__(28);
+var $export = __webpack_require__(27);
 var $entries = __webpack_require__(165)(true);
 
 $export($export.S, 'Object', {
@@ -44766,7 +44766,7 @@ module.exports = __webpack_require__(24).Object.values;
 /***/ (function(module, exports, __webpack_require__) {
 
 // https://github.com/tc39/proposal-object-values-entries
-var $export = __webpack_require__(28);
+var $export = __webpack_require__(27);
 var $values = __webpack_require__(165)(false);
 
 $export($export.S, 'Object', {
@@ -46671,7 +46671,7 @@ module.exports = __webpack_require__(24).Array.from;
 "use strict";
 
 var ctx = __webpack_require__(93);
-var $export = __webpack_require__(28);
+var $export = __webpack_require__(27);
 var toObject = __webpack_require__(102);
 var call = __webpack_require__(327);
 var isArrayIter = __webpack_require__(328);
@@ -48684,7 +48684,7 @@ MenuItem.defaultProps = defaultProps;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_dom_helpers_events___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_dom_helpers_events__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_dom_helpers_ownerDocument__ = __webpack_require__(43);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_dom_helpers_ownerDocument___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_dom_helpers_ownerDocument__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_dom_helpers_util_inDOM__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_dom_helpers_util_inDOM__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_dom_helpers_util_inDOM___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_dom_helpers_util_inDOM__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_dom_helpers_util_scrollbarSize__ = __webpack_require__(178);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_dom_helpers_util_scrollbarSize___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_dom_helpers_util_scrollbarSize__);
@@ -49124,7 +49124,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _inDOM = __webpack_require__(30);
+var _inDOM = __webpack_require__(29);
 
 var _inDOM2 = _interopRequireDefault(_inDOM);
 
@@ -49171,7 +49171,7 @@ var _contains = __webpack_require__(44);
 
 var _contains2 = _interopRequireDefault(_contains);
 
-var _inDOM = __webpack_require__(30);
+var _inDOM = __webpack_require__(29);
 
 var _inDOM2 = _interopRequireDefault(_inDOM);
 
@@ -65262,7 +65262,7 @@ var _friend = __webpack_require__(471);
 
 var _friend2 = _interopRequireDefault(_friend);
 
-var _reactBootstrap = __webpack_require__(27);
+var _reactBootstrap = __webpack_require__(26);
 
 var _strikeLogo = __webpack_require__(31);
 
@@ -65700,7 +65700,7 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactDom = __webpack_require__(14);
 
-var _reactBootstrap = __webpack_require__(27);
+var _reactBootstrap = __webpack_require__(26);
 
 var _nodeEmoji = __webpack_require__(60);
 
@@ -66334,7 +66334,7 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactDom = __webpack_require__(14);
 
-var _reactBootstrap = __webpack_require__(27);
+var _reactBootstrap = __webpack_require__(26);
 
 var _nodeEmoji = __webpack_require__(60);
 
@@ -66470,7 +66470,7 @@ var _strikeLogo = __webpack_require__(31);
 
 var _strikeLogo2 = _interopRequireDefault(_strikeLogo);
 
-var _reactBootstrap = __webpack_require__(27);
+var _reactBootstrap = __webpack_require__(26);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -66881,7 +66881,7 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactDom = __webpack_require__(14);
 
-var _reactBootstrap = __webpack_require__(27);
+var _reactBootstrap = __webpack_require__(26);
 
 var _nodeEmoji = __webpack_require__(60);
 
@@ -67281,7 +67281,7 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactDom = __webpack_require__(14);
 
-var _reactBootstrap = __webpack_require__(27);
+var _reactBootstrap = __webpack_require__(26);
 
 var _strikeLogo = __webpack_require__(31);
 
@@ -67433,7 +67433,7 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactDom = __webpack_require__(14);
 
-var _reactBootstrap = __webpack_require__(27);
+var _reactBootstrap = __webpack_require__(26);
 
 var _strikeLogo = __webpack_require__(31);
 
@@ -67604,7 +67604,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.calculateDailyAllowance = exports.checkForDailyAllowance = exports.calculateStreakPayout = exports.checkforStreakPayouts = exports.streakBoost = exports.streakStoke = exports.calculateStokePrice = exports.updateStreakValue = exports.decreaseUserValue = exports.increaseUserValue = exports.calculateStreakBetrayedTerminationPrice = exports.calculateStreakTerminatorTerminationPrice = exports.streakTermination = undefined;
 
-var _app = __webpack_require__(26);
+var _app = __webpack_require__(30);
 
 var _app2 = _interopRequireDefault(_app);
 
@@ -67614,7 +67614,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var streakTermination = function streakTermination(streakID) {
     var _this = this;
 
-    this.getStreak(streakID).then(function (result) {
+    return this.getStreak(streakID).then(function (result) {
         var streak = result;
         var terminatorPayment = _this.calculateStreakTerminatorTerminationPrice(streak.value);
         var betrayedPayment = _this.calculateStreakBetrayedTerminationPrice(streak.value);
@@ -67634,6 +67634,7 @@ var streakTermination = function streakTermination(streakID) {
         } else {
             console.log('Streak Termination: User value decreased by $' + betrayedPayment);
         }
+        return true;
     });
 };
 
@@ -67874,7 +67875,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.rejectFriendRequest = exports.acceptFriendRequest = exports.friendRequestsToInfo = exports.getFriendRequests = exports.friendRequestToOwners = exports.friendRequestToPair = exports.sendFriendRequest = undefined;
 
-var _app = __webpack_require__(26);
+var _app = __webpack_require__(30);
 
 var _app2 = _interopRequireDefault(_app);
 
@@ -68018,7 +68019,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.searchUsers = exports.removeFriend = exports.addFriend = exports.friendToInfo = exports.getFriends = undefined;
 
-var _app = __webpack_require__(26);
+var _app = __webpack_require__(30);
 
 var _app2 = _interopRequireDefault(_app);
 
@@ -68189,7 +68190,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.newUnlocksObject = exports.getUnlockedEmojis = exports.loadEmojiBank = exports.startUnlocks = undefined;
 
-var _app = __webpack_require__(26);
+var _app = __webpack_require__(30);
 
 var _app2 = _interopRequireDefault(_app);
 
@@ -68367,7 +68368,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.removeStreakRequest = exports.removeStreak = exports.streakToOwners = exports.streakTerminationDatabaseTransfer = exports.checkForExpiredStreaks = exports.checkForExpiredTime = exports.sendStreakMessage = exports.stokeStreak = exports.getDate24HoursAheadOfGiven = exports.getDate24HoursAhead = exports.getStreakMessages = exports.streakToInfo = exports.getStreaks = exports.startStreak = undefined;
 
-var _app = __webpack_require__(26);
+var _app = __webpack_require__(30);
 
 var _app2 = _interopRequireDefault(_app);
 
@@ -68613,8 +68614,9 @@ var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
 
             } else if (currentExpired && nextExpired && !streak.terminated) {
                 //streak terminated
-                _this5.streakTerminationDatabaseTransfer(streak, streakID);
-                _this5.streakTermination(streakID);
+                _this5.streakTermination(streakID).then(function () {
+                    _this5.streakTerminationDatabaseTransfer(streak, streakID);
+                });
             } else if (currentExpired && !nextExpired) {
                 //streak transition
                 var currentExpirationDate = _this5.getDate24HoursAhead();
@@ -68700,7 +68702,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.rejectStreakRequest = exports.acceptStreakRequest = exports.streakRequestToInfo = exports.getStreakRequests = exports.streakRequestToOwners = exports.streakRequestToPair = exports.streakRequestAction = exports.sendStreakRequest = undefined;
 
-var _app = __webpack_require__(26);
+var _app = __webpack_require__(30);
 
 var _app2 = _interopRequireDefault(_app);
 
@@ -68853,7 +68855,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.addNewUser = exports.signupUser = exports.signOut = exports.confirmLogin = exports.getUserInfo = exports.checkLogin = exports.loginUser = undefined;
 
-var _app = __webpack_require__(26);
+var _app = __webpack_require__(30);
 
 var _app2 = _interopRequireDefault(_app);
 
@@ -69055,7 +69057,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.getDate = exports.convertTimeDifferenceToDays = exports.convertFutureTimestampToHours = exports.convertPastTimestampToDays = exports.getNumberOfTerminatedStreaks = exports.getNumberOfStreaks = exports.getNumberOfTotalStreakDays = exports.getNumberOfFriends = exports.getUser = exports.getTerminatedStreak = exports.getStreak = exports.getUsername = undefined;
 
-var _app = __webpack_require__(26);
+var _app = __webpack_require__(30);
 
 var _app2 = _interopRequireDefault(_app);
 

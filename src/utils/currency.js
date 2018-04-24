@@ -2,7 +2,7 @@ import firebase from 'firebase/app';
 
 //if a streak is terminated, this function should be called to handle currency related termination penalties
 const streakTermination = function(streakID) { 
-    this.getStreak(streakID).then(result => {
+    return this.getStreak(streakID).then(result => {
         const streak = result;
         const terminatorPayment = this.calculateStreakTerminatorTerminationPrice(streak.value);
         const betrayedPayment = this.calculateStreakBetrayedTerminationPrice(streak.value);
@@ -22,6 +22,7 @@ const streakTermination = function(streakID) {
         } else {
             console.log(`Streak Termination: User value decreased by $${betrayedPayment}`);
         }
+        return true;
     });
 };
 
