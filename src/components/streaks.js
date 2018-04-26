@@ -92,7 +92,7 @@ export default class Streaks extends Component {
     }
 
     render() {
-        let friendsRender = <div className='center-text'><span>No friends</span></div>;
+        let friendsRender = <div className='light-small-text center-text'><span>No friends</span></div>;
         if (this.props.friends.length != 0) {
             friendsRender = this.props.friends.map((friend, index) => (
                 <div className='col-item row-container friend-list-container' key={index}>
@@ -102,7 +102,7 @@ export default class Streaks extends Component {
             ));
         }
 
-        let requestsRender = <div className='center-text'><span>No streak requests</span></div>;
+        let requestsRender = <div className='light-small-text center-text'><span>No streak requests</span></div>;
         if (this.props.requests.length != 0) {
             requestsRender = this.props.requests.map((request, index) => {
                 if (request.answered !== true) {
@@ -119,7 +119,7 @@ export default class Streaks extends Component {
 
         let streaksRender = (
             <div className='center-text col-container floating-div'>
-                <span className='col-item'>No streaks</span>
+                <span className='col-item light-small-text'>No streaks</span>
                 <span className='btn btn-success col-item new-btn' onClick={this.toggleNewStreakModal}>Start Streak</span>
             </div>
         );

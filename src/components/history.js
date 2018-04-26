@@ -18,7 +18,7 @@ export default class History extends Component {
                     </div>
                     <div className='content'>
                         <div className='center-text col-container floating-div'>
-                            <span className='col-item'>No History</span>
+                            <span className='light-small-text col-item'>No History</span>
                         </div>
                     </div>
                 </div>

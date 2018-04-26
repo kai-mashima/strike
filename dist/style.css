@@ -585,8 +585,21 @@ li {
     width: 200px;
 }
 
-.messages-title {
+.emoji-messages-container {
+    
+}
+
+.light-small-text {
+    font-size: 8pt;
+    color: #808080;
+}
+
+.message-subtitle-container {
+    justify-content: space-around;
     border-bottom: 1px solid lightgrey;
+}
+
+.message-subtitle-item {
     font-size: 8pt;
     color: #808080;
     text-align: center;

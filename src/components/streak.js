@@ -127,7 +127,7 @@ export default class Streak extends Component {
         );
 
 
-        let messagesRender = <div className='center-text'><span>No messages</span></div>;
+        let messagesRender = <div className='center-text light-small-text'><span>No messages</span></div>;
         if (streak.messages) {
             messagesRender = Object.values(streak.messages).map((message, index) => {
                 let messageSender = 'You';
@@ -168,8 +168,12 @@ export default class Streak extends Component {
                                 <span>Expirates In: {streak.currentExpirationTime} hours</span>
                             </div>
                         </div>
-                        <span className='messages-title'>Messages</span>
                         <div className='col-item emoji-messages-container'>
+                            <div className='col-item row-container message-subtitle-container'>
+                                <span className='row-item message-subtitle-item'>Sender</span>
+                                <span className='row-item message-subtitle-item'>Message</span>
+                                <span className='row-item message-subtitle-item'></span>
+                            </div>
                             {messagesRender}
                         </div>
                     </div>

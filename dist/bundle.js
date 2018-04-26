@@ -65224,7 +65224,7 @@ var History = function (_Component) {
                             { className: 'center-text col-container floating-div' },
                             _react2.default.createElement(
                                 'span',
-                                { className: 'col-item' },
+                                { className: 'light-small-text col-item' },
                                 'No History'
                             )
                         )
@@ -66617,7 +66617,7 @@ var Streaks = function (_Component) {
 
             var friendsRender = _react2.default.createElement(
                 'div',
-                { className: 'center-text' },
+                { className: 'light-small-text center-text' },
                 _react2.default.createElement(
                     'span',
                     null,
@@ -66648,7 +66648,7 @@ var Streaks = function (_Component) {
 
             var requestsRender = _react2.default.createElement(
                 'div',
-                { className: 'center-text' },
+                { className: 'light-small-text center-text' },
                 _react2.default.createElement(
                     'span',
                     null,
@@ -66691,7 +66691,7 @@ var Streaks = function (_Component) {
                 { className: 'center-text col-container floating-div' },
                 _react2.default.createElement(
                     'span',
-                    { className: 'col-item' },
+                    { className: 'col-item light-small-text' },
                     'No streaks'
                 ),
                 _react2.default.createElement(
@@ -67088,7 +67088,7 @@ var Streak = function (_Component) {
 
             var messagesRender = _react2.default.createElement(
                 'div',
-                { className: 'center-text' },
+                { className: 'center-text light-small-text' },
                 _react2.default.createElement(
                     'span',
                     null,
@@ -67181,13 +67181,23 @@ var Streak = function (_Component) {
                             )
                         ),
                         _react2.default.createElement(
-                            'span',
-                            { className: 'messages-title' },
-                            'Messages'
-                        ),
-                        _react2.default.createElement(
                             'div',
                             { className: 'col-item emoji-messages-container' },
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-item row-container message-subtitle-container' },
+                                _react2.default.createElement(
+                                    'span',
+                                    { className: 'row-item message-subtitle-item' },
+                                    'Sender'
+                                ),
+                                _react2.default.createElement(
+                                    'span',
+                                    { className: 'row-item message-subtitle-item' },
+                                    'Message'
+                                ),
+                                _react2.default.createElement('span', { className: 'row-item message-subtitle-item' })
+                            ),
                             messagesRender
                         )
                     )
