@@ -95,21 +95,27 @@ export default class Streak extends Component {
                 </Modal.Header>
                 <Modal.Body>
                     <div className='col-container emoji-container'>
-                        <div className='col-item emoji-message-preview row-container'>
-                            {
-                                this.state.message.map((emojiCode, index) => (
-                                    <span key={index} className='row-item emoji-message-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
-                                ))
-                            }
+                        <div className='col-item col-container full-width-div'>
+                            <span className='col-item light-small-text top-bottom-border center-text-nopad'>Unlocked Emojis</span>
+                            <div className='col-item row-container emoji-bank-container'>
+                                {
+                                    this.props.unlocks.map((emojiCode, index) => (
+                                        <span key={index} onClick={this.handleEmojiClick} id={emojiCode} className='row-item emoji-bank-item'>
+                                            {emoji.emojify(`:${emojiCode}:`)}
+                                        </span>
+                                    ))
+                                }
+                            </div>
                         </div>
-                        <div className='col-item row-container emoji-bank-container'>
-                            {
-                                this.props.unlocks.map((emojiCode, index) => (
-                                    <span key={index} onClick={this.handleEmojiClick} id={emojiCode} className='row-item emoji-bank-item'>
-                                        {emoji.emojify(`:${emojiCode}:`)}
-                                    </span>
-                                ))
-                            }
+                        <div className='col-item col-container full-width-div'>
+                            <span className='col-item light-small-text top-bottom-border center-text-nopad'>Message</span>
+                            <div className='col-item emoji-message-preview row-container'>
+                                {
+                                    this.state.message.map((emojiCode, index) => (
+                                        <span key={index} className='row-item emoji-message-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
+                                    ))
+                                }
+                            </div>
                         </div>
                     </div>
                 </Modal.Body>
@@ -170,9 +176,8 @@ export default class Streak extends Component {
                         </div>
                         <div className='col-item emoji-messages-container'>
                             <div className='col-item row-container message-subtitle-container'>
-                                <span className='row-item message-subtitle-item'>Sender</span>
-                                <span className='row-item message-subtitle-item'>Message</span>
-                                <span className='row-item message-subtitle-item'></span>
+                                <span className='row-item message-subtitle-sender'>Sender</span>
+                                <span className='row-item message-subtitle-message'>Message</span>
                             </div>
                             {messagesRender}
                         </div>

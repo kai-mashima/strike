@@ -67032,25 +67032,43 @@ var Streak = function (_Component) {
                         { className: 'col-container emoji-container' },
                         _react2.default.createElement(
                             'div',
-                            { className: 'col-item emoji-message-preview row-container' },
-                            this.state.message.map(function (emojiCode, index) {
-                                return _react2.default.createElement(
-                                    'span',
-                                    { key: index, className: 'row-item emoji-message-item' },
-                                    _nodeEmoji2.default.emojify(':' + emojiCode + ':')
-                                );
-                            })
+                            { className: 'col-item col-container full-width-div' },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'col-item light-small-text top-bottom-border center-text-nopad' },
+                                'Unlocked Emojis'
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-item row-container emoji-bank-container' },
+                                this.props.unlocks.map(function (emojiCode, index) {
+                                    return _react2.default.createElement(
+                                        'span',
+                                        { key: index, onClick: _this2.handleEmojiClick, id: emojiCode, className: 'row-item emoji-bank-item' },
+                                        _nodeEmoji2.default.emojify(':' + emojiCode + ':')
+                                    );
+                                })
+                            )
                         ),
                         _react2.default.createElement(
                             'div',
-                            { className: 'col-item row-container emoji-bank-container' },
-                            this.props.unlocks.map(function (emojiCode, index) {
-                                return _react2.default.createElement(
-                                    'span',
-                                    { key: index, onClick: _this2.handleEmojiClick, id: emojiCode, className: 'row-item emoji-bank-item' },
-                                    _nodeEmoji2.default.emojify(':' + emojiCode + ':')
-                                );
-                            })
+                            { className: 'col-item col-container full-width-div' },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'col-item light-small-text top-bottom-border center-text-nopad' },
+                                'Message'
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-item emoji-message-preview row-container' },
+                                this.state.message.map(function (emojiCode, index) {
+                                    return _react2.default.createElement(
+                                        'span',
+                                        { key: index, className: 'row-item emoji-message-item' },
+                                        _nodeEmoji2.default.emojify(':' + emojiCode + ':')
+                                    );
+                                })
+                            )
                         )
                     )
                 ),
@@ -67180,15 +67198,14 @@ var Streak = function (_Component) {
                                 { className: 'col-item row-container message-subtitle-container' },
                                 _react2.default.createElement(
                                     'span',
-                                    { className: 'row-item message-subtitle-item' },
+                                    { className: 'row-item message-subtitle-sender' },
                                     'Sender'
                                 ),
                                 _react2.default.createElement(
                                     'span',
-                                    { className: 'row-item message-subtitle-item' },
+                                    { className: 'row-item message-subtitle-message' },
                                     'Message'
-                                ),
-                                _react2.default.createElement('span', { className: 'row-item message-subtitle-item' })
+                                )
                             ),
                             messagesRender
                         )
@@ -68346,13 +68363,13 @@ var newUnlocksObject = {
         progress: 0,
         emojis: {
             '100Days': {
-                description: 'Have 100 combined days of all your active streaks.',
+                description: 'Have 100 total days between all your active streaks.',
                 goal: 100,
                 progress: 0,
                 unlocked: false
             },
             '4Days': {
-                description: 'Have 4 combined days of all your active streaks.',
+                description: 'Have 4 total days between all your active streaks.',
                 goal: 4,
                 progress: 0,
                 unlocked: false

@@ -235,6 +235,10 @@ li {
     padding: 5px;
 }
 
+.center-text-nopad {
+    text-align: center;
+}
+
 .search-item {
     border-bottom: 1px solid lightgrey;
     padding: 5px;
@@ -564,9 +568,14 @@ li {
 }
 
 .emoji-bank-container {
-    justify-content: space-around;
+    justify-content: center;
     flex-wrap: wrap;
     margin: 5px;
+    width: 100%;
+}
+
+.full-width-div {
+    width: 100%;
 }
 
 .emoji-bank-item {
@@ -580,13 +589,19 @@ li {
 
     margin: 5px;
     font-size: 20pt;
-    border: 1px solid grey;
+    width: 100%;
     height: 50px;
-    width: 200px;
 }
 
-.emoji-messages-container {
-    
+.emoji-sentence-title {
+    font-size: 14pt;
+    text-align: center;
+}
+
+.top-bottom-border {
+    width: 100%;
+    border-top: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
 }
 
 .light-small-text {
@@ -595,11 +610,18 @@ li {
 }
 
 .message-subtitle-container {
-    justify-content: space-around;
+    justify-content: flex-start;
     border-bottom: 1px solid lightgrey;
 }
 
-.message-subtitle-item {
+.message-subtitle-sender {
+    font-size: 8pt;
+    color: #808080;
+    text-align: center;
+}
+
+.message-subtitle-message {
+    margin-left: 15px;
     font-size: 8pt;
     color: #808080;
     text-align: center;

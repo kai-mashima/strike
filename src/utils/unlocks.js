@@ -129,13 +129,13 @@ const newUnlocksObject = {
         progress: 0,
         emojis: {
             '100Days': {
-                description: 'Have 100 combined days of all your active streaks.',
+                description: 'Have 100 total days between all your active streaks.',
                 goal: 100,
                 progress: 0,
                 unlocked: false,
             }, 
             '4Days': {
-                description: 'Have 4 combined days of all your active streaks.',
+                description: 'Have 4 total days between all your active streaks.',
                 goal: 4,
                 progress: 0,
                 unlocked: false,
