@@ -59,7 +59,7 @@ export default class Streak extends Component {
     render() {
         const streak = this.props.streak;
         let expiring = false;
-        if (streak.currentExpired && streak.currentOwner === this.props.userID) {
+        if (!streak.currentExpired && streak.nextExpired && streak.nextOwner === this.props.userID) {
             expiring = true;
         }
 

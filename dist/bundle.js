@@ -66984,7 +66984,7 @@ var Streak = function (_Component) {
 
             var streak = this.props.streak;
             var expiring = false;
-            if (streak.currentExpired && streak.currentOwner === this.props.userID) {
+            if (!streak.currentExpired && streak.nextExpired && streak.nextOwner === this.props.userID) {
                 expiring = true;
             }
 
@@ -68624,7 +68624,7 @@ var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
             var nextExpirationTime = streak.nextExpirationTime;
             var nextExpired = streak.nextExpired;
 
-            if (!streak.nextExpired) {
+            if (!nextExpired) {
                 nextExpirationTime = _this5.convertFutureTimestampToHours(streak.nextExpirationDate);
                 nextExpired = _this5.checkForExpiredTime(nextExpirationTime);
 
@@ -68639,8 +68639,9 @@ var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
                 _this5.db.ref('streaks/' + streakID).update({
                     neutral: true
                 });
-            } else if (!currentExpired && nextExpired) {//streak active | unstoked
-
+            } else if (!currentExpired && nextExpired) {
+                //streak active | unstoked
+                console.log('Streak Active');
             } else if (currentExpired && nextExpired && !streak.terminated) {
                 //streak terminated
                 _this5.streakTermination(streakID).then(function () {
@@ -68669,7 +68670,6 @@ var checkForExpiredStreaks = function checkForExpiredStreaks(streakID) {
     }).catch(function (reason) {
         console.log(reason);
     });
-    //send streak termination info to history db
 };
 
 var streakTerminationDatabaseTransfer = function streakTerminationDatabaseTransfer(streak, streakID) {
@@ -69163,8 +69163,8 @@ var getNumberOfTotalStreakDays = function getNumberOfTotalStreakDays(userID) {
     return this.db.ref('streakOwners/' + userID).once('value').then(function (snapshot) {
         if (snapshot.exists()) {
             var total = 0;
-            var streaks = snapshot.val();
-            var funcs = Object.keys(streaks).map(function (streakID) {
+            var streaks = Object.keys(snapshot.val());
+            var funcs = streaks.map(function (streakID) {
                 return _this.db.ref('streaks/' + streakID).once('value').then(function (snapshot) {
                     if (snapshot.exists()) {
                         var streak = snapshot.val();

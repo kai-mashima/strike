@@ -81,8 +81,8 @@ const getNumberOfTotalStreakDays = function(userID) {
     .then(snapshot => {
         if (snapshot.exists()) {
             let total = 0;
-            const streaks = snapshot.val();
-            const funcs = Object.keys(streaks).map(streakID => {
+            const streaks = Object.keys(snapshot.val());
+            const funcs = streaks.map(streakID => {
                 return this.db.ref(`streaks/${streakID}`)
                 .once('value')
                 .then(snapshot => {

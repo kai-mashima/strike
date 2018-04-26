@@ -214,7 +214,7 @@ const checkForExpiredStreaks = function(streakID) {
             let nextExpirationTime = streak.nextExpirationTime;
             let nextExpired = streak.nextExpired;
 
-            if (!streak.nextExpired) {
+            if (!nextExpired) {
                 nextExpirationTime = this.convertFutureTimestampToHours(streak.nextExpirationDate);
                 nextExpired = this.checkForExpiredTime(nextExpirationTime);
 
@@ -229,7 +229,7 @@ const checkForExpiredStreaks = function(streakID) {
                     neutral: true,
                 });
             } else if (!currentExpired && nextExpired) { //streak active | unstoked
-                
+                console.log('Streak Active');
             } else if (currentExpired && nextExpired && !streak.terminated) { //streak terminated
                 this.streakTermination(streakID).then(() => {
                     this.streakTerminationDatabaseTransfer(streak, streakID);
@@ -256,7 +256,6 @@ const checkForExpiredStreaks = function(streakID) {
     }).catch(reason => {
         console.log(reason);
     });
-    //send streak termination info to history db
 };
 
 const streakTerminationDatabaseTransfer = function(streak, streakID) {
