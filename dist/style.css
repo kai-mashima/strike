@@ -80,6 +80,7 @@ li {
 }
 
 .login-footer {
+    margin-top: 16px;
     text-align: center;
     display: flex;
     flex-direction: row;

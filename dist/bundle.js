@@ -67546,16 +67546,20 @@ var Signup = function (_Component) {
                 null,
                 _react2.default.createElement(
                     'div',
-                    { className: 'login-footer' },
+                    null,
                     _react2.default.createElement(
-                        'p',
-                        { className: 'login-footer-item' },
-                        'Don\'t have an account?'
-                    ),
-                    _react2.default.createElement(
-                        'p',
-                        { className: 'signup-text login-footer-item', onClick: this.toggleSignup },
-                        'Sign Up'
+                        'div',
+                        { className: 'login-footer' },
+                        _react2.default.createElement(
+                            'p',
+                            { className: 'login-footer-item' },
+                            'Don\'t have an account?'
+                        ),
+                        _react2.default.createElement(
+                            'p',
+                            { className: 'signup-text login-footer-item', onClick: this.toggleSignup },
+                            'Sign Up'
+                        )
                     ),
                     _react2.default.createElement(
                         _reactBootstrap.Modal,

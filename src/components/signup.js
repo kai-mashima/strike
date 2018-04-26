@@ -70,9 +70,11 @@ export default class Signup extends Component {
     render() {
         return (
             <div>
-                <div className='login-footer'>
-                    <p className='login-footer-item'>Don't have an account?</p>
-                    <p className='signup-text login-footer-item' onClick={this.toggleSignup}>Sign Up</p>
+                <div>
+                    <div className='login-footer'>
+                        <p className='login-footer-item'>Don't have an account?</p>
+                        <p className='signup-text login-footer-item' onClick={this.toggleSignup}>Sign Up</p>
+                    </div>
                     <Modal show={this.state.isVisibleSignup} onHide={this.toggleSignup}>
                         <Modal.Header>
                             <Modal.Title>Sign Up</Modal.Title>
