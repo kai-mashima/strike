@@ -46,7 +46,7 @@ const getUnlockedEmojis = function(userID) {
                         currentCategoryCount = currentTotalDays;
                     } else if (category === 'friends') {
                         currentCategoryCount = currentNumberOfFriends;
-                    } else if (category === 'termination') {
+                    } else if (category === 'terminated') {
                         currentCategoryCount = currentNumberOfTerminatedStreaks;
                     }
                     
@@ -114,7 +114,7 @@ const newUnlocksObject = {
             },
         },
     },
-    termination: {
+    terminated: {
         progress: 0,
         emojis: {
            'sos': {

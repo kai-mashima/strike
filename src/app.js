@@ -232,7 +232,7 @@ export default class App extends Component {
             dayUnlocks: [],
             streaksUnlocks: [],
             friendsUnlocks: [],
-            terminationUnlocks: [],
+            terminatedUnlocks: [],
         };
     }
 
@@ -346,7 +346,7 @@ export default class App extends Component {
                                                 progress={this.state.unlockProgress}
                                                 days={this.state.dayUnlocks}
                                                 streaks={this.state.streaksUnlocks}
-                                                termination={this.state.terminationUnlocks}
+                                                terminated={this.state.terminatedUnlocks}
                                                 friends={this.state.friendUnlocks}
                                             />
                                         )} 

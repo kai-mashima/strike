@@ -40169,7 +40169,7 @@ var App = function (_Component) {
             dayUnlocks: [],
             streaksUnlocks: [],
             friendsUnlocks: [],
-            terminationUnlocks: []
+            terminatedUnlocks: []
         };
         return _this;
     }
@@ -40315,7 +40315,7 @@ var App = function (_Component) {
                                         progress: _this2.state.unlockProgress,
                                         days: _this2.state.dayUnlocks,
                                         streaks: _this2.state.streaksUnlocks,
-                                        termination: _this2.state.terminationUnlocks,
+                                        terminated: _this2.state.terminatedUnlocks,
                                         friends: _this2.state.friendUnlocks
                                     });
                                 }
@@ -66180,10 +66180,11 @@ var Unlocks = function (_Component) {
             var streakProgress = this.props.progress.streaks;
 
             var streakRender = streaks.map(function (unlock, index) {
-                var completed = streakProgress >= streaksInfo[unlock].goal ? true : false;
+                var goal = streaksInfo[unlock].goal;
+                var completed = streakProgress >= goal ? true : false;
                 var emoji = completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:');
-                var progress = streakProgress <= streaksInfo[unlock].goal ? streakProgress : streaksInfo[unlock].goal;
-                return _react2.default.createElement(_unlock2.default, { description: streaksInfo[unlock].description, emoji: emoji, progress: progress, goal: streaksInfo[unlock].goal, key: index });
+                var progress = streakProgress <= goal ? streakProgress : goal;
+                return _react2.default.createElement(_unlock2.default, { description: streaksInfo[unlock].description, emoji: emoji, progress: progress, goal: goal, key: index });
             });
 
             var daysInfo = bank.days.emojis;
@@ -66191,10 +66192,11 @@ var Unlocks = function (_Component) {
             var daysProgress = this.props.progress.days;
 
             var daysRender = days.map(function (unlock, index) {
-                var completed = daysProgress >= daysInfo[unlock].goal ? true : false;
+                var goal = daysInfo[unlock].goal;
+                var completed = daysProgress >= goal ? true : false;
                 var emoji = completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:');
-                var progress = daysProgress <= daysInfo[unlock].goal ? daysProgress : daysInfo[unlock].goal;
-                return _react2.default.createElement(_unlock2.default, { description: daysInfo[unlock].description, emoji: emoji, progress: progress, goal: daysInfo[unlock].goal, key: index });
+                var progress = daysProgress <= goal ? daysProgress : goal;
+                return _react2.default.createElement(_unlock2.default, { description: daysInfo[unlock].description, emoji: emoji, progress: progress, goal: goal, key: index });
             });
 
             var friendsInfo = bank.friends.emojis;
@@ -66202,11 +66204,44 @@ var Unlocks = function (_Component) {
             var friendsProgress = this.props.progress.friends;
 
             var friendsRender = friends.map(function (unlock, index) {
-                var completed = friendsProgress >= friendsInfo[unlock].goal ? true : false;
+                var goal = friendsInfo[unlock].goal;
+                var completed = friendsProgress >= goal ? true : false;
                 var emoji = completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:');
-                var progress = friendsProgress <= friendsInfo[unlock].goal ? friendsProgress : friendsInfo[unlock].goal;
-                return _react2.default.createElement(_unlock2.default, { description: friendsInfo[unlock].description, emoji: emoji, progress: progress, goal: friendsInfo[unlock].goal, key: index });
+                var progress = friendsProgress <= goal ? friendsProgress : goal;
+                return _react2.default.createElement(_unlock2.default, { description: friendsInfo[unlock].description, emoji: emoji, progress: progress, goal: goal, key: index });
             });
+
+            var terminatedInfo = bank.terminated.emojis;
+            var terminated = Object.keys(terminatedInfo);
+            var terminatedProgress = this.props.progress.terminated;
+
+            var terminatedRender = terminated.map(function (unlock, index) {
+                var goal = terminatedInfo[unlock].goal;
+                var completed = terminatedProgress >= goal ? true : false;
+                var emoji = completed ? _nodeEmoji2.default.emojify(':' + unlock + ':') : _nodeEmoji2.default.emojify(':lock:');
+                var progress = terminatedProgress <= goal ? terminatedProgress : goal;
+                return _react2.default.createElement(_unlock2.default, { description: terminatedInfo[unlock].description, emoji: emoji, progress: progress, goal: goal, key: index });
+            });
+
+            var subtitleRender = _react2.default.createElement(
+                'div',
+                { className: 'row-container unlock-subtitle-container' },
+                _react2.default.createElement(
+                    'span',
+                    { className: 'row-item unlock-subtitle-item' },
+                    'Emoji'
+                ),
+                _react2.default.createElement(
+                    'span',
+                    { className: 'row-item unlock-subtitle-item' },
+                    'Progress'
+                ),
+                _react2.default.createElement(
+                    'span',
+                    { className: 'row-item unlock-subtitle-item' },
+                    'Goal'
+                )
+            );
 
             return _react2.default.createElement(
                 'div',
@@ -66239,25 +66274,7 @@ var Unlocks = function (_Component) {
                                     { className: 'unlock-title' },
                                     'Streaks'
                                 ),
-                                _react2.default.createElement(
-                                    'div',
-                                    { className: 'row-container unlock-subtitle-container' },
-                                    _react2.default.createElement(
-                                        'span',
-                                        { className: 'row-item unlock-subtitle-item' },
-                                        'Emoji'
-                                    ),
-                                    _react2.default.createElement(
-                                        'span',
-                                        { className: 'row-item unlock-subtitle-item' },
-                                        'Progress'
-                                    ),
-                                    _react2.default.createElement(
-                                        'span',
-                                        { className: 'row-item unlock-subtitle-item' },
-                                        'Goal'
-                                    )
-                                ),
+                                subtitleRender,
                                 streakRender
                             ),
                             _react2.default.createElement(
@@ -66268,25 +66285,7 @@ var Unlocks = function (_Component) {
                                     { className: 'unlock-title' },
                                     'Days'
                                 ),
-                                _react2.default.createElement(
-                                    'div',
-                                    { className: 'row-container unlock-subtitle-container' },
-                                    _react2.default.createElement(
-                                        'span',
-                                        { className: 'row-item unlock-subtitle-item' },
-                                        'Emoji'
-                                    ),
-                                    _react2.default.createElement(
-                                        'span',
-                                        { className: 'row-item unlock-subtitle-item' },
-                                        'Progress'
-                                    ),
-                                    _react2.default.createElement(
-                                        'span',
-                                        { className: 'row-item unlock-subtitle-item' },
-                                        'Goal'
-                                    )
-                                ),
+                                subtitleRender,
                                 daysRender
                             ),
                             _react2.default.createElement(
@@ -66297,26 +66296,19 @@ var Unlocks = function (_Component) {
                                     { className: 'unlock-title' },
                                     'Friends'
                                 ),
-                                _react2.default.createElement(
-                                    'div',
-                                    { className: 'row-container unlock-subtitle-container' },
-                                    _react2.default.createElement(
-                                        'span',
-                                        { className: 'row-item unlock-subtitle-item' },
-                                        'Emoji'
-                                    ),
-                                    _react2.default.createElement(
-                                        'span',
-                                        { className: 'row-item unlock-subtitle-item' },
-                                        'Progress'
-                                    ),
-                                    _react2.default.createElement(
-                                        'span',
-                                        { className: 'row-item unlock-subtitle-item' },
-                                        'Goal'
-                                    )
-                                ),
+                                subtitleRender,
                                 friendsRender
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-item col-container unlock-container' },
+                                _react2.default.createElement(
+                                    'span',
+                                    { className: 'unlock-title' },
+                                    'Termination'
+                                ),
+                                subtitleRender,
+                                terminatedRender
                             )
                         )
                     )
@@ -68271,7 +68263,7 @@ var getUnlockedEmojis = function getUnlockedEmojis(userID) {
                         currentCategoryCount = currentTotalDays;
                     } else if (category === 'friends') {
                         currentCategoryCount = currentNumberOfFriends;
-                    } else if (category === 'termination') {
+                    } else if (category === 'terminated') {
                         currentCategoryCount = currentNumberOfTerminatedStreaks;
                     }
 
@@ -68339,7 +68331,7 @@ var newUnlocksObject = {
             }
         }
     },
-    termination: {
+    terminated: {
         progress: 0,
         emojis: {
             'sos': {
