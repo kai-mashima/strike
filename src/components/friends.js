@@ -182,7 +182,12 @@ export default class Friends extends Component {
                                                 <span className='search-header-item btn btn-success' onClick={this.handleSearchSubmit}>Search</span>
                                             </div>
                                             <div className='search-body-item'>
-                                                <div className='search-content'>
+                                                <div className='col-container'>
+                                                    <div className='col-item search-subtitle-item search-subtitle-container row-container'>
+                                                        <span className='row-item'>First</span>
+                                                        <span className='row-item'>Last</span>
+                                                        <span className='row-item'></span>
+                                                    </div>
                                                     {searchRender}
                                                 </div>
                                             </div> 

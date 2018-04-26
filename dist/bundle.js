@@ -65576,7 +65576,22 @@ var Friends = function (_Component) {
                                                 { className: 'search-body-item' },
                                                 _react2.default.createElement(
                                                     'div',
-                                                    { className: 'search-content' },
+                                                    { className: 'col-container' },
+                                                    _react2.default.createElement(
+                                                        'div',
+                                                        { className: 'col-item search-subtitle-item search-subtitle-container row-container' },
+                                                        _react2.default.createElement(
+                                                            'span',
+                                                            { className: 'row-item' },
+                                                            'First'
+                                                        ),
+                                                        _react2.default.createElement(
+                                                            'span',
+                                                            { className: 'row-item' },
+                                                            'Last'
+                                                        ),
+                                                        _react2.default.createElement('span', { className: 'row-item' })
+                                                    ),
                                                     searchRender
                                                 )
                                             )
