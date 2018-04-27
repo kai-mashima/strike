@@ -123,6 +123,7 @@ export default class App extends Component {
         //BINDINGS
         this.toggleSplash = this.toggleSplash.bind(this);
         this.toggleCurrentPage = this.toggleCurrentPage.bind(this);
+        this.checkForCurrentPage = this.checkForCurrentPage.bind(this);
 
         //helperFunctions
         this.getUsername = getUsername.bind(this);
@@ -211,11 +212,14 @@ export default class App extends Component {
 
         this.checkLogin();
 
+        const pageID = window.location.pathname.slice(1);
+
         //STATE
         this.state = {
             loggedIn: false,
             isVisibleSplash: false,
             previousCurrent: false,
+            current: pageID,
             userID: '',
             user: {},
             friendRequestsInfo: [],
@@ -243,18 +247,17 @@ export default class App extends Component {
     }
 
     toggleCurrentPage(e) {
-        let first = true;
-
-        if (first) {
-            document.getElementById('streakPage').classList.remove('current-page');
-            first = false;
-        }
+        console.log(this.state.current);
+        document.getElementById(this.state.current).classList.add('current-page');
+        let lastPageID = window.location.pathname.slice(1);
 
         this.setState({
             previousCurrent: e.target
         });
 
-        if (this.state.previousCurrent != false) {
+        if (this.state.previousCurrent === false) {
+            document.getElementById(lastPageID).classList.remove('current-page');
+        } else {
             this.state.previousCurrent.classList.remove('current-page');
         }
 
@@ -262,6 +265,17 @@ export default class App extends Component {
             e.target.classList.remove('current-page');
         } else {
             e.target.classList.add('current-page');
+        }
+    }
+
+    checkForCurrentPage() {
+        console.log(this.state.current);
+        const icon = document.getElementById(this.state.current);
+        if (icon) {
+            icon.classList.add('current-page');
+            this.setState({
+                previousCurrent: icon
+            });
         }
     }
 
@@ -354,11 +368,11 @@ export default class App extends Component {
                                 </Switch>
                                 <div className='footernav'>
                                     <ul className='link-container'>
-                                        <li className='link-item'><Link className='link-item-tag' to='/friends'><span onClick={this.toggleCurrentPage} className='glyph-span glyphicon glyphicon-plus'></span></Link></li>
-                                        <li className='link-item'><Link className='link-item-tag' to='/unlocks'><span onClick={this.toggleCurrentPage} className='glyph-span glyphicon glyphicon-lock'></span></Link></li>
-                                        <li className='link-item'><Link className='link-item-tag' to='/streaks'><span onClick={this.toggleCurrentPage} id='streakPage' className='current-page glyph-span glyphicon glyphicon-fire'></span></Link></li>
-                                        <li className='link-item'><Link className='link-item-tag' to='/history'><span onClick={this.toggleCurrentPage} className='glyph-span glyphicon glyphicon-list'></span></Link></li>
-                                        <li className='link-item'><Link className='link-item-tag' to='/profile'><span onClick={this.toggleCurrentPage} className='glyph-span glyphicon glyphicon-user'></span></Link></li>
+                                        <li className='link-item'><Link className='link-item-tag' to='/friends'><span onClick={this.toggleCurrentPage} id='friends' className='glyph-span glyphicon glyphicon-plus'></span></Link></li>
+                                        <li className='link-item'><Link className='link-item-tag' to='/unlocks'><span onClick={this.toggleCurrentPage} id='unlocks' className='glyph-span glyphicon glyphicon-lock'></span></Link></li>
+                                        <li className='link-item'><Link className='link-item-tag' to='/streaks'><span onClick={this.toggleCurrentPage} id='streaks' className='glyph-span glyphicon glyphicon-fire'></span></Link></li>
+                                        <li className='link-item'><Link className='link-item-tag' to='/history'><span onClick={this.toggleCurrentPage} id='history' className='glyph-span glyphicon glyphicon-list'></span></Link></li>
+                                        <li className='link-item'><Link className='link-item-tag' to='/profile'><span onClick={this.toggleCurrentPage} id='profile' className='glyph-span glyphicon glyphicon-user'></span></Link></li>
                                     </ul>
                                 </div>
                             </div>
