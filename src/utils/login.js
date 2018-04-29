@@ -16,6 +16,9 @@ const loginUser = function(email, password) {
             this.getUnlockedEmojis(user.uid);
             this.checkForDailyAllowance(user.uid);
             this.loadEmojiBank();
+            this.setState({
+                current: 'streaks'
+            });
             return true;
         }).catch(error => {
             console.log(`User Login Error: ${error.code}: ${error.message}`);
@@ -94,14 +97,28 @@ const signOut = function() {
     .then(() => {
         this.setState({
             loggedIn: false,
+            isVisibleSplash: false,
+            previousCurrent: false,
+            first: true,
+            second: true,
+            current: false,
             userID: '',
             user: {},
-            streaks: [],
-            streaksInfo: [],
+            friendRequestsInfo: [],
+            friendRequests: [],
             friends: [],
             friendsInfo: [],
             streakRequests: [],
             streakRequestsInfo: [],
+            streaks: [],
+            streaksInfo: [],
+            emojis: [],
+            unlockProgress: {},
+            unlockedEmojis: [],
+            dayUnlocks: [],
+            streaksUnlocks: [],
+            friendsUnlocks: [],
+            terminatedUnlocks: [],
         });
         console.log('Signed Out');
     }).catch(error => {

@@ -18752,7 +18752,6 @@ var App = function (_Component) {
         //BINDINGS
         _this.toggleSplash = _this.toggleSplash.bind(_this);
         _this.toggleCurrentPage = _this.toggleCurrentPage.bind(_this);
-        _this.checkForCurrentPage = _this.checkForCurrentPage.bind(_this);
 
         //helperFunctions
         _this.getUsername = _helperFunctions.getUsername.bind(_this);
@@ -18848,6 +18847,8 @@ var App = function (_Component) {
             loggedIn: false,
             isVisibleSplash: false,
             previousCurrent: false,
+            first: true,
+            second: true,
             current: pageID,
             userID: '',
             user: {},
@@ -18880,35 +18881,44 @@ var App = function (_Component) {
     }, {
         key: 'toggleCurrentPage',
         value: function toggleCurrentPage(e) {
-            console.log(this.state.current);
-            document.getElementById(this.state.current).classList.add('current-page');
+            //update state with current page
+            var pageID = window.location.pathname.slice(1);
+            this.setState({
+                current: pageID
+            });
+
+            //remove current-page class from refresh page classlist
+            if (this.state.second) {
+                document.getElementById(this.state.current).classList.remove('current-page');
+                this.setState({
+                    second: false
+                });
+            }
+
             var lastPageID = window.location.pathname.slice(1);
 
+            //set current page as next previousCurrent
             this.setState({
                 previousCurrent: e.target
             });
 
+            //remove current-page class from previous page
             if (this.state.previousCurrent === false) {
                 document.getElementById(lastPageID).classList.remove('current-page');
             } else {
                 this.state.previousCurrent.classList.remove('current-page');
             }
 
-            if (e.target.classList.contains('current-page')) {
-                e.target.classList.remove('current-page');
-            } else {
-                e.target.classList.add('current-page');
-            }
+            //add current-page class to current page
+            e.target.classList.add('current-page');
         }
     }, {
-        key: 'checkForCurrentPage',
-        value: function checkForCurrentPage() {
-            console.log(this.state.current);
-            var icon = document.getElementById(this.state.current);
-            if (icon) {
-                icon.classList.add('current-page');
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate() {
+            if (this.state.first && document.getElementById(this.state.current)) {
+                document.getElementById(this.state.current).classList.add('current-page');
                 this.setState({
-                    previousCurrent: icon
+                    first: false
                 });
             }
         }
@@ -68983,6 +68993,9 @@ var loginUser = function loginUser(email, password) {
             _this.getUnlockedEmojis(user.uid);
             _this.checkForDailyAllowance(user.uid);
             _this.loadEmojiBank();
+            _this.setState({
+                current: 'streaks'
+            });
             return true;
         }).catch(function (error) {
             console.log('User Login Error: ' + error.code + ': ' + error.message);
@@ -69066,14 +69079,28 @@ var signOut = function signOut() {
     _app2.default.auth().signOut().then(function () {
         _this5.setState({
             loggedIn: false,
+            isVisibleSplash: false,
+            previousCurrent: false,
+            first: true,
+            second: true,
+            current: false,
             userID: '',
             user: {},
-            streaks: [],
-            streaksInfo: [],
+            friendRequestsInfo: [],
+            friendRequests: [],
             friends: [],
             friendsInfo: [],
             streakRequests: [],
-            streakRequestsInfo: []
+            streakRequestsInfo: [],
+            streaks: [],
+            streaksInfo: [],
+            emojis: [],
+            unlockProgress: {},
+            unlockedEmojis: [],
+            dayUnlocks: [],
+            streaksUnlocks: [],
+            friendsUnlocks: [],
+            terminatedUnlocks: []
         });
         console.log('Signed Out');
     }).catch(function (error) {

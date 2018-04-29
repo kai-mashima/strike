@@ -123,7 +123,6 @@ export default class App extends Component {
         //BINDINGS
         this.toggleSplash = this.toggleSplash.bind(this);
         this.toggleCurrentPage = this.toggleCurrentPage.bind(this);
-        this.checkForCurrentPage = this.checkForCurrentPage.bind(this);
 
         //helperFunctions
         this.getUsername = getUsername.bind(this);
@@ -219,6 +218,8 @@ export default class App extends Component {
             loggedIn: false,
             isVisibleSplash: false,
             previousCurrent: false,
+            first: true,
+            second: true,
             current: pageID,
             userID: '',
             user: {},
@@ -247,34 +248,43 @@ export default class App extends Component {
     }
 
     toggleCurrentPage(e) {
-        console.log(this.state.current);
-        document.getElementById(this.state.current).classList.add('current-page');
+        //update state with current page
+        const pageID = window.location.pathname.slice(1);
+        this.setState({
+            current: pageID
+        });
+
+        //remove current-page class from refresh page classlist
+        if (this.state.second) {
+            document.getElementById(this.state.current).classList.remove('current-page');
+            this.setState({
+                second: false
+            });
+        }
+
         let lastPageID = window.location.pathname.slice(1);
 
+        //set current page as next previousCurrent
         this.setState({
             previousCurrent: e.target
         });
 
+        //remove current-page class from previous page
         if (this.state.previousCurrent === false) {
             document.getElementById(lastPageID).classList.remove('current-page');
         } else {
             this.state.previousCurrent.classList.remove('current-page');
         }
 
-        if (e.target.classList.contains('current-page')) {
-            e.target.classList.remove('current-page');
-        } else {
-            e.target.classList.add('current-page');
-        }
+        //add current-page class to current page
+        e.target.classList.add('current-page');
     }
 
-    checkForCurrentPage() {
-        console.log(this.state.current);
-        const icon = document.getElementById(this.state.current);
-        if (icon) {
-            icon.classList.add('current-page');
+    componentDidUpdate() {
+        if (this.state.first && document.getElementById(this.state.current)) {
+            document.getElementById(this.state.current).classList.add('current-page');
             this.setState({
-                previousCurrent: icon
+                first: false
             });
         }
     }
