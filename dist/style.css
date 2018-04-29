@@ -349,6 +349,7 @@ li {
 .streak-modal-container {
     width: 100%;
     padding: 10px;
+    padding-bottom: 20px;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -587,9 +588,10 @@ li {
     justify-content: center;
     align-items: center;
 
+    border: 1px solid lightgrey;
     margin: 5px;
     font-size: 20pt;
-    width: 100%;
+    width: 75%;
     height: 50px;
 }
 
@@ -637,6 +639,10 @@ li {
 
 .emoji-message-item {
     padding: 5px;
+}
+
+.message-preview-btn {
+    margin-top: 13px; 
 }
 
 .glyphicon.expiring::before {

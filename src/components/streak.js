@@ -12,6 +12,7 @@ export default class Streak extends Component {
         this.handleInitialStoke = this.handleInitialStoke.bind(this);
         this.handleConfirmationStoke = this.handleConfirmationStoke.bind(this);
         this.handleEmojiClick = this.handleEmojiClick.bind(this);
+        this.handleEmojiDelete = this.handleEmojiDelete.bind(this);
 
         this.state = {
             isVisibleInfo: false,
@@ -45,15 +46,24 @@ export default class Streak extends Component {
         this.toggleInfoModal();
     }
 
-    handleEmojiClick(e) {
-        let emojiCode = e.target.id;
-        let message = this.state.message.slice();
-
-        message.push(emojiCode);
-
+    handleEmojiDelete() {
+        let message = this.state.message.slice(0, -1);
         this.setState({
             message: message
         });
+    }
+
+    handleEmojiClick(e) {
+        if (this.state.message.length < 5) {
+            let emojiCode = e.target.id;
+            let message = this.state.message.slice();
+
+            message.push(emojiCode);
+
+            this.setState({
+                message: message
+            });
+        }
     }
 
     render() {
@@ -88,6 +98,33 @@ export default class Streak extends Component {
             );
         }
 
+
+        let messageRender = (
+            <div className='row-container'>
+                <div className='row-item row-container emoji-message-preview'>
+                    {
+                        this.state.message.map((emojiCode, index) => (
+                        <span key={index} className='row-item emoji-message-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
+                        ))
+                    }
+                </div>
+                <div className='row-item'>
+                    <span onClick={this.handleEmojiDelete} className='message-preview-btn btn btn-danger'>Delete</span>
+                </div>
+            </div>
+        );
+
+        let messagePreviewRender = this.state.message.length === 0 ? (
+            <div className='row-container'>
+                <div className='row-item row-container emoji-message-preview'>
+                    <span className='row-item light-small-text center-text full-width-div'>Select an Emoji to begin...</span>
+                </div>
+                <div className='row-item'>
+                    <span onClick={this.handleEmojiDelete} className='message-preview-btn btn btn-danger disabled'>Delete</span>
+                </div>
+            </div>
+        ) : (messageRender);
+
         let stokeModalRender = (
             <Modal show={this.state.isVisibleStoke} onHide={this.toggleStokeModal}>
                 <Modal.Header>
@@ -109,12 +146,8 @@ export default class Streak extends Component {
                         </div>
                         <div className='col-item col-container full-width-div'>
                             <span className='col-item light-small-text top-bottom-border center-text-nopad'>Message</span>
-                            <div className='col-item emoji-message-preview row-container'>
-                                {
-                                    this.state.message.map((emojiCode, index) => (
-                                        <span key={index} className='row-item emoji-message-item'>{emoji.emojify(`:${emojiCode}:`)}</span>
-                                    ))
-                                }
+                            <div className='col-item'>
+                                {messagePreviewRender}
                             </div>
                         </div>
                     </div>

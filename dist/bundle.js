@@ -66930,6 +66930,7 @@ var Streak = function (_Component) {
         _this.handleInitialStoke = _this.handleInitialStoke.bind(_this);
         _this.handleConfirmationStoke = _this.handleConfirmationStoke.bind(_this);
         _this.handleEmojiClick = _this.handleEmojiClick.bind(_this);
+        _this.handleEmojiDelete = _this.handleEmojiDelete.bind(_this);
 
         _this.state = {
             isVisibleInfo: false,
@@ -66973,16 +66974,26 @@ var Streak = function (_Component) {
             this.toggleInfoModal();
         }
     }, {
-        key: 'handleEmojiClick',
-        value: function handleEmojiClick(e) {
-            var emojiCode = e.target.id;
-            var message = this.state.message.slice();
-
-            message.push(emojiCode);
-
+        key: 'handleEmojiDelete',
+        value: function handleEmojiDelete() {
+            var message = this.state.message.slice(0, -1);
             this.setState({
                 message: message
             });
+        }
+    }, {
+        key: 'handleEmojiClick',
+        value: function handleEmojiClick(e) {
+            if (this.state.message.length < 5) {
+                var emojiCode = e.target.id;
+                var message = this.state.message.slice();
+
+                message.push(emojiCode);
+
+                this.setState({
+                    message: message
+                });
+            }
         }
     }, {
         key: 'render',
@@ -67025,6 +67036,54 @@ var Streak = function (_Component) {
             } else {
                 expirationGlyphRender = _react2.default.createElement('span', { className: 'streak-item-glyph glyphicon glyphicon-time stoked' });
             }
+
+            var messageRender = _react2.default.createElement(
+                'div',
+                { className: 'row-container' },
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row-item row-container emoji-message-preview' },
+                    this.state.message.map(function (emojiCode, index) {
+                        return _react2.default.createElement(
+                            'span',
+                            { key: index, className: 'row-item emoji-message-item' },
+                            _nodeEmoji2.default.emojify(':' + emojiCode + ':')
+                        );
+                    })
+                ),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row-item' },
+                    _react2.default.createElement(
+                        'span',
+                        { onClick: this.handleEmojiDelete, className: 'message-preview-btn btn btn-danger' },
+                        'Delete'
+                    )
+                )
+            );
+
+            var messagePreviewRender = this.state.message.length === 0 ? _react2.default.createElement(
+                'div',
+                { className: 'row-container' },
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row-item row-container emoji-message-preview' },
+                    _react2.default.createElement(
+                        'span',
+                        { className: 'row-item light-small-text center-text full-width-div' },
+                        'Select an Emoji to begin...'
+                    )
+                ),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row-item' },
+                    _react2.default.createElement(
+                        'span',
+                        { onClick: this.handleEmojiDelete, className: 'message-preview-btn btn btn-danger disabled' },
+                        'Delete'
+                    )
+                )
+            ) : messageRender;
 
             var stokeModalRender = _react2.default.createElement(
                 _reactBootstrap.Modal,
@@ -67075,14 +67134,8 @@ var Streak = function (_Component) {
                             ),
                             _react2.default.createElement(
                                 'div',
-                                { className: 'col-item emoji-message-preview row-container' },
-                                this.state.message.map(function (emojiCode, index) {
-                                    return _react2.default.createElement(
-                                        'span',
-                                        { key: index, className: 'row-item emoji-message-item' },
-                                        _nodeEmoji2.default.emojify(':' + emojiCode + ':')
-                                    );
-                                })
+                                { className: 'col-item' },
+                                messagePreviewRender
                             )
                         )
                     )
