@@ -42,6 +42,10 @@ const friendToInfo = function(userID) {
             this.getNumberOfFriends(userID).then(result => {
                 info.totalFriends = result;
             });
+
+            this.getNumberOfTotalStreakDays(userID).then(result => {
+                info.totalDays = result;
+            });
             return info;
         } else {
             throw 'Friend to Info: No user found';

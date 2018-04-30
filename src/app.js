@@ -13,6 +13,14 @@ import 'firebase/database';
 import 'firebase/auth';
 import emoji from 'node-emoji';
 import strikeLogo from './assets/strikeLogo.png';
+import friendDetailsBreakdown from './assets/splashScreenshots/friendDetails.png';
+import friendRequestBreakdown from './assets/splashScreenshots/friendRequest.png';
+import friendSearchBreakdown from './assets/splashScreenshots/friendSearch.png';
+import navBreakdown from './assets/splashScreenshots/navBreakdown.png';
+import streakDetailsBreakdown from './assets/splashScreenshots/streakDetails.png';
+import streakRequestBreakdown from './assets/splashScreenshots/streakRequest.png';
+import streakStartBreakdown from './assets/splashScreenshots/streakStart.png';
+import unlocksBreakdown from './assets/splashScreenshots/unlockDetails.png';
 
 import { DB_CONFIG } from '../config/config.js';
 
@@ -216,7 +224,7 @@ export default class App extends Component {
         //STATE
         this.state = {
             loggedIn: false,
-            isVisibleSplash: false,
+            isVisibleSplash: true,
             previousCurrent: false,
             first: true,
             second: true,
@@ -296,9 +304,61 @@ export default class App extends Component {
                     <Modal.Title>Welcome to Strike!</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className='col-container'>  
-                        <img src={strikeLogo} className='col-item login-logo'/>
-                        <span className='col-item'>The goal of the Strike application is to encourage users to maintain contact with their close friends, build a small group of close connections, and build up the amount of in-game currency they have and the number of streaks they maintain. These goals are meant to address some of the negative impacts of social media usage. The hope is that users will foster outside-of-game communication with the few friends they choose to add and keep in their in-game network. The platform is designed to be competitive and allow participants to have fun but also learn who they want to care about. </span>
+                    <div className='col-container'>
+                        <div className='col-item col-container'>  
+                            <img src={strikeLogo} className='col-item login-logo'/>
+                            <span className='col-item'>The goal of the Strike application is to encourage users to maintain contact with their close friends, build a small group of close connections, and build up the amount of in-game currency they have and the number of streaks they maintain. These goals are meant to address some of the negative impacts of social media usage. The hope is that users will foster outside-of-game communication with the few friends they choose to add and keep in their in-game network. The platform is designed to be competitive and allow participants to have fun but also learn who they want to care about. </span>
+                        </div>
+                        <br/>
+                        <div className='col-item col-container'>
+                            <span className='col-item center-text-nopad light-medium-text top-bottom-border'>Navigating Strike</span>
+                            <br/>
+                            <img src={navBreakdown} className='col-item nav-img'/>
+                            <span className='col-item light-small-text'>Click the icons along the bottom of the app to navigate between pages.</span>
+                            <br/>
+                        </div>
+                        <br/>
+                        <div className='col-item col-container'>
+                            <span className='col-item center-text-nopad light-medium-text top-bottom-border'>Friends Page</span>
+                            <br/>
+                            <span className='col-item center-text light-small-text'>Search For and Add Friends</span>
+                            <img src={friendSearchBreakdown} className='col-item breakdown-img'/>
+                            <span className='col-item light-small-text'>Click the search icon in the upper left corner of the app to search for and add new friends.</span>
+                            <br/>
+                            <span className='col-item center-text light-small-text'>Friend Requests</span>
+                            <img src={friendRequestBreakdown} className='col-item breakdown-img'/>
+                            <span className='col-item light-small-text'>Click the bell icon in the upper right corner of the app to see all of your friend requests.</span>
+                            <br/>
+                            <span className='col-item center-text light-small-text'>Friend Details</span>
+                            <img src={friendDetailsBreakdown} className='col-item breakdown-img'/>
+                            <span className='col-item light-small-text'>Click a friend to see their details.</span>
+                            <br/>
+                        </div>
+                        <br/>
+                        <div className='col-item col-container'>
+                            <span className='col-item center-text-nopad light-medium-text top-bottom-border'>Unlocks Page</span>
+                            <br/>
+                            <span className='col-item center-text light-small-text'>Unlock Details</span>
+                            <img src={unlocksBreakdown} className='col-item breakdown-img'/>
+                            <span className='col-item light-small-text'>Click an unlock to see the details about how it is unlocked.</span>
+                            <br/>
+                        </div>
+                        <br/>
+                        <div className='col-item col-container'>
+                            <span className='col-item center-text-nopad light-medium-text top-bottom-border'>Streaks Page</span>
+                            <br/>
+                            <span className='col-item center-text light-small-text'>Starting a Streak</span>
+                            <img src={streakStartBreakdown} className='col-item breakdown-img'/>
+                            <span className='col-item light-small-text'>Click the plus icon in the upper left corner of the app to start a new streak with one of your friends.</span>
+                            <br/>
+                            <span className='col-item center-text light-small-text'>Streak Requests</span>
+                            <img src={streakRequestBreakdown} className='col-item breakdown-img'/>
+                            <span className='col-item light-small-text'>Click the bell icon in the upper right corner of the app to see all of your streak requests.</span>
+                            <br/>
+                            <span className='col-item center-text light-small-text'>Streak Details</span>
+                            <img src={streakDetailsBreakdown} className='col-item breakdown-img'/>
+                            <span className='col-item light-small-text'>Click a streak to see the details.</span>
+                        </div>
                     </div>
                 </Modal.Body>
                 <Modal.Footer>

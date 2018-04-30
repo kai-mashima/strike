@@ -8,6 +8,13 @@ li {
     list-style-type: none;
 }
 
+.horizontal-line {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+    border-top: 1px solid lightgrey;
+}
+
 .large-font {
     font-size: 25px;
     font-weight: bold;
@@ -54,6 +61,15 @@ li {
 
 .login-logo {
     height: 100px;
+}
+
+.nav-img {
+    width: 100%;
+}
+
+.breakdown-img {
+    margin-top: 5px;
+    width: 100%;
 }
 
 .login-block {
@@ -608,6 +624,11 @@ li {
 
 .light-small-text {
     font-size: 8pt;
+    color: #808080;
+}
+
+.light-medium-text {
+    font-size: 12pt;
     color: #808080;
 }
 

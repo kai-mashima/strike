@@ -134,10 +134,14 @@ const signupUser = function(email, password, username = '', first = '', last = '
         return user;
     }).then(user => {
         this.getUserInfo(user.uid);
-        this.getFriends(user.uid);
-        this.getStreaks(user.uid);
-        this.getStreakRequests(user.uid);
         this.startUnlocks(user.uid);
+        this.getFriendRequests(user.uid);
+        this.getFriends(user.uid);
+        this.getStreakRequests(user.uid);
+        this.getStreaks(user.uid);
+        this.getUnlockedEmojis(user.uid);
+        this.checkForDailyAllowance(user.uid);
+        this.loadEmojiBank();
     }).catch(error => {
         var errorCode = error.code;
         var errorMessage = error.message;

@@ -90,8 +90,16 @@ const streakToInfo = function(streakID, userID){
         if (snapshot.exists()) {
             let streak = snapshot.val();
             streak.id = streakID;
-            streak.days = this.convertPastTimestampToDays(streak.timestamp);
-            streak.stokePrice = this.calculateStokePrice(streak);
+            const days = this.convertPastTimestampToDays(streak.timestamp);
+            streak.days = days;
+            const stokePrice = this.calculateStokePrice(streak);
+            streak.stokePrice = stokePrice;
+
+            this.db.ref(`streaks/${streakID}`).update({
+                id: streakID,
+                days: days,
+                stokePrice: stokePrice,
+            });
 
             const funcs = Object.keys(streak.participants).map(participant => {
                 if (participant === userID) {

@@ -105,7 +105,7 @@ export default class Friends extends Component {
     }
 
     render() {
-        let searchRender = <div className='center-text'><span>No Users Found</span></div>;
+        let searchRender = <div className='center-text light-small-text'><span>No Users Found</span></div>;
         if (this.state.searchResults.length != 0) {
             let searchAddBtn = this.state.searchResults.addable ? (
                 <span className='add-friend-btn search-item-part btn btn-success' onClick={this.handleSendFriendRequest}>Add</span>
@@ -121,7 +121,7 @@ export default class Friends extends Component {
             );
         }
 
-        let requestsRender = <div className='center-text'><span>No friend requests</span></div>;
+        let requestsRender = <div className='center-text light-small-text'><span>No friend requests</span></div>;
         if (this.props.requests.length != 0) { 
             //handle no unanswered requests
             requestsRender = this.props.requests.map((request, index) => {
@@ -139,7 +139,7 @@ export default class Friends extends Component {
 
         let friendsRender = (
             <div className='center-text col-container floating-div'>
-                <span className='col-item'>No friends</span>
+                <span className='col-item light-small-text'>No friends</span>
                 <span className='col-item btn btn-success new-btn' onClick={this.toggleAddFriendModal}>Add Friend</span>
             </div>
         );
